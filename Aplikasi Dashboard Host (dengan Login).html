@@ -6,11 +6,12 @@
     <title>Dashboard Kinerja Host</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: Aplikasi ini sekarang memiliki dua tampilan utama: Halaman Login dan Aplikasi Utama. Setelah login, aplikasi menggunakan struktur berbasis tab yang sama, tetapi menu dan konten disesuaikan secara dinamis berdasarkan peran pengguna ('superadmin' atau 'host'). Superadmin memiliki akses penuh, termasuk menu baru 'Manajemen Akun', 'Pengaturan Akses', 'Analisis Kinerja' dan 'Manajemen Pengguna', sementara host hanya dapat melihat dan mengelola data mereka sendiri sesuai izin yang diberikan. Ini menciptakan alur kerja yang aman, terfokus pada peran, dan dapat dikonfigurasi. -->
+    <!-- Application Structure Plan: Aplikasi ini sekarang memiliki dua tampilan utama: Halaman Login dan Aplikasi Utama. Setelah login, aplikasi menggunakan struktur berbasis tab yang sama, tetapi menu dan konten disesuaikan secara dinamis berdasarkan peran pengguna ('superadmin' atau 'host'). Superadmin memiliki akses penuh, termasuk menu baru 'Manajemen Akun', 'Pengaturan Akses', dan 'Analisis Kinerja', sementara host hanya dapat melihat dan mengelola data mereka sendiri sesuai izin yang diberikan. Ini menciptakan alur kerja yang aman, terfokus pada peran, dan dapat dikonfigurasi. -->
     <!-- Visualization & Content Choices: Pilihan visualisasi tetap sama, tetapi sekarang difilter berdasarkan peran. Superadmin melihat data agregat di dashboard. Host melihat dashboard yang dipersonalisasi hanya untuk kinerja mereka. Formulir rekap live sekarang menyertakan pilihan akun TikTok. Halaman Analisis Kinerja baru ditambahkan untuk melacak pencapaian target bulanan, termasuk jatah libur. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -42,18 +43,17 @@
         <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
             <div>
                 <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-stone-900">Login ke Dashboard</h2>
-                <p class="mt-2 text-center text-sm text-stone-600">Pilih peran untuk simulasi</p>
             </div>
             <form id="login-form" class="mt-8 space-y-6">
                 <div>
-                    <label for="username" class="sr-only">Username</label>
-                    <input id="username" name="username" type="text" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Username (coba: admin atau host1)">
+                    <label for="email" class="sr-only">Email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Alamat email">
                 </div>
                 <div>
                     <label for="password" class="sr-only">Password</label>
-                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Password (coba: password)">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Password">
                 </div>
-                <div id="login-error" class="text-sm text-red-600 hidden">Username atau password salah.</div>
+                <div id="login-error" class="text-sm text-red-600 hidden">Email atau password salah.</div>
                 <div>
                     <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-2 px-4 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
                         Login
@@ -286,7 +286,7 @@
                     <table class="w-full text-sm text-left text-stone-600">
                         <thead class="text-xs text-stone-700 uppercase bg-stone-100">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Username</th>
+                                <th scope="col" class="px-6 py-3">Email</th>
                                 <th scope="col" class="px-6 py-3">Peran</th>
                                 <th scope="col" class="px-6 py-3">Terhubung ke Host</th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
@@ -418,8 +418,8 @@
             <form id="form-user" class="space-y-4">
                 <input type="hidden" id="user-id">
                 <div>
-                    <label for="user-username" class="block mb-2 text-sm font-medium text-stone-900">Username</label>
-                    <input type="text" id="user-username" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="user-email" class="block mb-2 text-sm font-medium text-stone-900">Email</label>
+                    <input type="email" id="user-email" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
                 </div>
                 <div>
                     <label for="user-password" class="block mb-2 text-sm font-medium text-stone-900">Password</label>
@@ -482,13 +482,14 @@
 
 
     <script>
+        // --- KONEKSI KE SUPABASE ---
+        // Ganti dengan URL dan Kunci dari proyek Supabase Anda
+        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA & AUTH SIMULATION ---
-            let users = {
-                admin: { password: 'password', role: 'superadmin', name: 'Super Admin', host_id: null },
-                host1: { password: 'password', role: 'host', host_id: 1, name: 'Budi Santoso' },
-                host2: { password: 'password', role: 'host', host_id: 2, name: 'Citra Lestari' },
-            };
             let currentUser = null;
             let hostMenuAccess = {
                 dashboard: true,
@@ -496,25 +497,11 @@
                 rekap: true,
             };
 
-            let hosts = [
-                { id: 1, nama_host: 'Budi Santoso', platform: 'TikTok', tanggal_bergabung: '2024-05-01', status: 'Aktif' },
-                { id: 2, nama_host: 'Citra Lestari', platform: 'Shopee Live', tanggal_bergabung: '2024-05-15', status: 'Aktif' },
-                { id: 3, nama_host: 'Dodi Wijaya', platform: 'TikTok', tanggal_bergabung: '2024-06-01', status: 'Tidak Aktif' },
-                { id: 4, nama_host: 'Eka Putri', platform: 'Instagram', tanggal_bergabung: '2024-06-10', status: 'Aktif' },
-            ];
-            let tiktokAccounts = [
-                { id: 1, username: 'akunhost.official', status: 'Aktif' },
-                { id: 2, username: 'live.gaming.seru', status: 'Aktif' },
-                { id: 3, username: 'fashion.id.live', status: 'Tidak Aktif' },
-            ];
-            let rekapLive = [
-                { id: 1, host_id: 1, tiktok_account_id: 1, tanggal_live: '2025-07-10', waktu_mulai: '19:00', waktu_selesai: '21:00', durasi_menit: 120, pendapatan: 5500, catatan: 'Sesi fashion pria.' },
-                { id: 2, host_id: 2, tiktok_account_id: 2, tanggal_live: '2025-07-10', waktu_mulai: '20:00', waktu_selesai: '22:30', durasi_menit: 150, pendapatan: 8000, catatan: 'Flash sale produk kecantikan.' },
-                { id: 3, host_id: 1, tiktok_account_id: 1, tanggal_live: '2025-07-12', waktu_mulai: '19:30', waktu_selesai: '21:00', durasi_menit: 90, pendapatan: 4500, catatan: 'Review gadget terbaru.' },
-                { id: 4, host_id: 4, tiktok_account_id: 2, tanggal_live: '2025-07-13', waktu_mulai: '14:00', waktu_selesai: '16:00', durasi_menit: 120, pendapatan: 7200, catatan: 'Sesi Q&A dengan followers.' },
-                { id: 5, host_id: 2, tiktok_account_id: 2, tanggal_live: '2025-07-14', waktu_mulai: '20:00', waktu_selesai: '23:00', durasi_menit: 180, pendapatan: 12000, catatan: 'Promo 7.7.' },
-                { id: 6, host_id: 1, tiktok_account_id: 1, tanggal_live: '2025-07-15', waktu_mulai: '23:00', waktu_selesai: '02:00', durasi_menit: 180, pendapatan: 15000, catatan: 'Live marathon lewat tengah malam.' },
-            ];
+            let hosts = [];
+            let tiktokAccounts = [];
+            let rekapLive = [];
+            let users = [];
+            
             let itemToDelete = { id: null, type: '' };
 
             // --- UI ELEMENTS ---
@@ -601,24 +588,26 @@
             }
 
             // --- AUTH & UI CONTROL ---
-            function handleLogin(e) {
+            async function handleLogin(e) {
                 e.preventDefault();
-                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
-                const user = users[username];
+                
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-                if (user && user.password === password) {
-                    currentUser = user;
-                    loginPage.classList.add('hidden');
-                    appPage.classList.remove('hidden');
-                    setupUIForRole();
-                    init();
-                } else {
+                if (error) {
+                    loginError.textContent = error.message;
                     loginError.classList.remove('hidden');
+                    return;
+                }
+
+                if (data.user) {
+                    await checkSession();
                 }
             }
 
-            function handleLogout() {
+            async function handleLogout() {
+                await supabase.auth.signOut();
                 currentUser = null;
                 appPage.classList.add('hidden');
                 loginPage.classList.remove('hidden');
@@ -626,9 +615,23 @@
                 loginError.classList.add('hidden');
             }
 
-            function setupUIForRole() {
-                document.getElementById('user-display-name').textContent = currentUser.name;
-                const isSuperAdmin = currentUser.role === 'superadmin';
+            async function checkSession() {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    loginPage.classList.add('hidden');
+                    appPage.classList.remove('hidden');
+                    await setupUIForRole();
+                    await init();
+                } else {
+                    appPage.classList.add('hidden');
+                    loginPage.classList.remove('hidden');
+                }
+            }
+
+            async function setupUIForRole() {
+                document.getElementById('user-display-name').textContent = currentUser.email;
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
 
                 btnSettings.style.display = isSuperAdmin ? 'block' : 'none';
                 document.getElementById('kpi-title-hosts').textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
@@ -650,7 +653,7 @@
             }
             
             function getFirstVisibleSection() {
-                const isSuperAdmin = currentUser.role === 'superadmin';
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 if (isSuperAdmin || hostMenuAccess.dashboard) return 'dashboard';
                 if (isSuperAdmin || hostMenuAccess.analysis) return 'analysis';
                 if (hostMenuAccess.rekap) return 'rekap';
@@ -705,18 +708,17 @@
 
             function renderUserTable() {
                 userTableBody.innerHTML = '';
-                Object.keys(users).forEach(username => {
-                    const user = users[username];
+                users.forEach(user => {
                     const host = user.host_id ? hosts.find(h => h.id === user.host_id) : null;
                     const row = document.createElement('tr');
                     row.className = 'bg-white border-b hover:bg-stone-50';
                     row.innerHTML = `
-                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${username}</td>
-                        <td class="px-6 py-4">${user.role}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${user.email}</td>
+                        <td class="px-6 py-4">${user.user_metadata.role}</td>
                         <td class="px-6 py-4">${host ? host.nama_host : '-'}</td>
                         <td class="px-6 py-4 text-center">
-                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-user" data-id="${username}">Ubah</button>
-                            ${username !== 'admin' ? `<button class="font-medium text-red-600 hover:underline btn-delete-user" data-id="${username}">Hapus</button>` : ''}
+                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
+                            ${currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
                         </td>
                     `;
                     userTableBody.appendChild(row);
@@ -725,7 +727,7 @@
 
             function renderRekapTable() {
                 rekapTableBody.innerHTML = '';
-                const isSuperAdmin = currentUser.role === 'superadmin';
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 const month = parseInt(document.getElementById('rekap-month-filter').value);
                 const year = parseInt(document.getElementById('rekap-year-filter').value);
                 
@@ -735,7 +737,7 @@
                 });
 
                 if (!isSuperAdmin) {
-                    filteredRekap = filteredRekap.filter(r => r.host_id === currentUser.host_id);
+                    filteredRekap = filteredRekap.filter(r => r.host_id === currentUser.user_metadata.host_id);
                 }
 
                  if (filteredRekap.length === 0) {
@@ -788,7 +790,7 @@
             }
 
             function updateKPIs() {
-                const isSuperAdmin = currentUser.role === 'superadmin';
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 if (isSuperAdmin) {
                     document.getElementById('kpi-total-hosts').textContent = hosts.filter(h => h.status === 'Aktif').length;
                     const totalMinutes = rekapLive.reduce((sum, r) => sum + r.durasi_menit, 0);
@@ -796,9 +798,9 @@
                     const totalRevenue = rekapLive.reduce((sum, r) => sum + r.pendapatan, 0);
                     document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
                 } else {
-                    const hostData = hosts.find(h => h.id === currentUser.host_id);
+                    const hostData = hosts.find(h => h.id === currentUser.user_metadata.host_id);
                     document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${hostData.status}</span>`;
-                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.host_id);
+                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
                     const totalMinutes = hostRekap.reduce((sum, r) => sum + r.durasi_menit, 0);
                     document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
                     const totalRevenue = hostRekap.reduce((sum, r) => sum + r.pendapatan, 0);
@@ -807,7 +809,7 @@
             }
             
             function updatePerformanceChart(metric = 'duration') {
-                const isSuperAdmin = currentUser.role === 'superadmin';
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 let hostData;
 
                 if (isSuperAdmin) {
@@ -816,7 +818,7 @@
                         return { name: host.nama_host, duration: hostRekap.reduce((s, r) => s + r.durasi_menit, 0) / 60, revenue: hostRekap.reduce((s, r) => s + r.pendapatan, 0) };
                     });
                 } else {
-                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.host_id);
+                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
                     const dataByDate = hostRekap.reduce((acc, r) => {
                         if (!acc[r.tanggal_live]) {
                             acc[r.tanggal_live] = { duration: 0, revenue: 0 };
@@ -963,8 +965,8 @@
                 const yearSelect = document.getElementById('analysis-year');
                 
                 populateHostDropdowns(hostSelect);
-                if(currentUser.role === 'host') {
-                    hostSelect.value = currentUser.host_id;
+                if(currentUser.user_metadata?.role === 'host') {
+                    hostSelect.value = currentUser.user_metadata.host_id;
                     hostSelect.disabled = true;
                 } else {
                     hostSelect.disabled = false;
@@ -1056,33 +1058,33 @@
                 tiktokModal.classList.remove('hidden');
             }
             
-            function openUserModal(username = null) {
+            function openUserModal(userId = null) {
                 formUser.reset();
                 const modalTitle = document.getElementById('modal-user-title');
                 const userIdInput = document.getElementById('user-id');
                 const userHostLinkContainer = document.getElementById('user-host-link-container');
                 const userHostLinkSelect = document.getElementById('user-host-link');
-                const userUsernameInput = document.getElementById('user-username');
+                const userEmailInput = document.getElementById('user-email');
                 
                 populateHostDropdowns(userHostLinkSelect);
 
-                if (username) {
+                if (userId) {
                     modalTitle.textContent = 'Ubah Pengguna';
-                    const user = users[username];
-                    userIdInput.value = username;
-                    userUsernameInput.value = username;
-                    userUsernameInput.disabled = true;
-                    document.getElementById('user-role').value = user.role;
-                    if (user.role === 'host') {
+                    const user = users.find(u => u.id === userId);
+                    userIdInput.value = user.id;
+                    userEmailInput.value = user.email;
+                    userEmailInput.disabled = true;
+                    document.getElementById('user-role').value = user.user_metadata.role;
+                    if (user.user_metadata.role === 'host') {
                         userHostLinkContainer.classList.remove('hidden');
-                        userHostLinkSelect.value = user.host_id;
+                        userHostLinkSelect.value = user.user_metadata.host_id;
                     } else {
                         userHostLinkContainer.classList.add('hidden');
                     }
                 } else {
                     modalTitle.textContent = 'Tambah Pengguna Baru';
                     userIdInput.value = '';
-                    userUsernameInput.disabled = false;
+                    userEmailInput.disabled = false;
                     userHostLinkContainer.classList.add('hidden');
                 }
                 userModal.classList.remove('hidden');
@@ -1097,7 +1099,7 @@
                 
                 populateHostDropdowns(hostSelect);
                 populateTiktokDropdown(tiktokSelect);
-                hostSelect.disabled = currentUser.role === 'host';
+                hostSelect.disabled = currentUser.user_metadata?.role === 'host';
                 
                 if (rekapId) {
                     modalTitle.textContent = 'Ubah Rekap Live';
@@ -1113,7 +1115,7 @@
                 } else {
                     modalTitle.textContent = 'Tambah Rekap Baru';
                     rekapIdInput.value = '';
-                    hostSelect.value = currentUser.role === 'host' ? currentUser.host_id : '';
+                    hostSelect.value = currentUser.user_metadata?.role === 'host' ? currentUser.user_metadata.host_id : '';
                     document.getElementById('rekap-tanggal').valueAsDate = new Date();
                 }
                 rekapModal.classList.remove('hidden');
@@ -1153,11 +1155,11 @@
             function handleEditHost(rekapId) { openHostModal(rekapId); }
             function handleEditTiktok(accountId) { openTiktokModal(accountId); }
             function handleEditRekap(rekapId) { openRekapModal(rekapId); }
-            function handleEditUser(username) { openUserModal(username); }
+            function handleEditUser(userId) { openUserModal(userId); }
 
             function handleDeleteHost(hostId) {
                 itemToDelete = { id: hostId, type: 'host' };
-                document.getElementById('confirm-message').textContent = 'Menghapus host juga akan menghapus semua rekap dan jadwal terkait. Apakah Anda yakin?';
+                document.getElementById('confirm-message').textContent = 'Menghapus host juga akan menghapus semua rekap terkait. Apakah Anda yakin?';
                 confirmModal.classList.remove('hidden');
             }
             
@@ -1173,9 +1175,10 @@
                 confirmModal.classList.remove('hidden');
             }
             
-            function handleDeleteUser(username) {
-                itemToDelete = { id: username, type: 'user' };
-                document.getElementById('confirm-message').textContent = `Apakah Anda yakin ingin menghapus pengguna "${username}"?`;
+            function handleDeleteUser(userId) {
+                itemToDelete = { id: userId, type: 'user' };
+                const user = users.find(u => u.id === userId);
+                document.getElementById('confirm-message').textContent = `Apakah Anda yakin ingin menghapus pengguna "${user.email}"?`;
                 confirmModal.classList.remove('hidden');
             }
 
@@ -1209,7 +1212,7 @@
                 } else if (itemToDelete.type === 'tiktok') {
                     tiktokAccounts = tiktokAccounts.filter(t => t.id !== itemToDelete.id);
                 } else if (itemToDelete.type === 'user') {
-                    delete users[itemToDelete.id];
+                    users = users.filter(u => u.id !== itemToDelete.id);
                 }
                 itemToDelete = { id: null, type: '' };
                 confirmModal.classList.add('hidden');
@@ -1244,11 +1247,11 @@
                 const target = event.target;
                 const row = target.closest('tr');
                 if (!row) return;
-                const username = row.querySelector('.btn-edit-user')?.dataset.id;
+                const userId = row.querySelector('.btn-edit-user')?.dataset.id;
                 if (target.matches('.btn-edit-user')) {
-                    handleEditUser(username);
+                    handleEditUser(userId);
                 } else if (target.matches('.btn-delete-user')) {
-                    handleDeleteUser(username);
+                    handleDeleteUser(userId);
                 }
             });
 
@@ -1309,39 +1312,14 @@
             
             formUser.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const originalUsername = document.getElementById('user-id').value;
-                const newUsername = document.getElementById('user-username').value;
+                const originalUserId = document.getElementById('user-id').value;
+                const newEmail = document.getElementById('user-email').value;
                 const password = document.getElementById('user-password').value;
                 const role = document.getElementById('user-role').value;
                 const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
                 
-                if (!originalUsername && users[newUsername]) {
-                    alert('Username sudah ada. Silakan gunakan username lain.');
-                    return;
-                }
-                
-                const userData = {
-                    role: role,
-                    host_id: hostId,
-                    name: role === 'host' ? hosts.find(h => h.id === hostId)?.nama_host : 'Super Admin'
-                };
-
-                if (password) {
-                    userData.password = password;
-                }
-
-                if (originalUsername) { // Edit
-                    if (!userData.password) {
-                       userData.password = users[originalUsername].password;
-                    }
-                    users[originalUsername] = userData;
-                } else { // Create
-                    if (!password) {
-                        alert('Password wajib diisi untuk pengguna baru.');
-                        return;
-                    }
-                    users[newUsername] = userData;
-                }
+                // Supabase logic for user management will go here
+                alert('Fungsi manajemen pengguna memerlukan koneksi ke Supabase.');
 
                 userModal.classList.add('hidden');
                 updateAll();
@@ -1401,7 +1379,28 @@
                 settingsModal.classList.add('hidden');
             });
 
-            function updateAll() {
+            async function fetchData() {
+                const { data: hostsData, error: hostsError } = await supabase.from('hosts').select('*');
+                if (hostsError) console.error('Error fetching hosts:', hostsError);
+                else hosts = hostsData;
+
+                const { data: tiktokData, error: tiktokError } = await supabase.from('tiktok_accounts').select('*');
+                if (tiktokError) console.error('Error fetching tiktok accounts:', tiktokError);
+                else tiktokAccounts = tiktokData;
+                
+                const { data: rekapData, error: rekapError } = await supabase.from('rekap_live').select('*');
+                if (rekapError) console.error('Error fetching rekap live:', rekapError);
+                else rekapLive = rekapData;
+
+                if (currentUser.user_metadata?.role === 'superadmin') {
+                    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+                    if (usersError) console.error('Error fetching users:', usersError);
+                    else users = usersData.users;
+                }
+            }
+
+            async function updateAll() {
+                await fetchData();
                 renderHostTable();
                 renderTiktokTable();
                 renderUserTable();
@@ -1411,12 +1410,14 @@
                 renderAnalysisView();
             }
 
-            function init() {
+            async function init() {
                 setupAnalysisFilters();
                 setupRekapFilters();
+                await updateAll();
                 showSection(getFirstVisibleSection());
-                updateAll();
             }
+            
+            checkSession();
         });
     </script>
 </body>
