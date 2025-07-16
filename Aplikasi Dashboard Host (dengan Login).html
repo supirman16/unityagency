@@ -481,9 +481,9 @@
     <script>
         // --- KONEKSI KE SUPABASE ---
         // GANTI DENGAN URL DAN KUNCI DARI PROYEK SUPABASE ANDA
-        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co/functions/v1/create-user-with-role'; 
+        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
         
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA & AUTH SIMULATION ---
@@ -590,7 +590,7 @@
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
                     loginError.textContent = error.message;
@@ -604,7 +604,7 @@
             }
 
             async function handleLogout() {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 currentUser = null;
                 appPage.classList.add('hidden');
                 loginPage.classList.remove('hidden');
@@ -613,12 +613,11 @@
             }
 
             async function checkSession() {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
                     currentUser = session.user;
                     loginPage.classList.add('hidden');
                     appPage.classList.remove('hidden');
-                    await setupUIForRole();
                     await init();
                 } else {
                     appPage.classList.add('hidden');
@@ -796,12 +795,14 @@
                     document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
                 } else {
                     const hostData = hosts.find(h => h.id === currentUser.user_metadata.host_id);
-                    document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${hostData.status}</span>`;
-                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
-                    const totalMinutes = hostRekap.reduce((sum, r) => sum + r.durasi_menit, 0);
-                    document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
-                    const totalRevenue = hostRekap.reduce((sum, r) => sum + r.pendapatan, 0);
-                    document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
+                    if (hostData) {
+                        document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${hostData.status}</span>`;
+                        const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
+                        const totalMinutes = hostRekap.reduce((sum, r) => sum + r.durasi_menit, 0);
+                        document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
+                        const totalRevenue = hostRekap.reduce((sum, r) => sum + r.pendapatan, 0);
+                        document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
+                    }
                 }
             }
             
@@ -1024,7 +1025,7 @@
                 const hostIdInput = document.getElementById('host-id');
                 if (hostId) {
                     modalTitle.textContent = 'Ubah Data Host';
-                    const { data: host, error } = await supabase.from('hosts').select('*').eq('id', hostId).single();
+                    const { data: host, error } = await supabaseClient.from('hosts').select('*').eq('id', hostId).single();
                     if (error) return alert(error.message);
                     hostIdInput.value = host.id;
                     document.getElementById('host-nama').value = host.nama_host;
@@ -1045,7 +1046,7 @@
                 const tiktokIdInput = document.getElementById('tiktok-id');
                 if (accountId) {
                     modalTitle.textContent = 'Ubah Akun TikTok';
-                    const { data: account, error } = await supabase.from('tiktok_accounts').select('*').eq('id', accountId).single();
+                    const { data: account, error } = await supabaseClient.from('tiktok_accounts').select('*').eq('id', accountId).single();
                     if (error) return alert(error.message);
                     tiktokIdInput.value = account.id;
                     document.getElementById('tiktok-username').value = account.username;
@@ -1205,13 +1206,13 @@
                 if (!itemToDelete.id) return;
                 let error;
                 if (itemToDelete.type === 'host') {
-                    ({ error } = await supabase.from('hosts').delete().eq('id', itemToDelete.id));
+                    ({ error } = await supabaseClient.from('hosts').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'rekap') {
-                     ({ error } = await supabase.from('rekap_live').delete().eq('id', itemToDelete.id));
+                     ({ error } = await supabaseClient.from('rekap_live').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'tiktok') {
-                     ({ error } = await supabase.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
+                     ({ error } = await supabaseClient.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'user') {
-                     ({ error } = await supabase.auth.admin.deleteUser(itemToDelete.id));
+                     ({ error } = await supabaseClient.auth.admin.deleteUser(itemToDelete.id));
                 }
                 
                 if (error) {
@@ -1287,9 +1288,9 @@
                 };
                 let error;
                 if (hostId) {
-                    ({ error } = await supabase.from('hosts').update(hostData).eq('id', hostId));
+                    ({ error } = await supabaseClient.from('hosts').update(hostData).eq('id', hostId));
                 } else {
-                    ({ error } = await supabase.from('hosts').insert(hostData));
+                    ({ error } = await supabaseClient.from('hosts').insert(hostData));
                 }
                 
                 if (error) alert(error.message);
@@ -1308,9 +1309,9 @@
                 };
                 let error;
                 if (tiktokId) {
-                    ({ error } = await supabase.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
+                    ({ error } = await supabaseClient.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
                 } else {
-                    ({ error } = await supabase.from('tiktok_accounts').insert(tiktokData));
+                    ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
                 }
                 if (error) alert(error.message);
                 else {
@@ -1328,15 +1329,33 @@
                 const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
                 
                 if (originalUserId) {
-                    // Update user logic (requires another Edge Function)
-                    alert('Fungsi update pengguna belum diimplementasikan di prototipe ini.');
+                    // Update user logic
+                    const { data, error } = await supabaseClient.functions.invoke('update-user-role', {
+                        body: { userId: originalUserId, role, host_id: hostId }
+                    });
+
+                    if (error) {
+                        alert(`Error: ${error.message}`);
+                    } else {
+                        // Also update password if provided
+                        if (password) {
+                            const { error: passwordError } = await supabaseClient.auth.admin.updateUserById(originalUserId, { password: password });
+                            if (passwordError) {
+                                alert(`Error updating password: ${passwordError.message}`);
+                                return;
+                            }
+                        }
+                        alert(`Pengguna ${email} berhasil diperbarui.`);
+                        userModal.classList.add('hidden');
+                        await updateAll();
+                    }
                 } else {
                     // Create user via Edge Function
                     if (!password) {
                         alert('Password wajib diisi untuk pengguna baru.');
                         return;
                     }
-                    const { data, error } = await supabase.functions.invoke('create-user-with-role', {
+                    const { data, error } = await supabaseClient.functions.invoke('create-user-with-role', {
                         body: { email, password, role, host_id: hostId }
                     });
 
@@ -1388,9 +1407,9 @@
                 
                 let error;
                 if (rekapId) {
-                    ({ error } = await supabase.from('rekap_live').update(rekapData).eq('id', rekapId));
+                    ({ error } = await supabaseClient.from('rekap_live').update(rekapData).eq('id', rekapId));
                 } else {
-                    ({ error } = await supabase.from('rekap_live').insert(rekapData));
+                    ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
                 }
                 
                 if (error) alert(error.message);
@@ -1409,20 +1428,20 @@
             });
 
             async function fetchData() {
-                const { data: hostsData, error: hostsError } = await supabase.from('hosts').select('*');
+                const { data: hostsData, error: hostsError } = await supabaseClient.from('hosts').select('*');
                 if (hostsError) console.error('Error fetching hosts:', hostsError);
                 else hosts = hostsData;
 
-                const { data: tiktokData, error: tiktokError } = await supabase.from('tiktok_accounts').select('*');
+                const { data: tiktokData, error: tiktokError } = await supabaseClient.from('tiktok_accounts').select('*');
                 if (tiktokError) console.error('Error fetching tiktok accounts:', tiktokError);
                 else tiktokAccounts = tiktokData;
                 
-                const { data: rekapData, error: rekapError } = await supabase.from('rekap_live').select('*');
+                const { data: rekapData, error: rekapError } = await supabaseClient.from('rekap_live').select('*');
                 if (rekapError) console.error('Error fetching rekap live:', rekapError);
                 else rekapLive = rekapData;
 
                 if (currentUser.user_metadata?.role === 'superadmin') {
-                    const { data: { users: usersData }, error: usersError } = await supabase.auth.admin.listUsers();
+                    const { data: usersData, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
                     if (usersError) console.error('Error fetching users:', usersError);
                     else users = usersData;
                 }
@@ -1440,6 +1459,7 @@
             }
 
             async function init() {
+                await setupUIForRole();
                 setupAnalysisFilters();
                 setupRekapFilters();
                 await updateAll();
