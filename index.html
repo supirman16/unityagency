@@ -30,9 +30,6 @@
             transform: translate(-50%, -50%);
             z-index: 50;
         }
-        #notification {
-            transition: transform 0.3s ease-in-out;
-        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -479,6 +476,7 @@
             </form>
         </div>
     </div>
+    <div id="notification" class="fixed top-5 right-5 transform translate-x-[120%] transition-transform duration-300 ease-in-out"></div>
 
 
     <script>
@@ -585,6 +583,24 @@
                     result += `${minutes} menit`;
                 }
                 return (isNegative ? '- ' : '') + result.trim();
+            }
+
+            function showNotification(message, isError = false) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white ${isError ? 'bg-red-500' : 'bg-green-500'} transform translate-x-[120%]`
+                
+                // Show notification
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-[120%]');
+                    notification.classList.add('translate-x-0');
+                }, 10);
+
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-0');
+                    notification.classList.add('translate-x-[120%]');
+                }, 3000);
             }
 
             // --- AUTH & UI CONTROL ---
@@ -1029,7 +1045,7 @@
                 if (hostId) {
                     modalTitle.textContent = 'Ubah Data Host';
                     const { data: host, error } = await supabaseClient.from('hosts').select('*').eq('id', hostId).single();
-                    if (error) return alert(error.message);
+                    if (error) return showNotification(error.message, true);
                     hostIdInput.value = host.id;
                     document.getElementById('host-nama').value = host.nama_host;
                     document.getElementById('host-platform').value = host.platform;
@@ -1050,7 +1066,7 @@
                 if (accountId) {
                     modalTitle.textContent = 'Ubah Akun TikTok';
                     const { data: account, error } = await supabaseClient.from('tiktok_accounts').select('*').eq('id', accountId).single();
-                    if (error) return alert(error.message);
+                    if (error) return showNotification(error.message, true);
                     tiktokIdInput.value = account.id;
                     document.getElementById('tiktok-username').value = account.username;
                     document.getElementById('tiktok-status').value = account.status;
@@ -1091,6 +1107,37 @@
                     userHostLinkContainer.classList.add('hidden');
                 }
                 userModal.classList.remove('hidden');
+            }
+
+            async function openRekapModal(rekapId = null) {
+                formRekap.reset();
+                const modalTitle = document.getElementById('modal-rekap-title');
+                const rekapIdInput = document.getElementById('rekap-id');
+                const hostSelect = document.getElementById('rekap-host');
+                const tiktokSelect = document.getElementById('rekap-tiktok-account');
+                
+                await populateHostDropdowns(hostSelect);
+                await populateTiktokDropdown(tiktokSelect);
+                hostSelect.disabled = currentUser.user_metadata?.role === 'host';
+                
+                if (rekapId) {
+                    modalTitle.textContent = 'Ubah Rekap Live';
+                    const rekap = rekapLive.find(r => r.id === rekapId);
+                    rekapIdInput.value = rekap.id;
+                    hostSelect.value = rekap.host_id;
+                    tiktokSelect.value = rekap.tiktok_account_id;
+                    document.getElementById('rekap-tanggal').value = rekap.tanggal_live;
+                    document.getElementById('rekap-mulai').value = rekap.waktu_mulai;
+                    document.getElementById('rekap-selesai').value = rekap.waktu_selesai;
+                    document.getElementById('rekap-pendapatan').value = rekap.pendapatan;
+                    document.getElementById('rekap-catatan').value = rekap.catatan;
+                } else {
+                    modalTitle.textContent = 'Tambah Rekap Baru';
+                    rekapIdInput.value = '';
+                    hostSelect.value = currentUser.user_metadata?.role === 'host' ? currentUser.user_metadata.host_id : '';
+                    document.getElementById('rekap-tanggal').valueAsDate = new Date();
+                }
+                rekapModal.classList.remove('hidden');
             }
 
             async function openDetailRekapModal(rekapId) {
@@ -1316,7 +1363,9 @@
                     } else {
                         // Also update password if provided
                         if (password) {
-                            const { error: passwordError } = await supabaseClient.auth.admin.updateUserById(originalUserId, { password: password });
+                            const { error: passwordError } = await supabaseClient.functions.invoke('update-user-password', {
+                                body: { userId: originalUserId, password: password }
+                            });
                             if (passwordError) {
                                 showNotification(`Error updating password: ${passwordError.message}`, true);
                                 return;
@@ -1397,11 +1446,16 @@
                 }
             });
             
-            formSettings.addEventListener('submit', (e) => {
+            formSettings.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                hostMenuAccess.dashboard = document.getElementById('setting-dashboard').checked;
-                hostMenuAccess.analysis = document.getElementById('setting-analysis').checked;
-                hostMenuAccess.rekap = document.getElementById('setting-rekap').checked;
+                const settingsData = {
+                    dashboard: document.getElementById('setting-dashboard').checked,
+                    analysis: document.getElementById('setting-analysis').checked,
+                    rekap: document.getElementById('setting-rekap').checked,
+                };
+                // In a real app, you would save this to a settings table in Supabase.
+                // For this simulation, we'll just update the local variable.
+                hostMenuAccess = settingsData;
                 settingsModal.classList.add('hidden');
                 showNotification('Pengaturan akses berhasil disimpan.');
             });
