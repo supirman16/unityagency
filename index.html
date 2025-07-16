@@ -30,6 +30,9 @@
             transform: translate(-50%, -50%);
             z-index: 50;
         }
+        #notification {
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
@@ -1090,37 +1093,6 @@
                 userModal.classList.remove('hidden');
             }
 
-            async function openRekapModal(rekapId = null) {
-                formRekap.reset();
-                const modalTitle = document.getElementById('modal-rekap-title');
-                const rekapIdInput = document.getElementById('rekap-id');
-                const hostSelect = document.getElementById('rekap-host');
-                const tiktokSelect = document.getElementById('rekap-tiktok-account');
-                
-                await populateHostDropdowns(hostSelect);
-                await populateTiktokDropdown(tiktokSelect);
-                hostSelect.disabled = currentUser.user_metadata?.role === 'host';
-                
-                if (rekapId) {
-                    modalTitle.textContent = 'Ubah Rekap Live';
-                    const rekap = rekapLive.find(r => r.id === rekapId);
-                    rekapIdInput.value = rekap.id;
-                    hostSelect.value = rekap.host_id;
-                    tiktokSelect.value = rekap.tiktok_account_id;
-                    document.getElementById('rekap-tanggal').value = rekap.tanggal_live;
-                    document.getElementById('rekap-mulai').value = rekap.waktu_mulai;
-                    document.getElementById('rekap-selesai').value = rekap.waktu_selesai;
-                    document.getElementById('rekap-pendapatan').value = rekap.pendapatan;
-                    document.getElementById('rekap-catatan').value = rekap.catatan;
-                } else {
-                    modalTitle.textContent = 'Tambah Rekap Baru';
-                    rekapIdInput.value = '';
-                    hostSelect.value = currentUser.user_metadata?.role === 'host' ? currentUser.user_metadata.host_id : '';
-                    document.getElementById('rekap-tanggal').valueAsDate = new Date();
-                }
-                rekapModal.classList.remove('hidden');
-            }
-
             async function openDetailRekapModal(rekapId) {
                 const rekap = rekapLive.find(r => r.id === rekapId);
                 if (!rekap) return;
@@ -1212,14 +1184,17 @@
                 } else if (itemToDelete.type === 'tiktok') {
                      ({ error } = await supabaseClient.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'user') {
-                     ({ error } = await supabaseClient.auth.admin.deleteUser(itemToDelete.id));
+                     ({ data, error } = await supabaseClient.functions.invoke('delete-user', {
+                        body: { userId: itemToDelete.id }
+                    }));
                 }
                 
                 if (error) {
-                    alert(`Error: ${error.message}`);
+                    showNotification(`Error: ${error.message}`, true);
                 } else {
                     itemToDelete = { id: null, type: '' };
                     confirmModal.classList.add('hidden');
+                    showNotification('Data berhasil dihapus.');
                     await updateAll();
                 }
             });
@@ -1293,9 +1268,10 @@
                     ({ error } = await supabaseClient.from('hosts').insert(hostData));
                 }
                 
-                if (error) alert(error.message);
+                if (error) showNotification(error.message, true);
                 else {
                     hostModal.classList.add('hidden');
+                    showNotification('Data host berhasil disimpan.');
                     await updateAll();
                 }
             });
@@ -1313,9 +1289,10 @@
                 } else {
                     ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
                 }
-                if (error) alert(error.message);
+                if (error) showNotification(error.message, true);
                 else {
                     tiktokModal.classList.add('hidden');
+                    showNotification('Akun TikTok berhasil disimpan.');
                     await updateAll();
                 }
             });
@@ -1335,24 +1312,24 @@
                     });
 
                     if (error) {
-                        alert(`Error: ${error.message}`);
+                        showNotification(`Error: ${error.message}`, true);
                     } else {
                         // Also update password if provided
                         if (password) {
                             const { error: passwordError } = await supabaseClient.auth.admin.updateUserById(originalUserId, { password: password });
                             if (passwordError) {
-                                alert(`Error updating password: ${passwordError.message}`);
+                                showNotification(`Error updating password: ${passwordError.message}`, true);
                                 return;
                             }
                         }
-                        alert(`Pengguna ${email} berhasil diperbarui.`);
+                        showNotification(`Pengguna ${email} berhasil diperbarui.`);
                         userModal.classList.add('hidden');
                         await updateAll();
                     }
                 } else {
                     // Create user via Edge Function
                     if (!password) {
-                        alert('Password wajib diisi untuk pengguna baru.');
+                        showNotification('Password wajib diisi untuk pengguna baru.', true);
                         return;
                     }
                     const { data, error } = await supabaseClient.functions.invoke('create-user-with-role', {
@@ -1360,9 +1337,9 @@
                     });
 
                     if (error) {
-                        alert(`Error: ${error.message}`);
+                        showNotification(`Error: ${error.message}`, true);
                     } else {
-                        alert(`Pengguna ${email} berhasil dibuat.`);
+                        showNotification(`Pengguna ${email} berhasil dibuat.`);
                         userModal.classList.add('hidden');
                         await updateAll();
                     }
@@ -1412,9 +1389,10 @@
                     ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
                 }
                 
-                if (error) alert(error.message);
+                if (error) showNotification(error.message, true);
                 else {
                     rekapModal.classList.add('hidden');
+                    showNotification('Data rekap berhasil disimpan.');
                     await updateAll();
                 }
             });
@@ -1425,6 +1403,7 @@
                 hostMenuAccess.analysis = document.getElementById('setting-analysis').checked;
                 hostMenuAccess.rekap = document.getElementById('setting-rekap').checked;
                 settingsModal.classList.add('hidden');
+                showNotification('Pengaturan akses berhasil disimpan.');
             });
 
             async function fetchData() {
@@ -1442,7 +1421,7 @@
 
                 if (currentUser.user_metadata?.role === 'superadmin') {
                     const { data: usersData, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
-                    if (usersError) console.error('Error fetching users:', usersError);
+                    if (usersError) console.error('Error fetching users:', usersError.message);
                     else users = usersData;
                 }
             }
