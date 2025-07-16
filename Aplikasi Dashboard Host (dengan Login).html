@@ -480,8 +480,8 @@
 
     <script>
         // --- KONEKSI KE SUPABASE ---
-        // Ganti dengan URL dan Kunci dari proyek Supabase Anda
-        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
+        // GANTI DENGAN URL DAN KUNCI DARI PROYEK SUPABASE ANDA
+        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co/functions/v1/create-user-with-role'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         
@@ -1018,13 +1018,14 @@
 
 
             // --- MODAL & CRUD LOGIC ---
-            function openHostModal(hostId = null) {
+            async function openHostModal(hostId = null) {
                 formHost.reset();
                 const modalTitle = document.getElementById('modal-host-title');
                 const hostIdInput = document.getElementById('host-id');
                 if (hostId) {
                     modalTitle.textContent = 'Ubah Data Host';
-                    const host = hosts.find(h => h.id === hostId);
+                    const { data: host, error } = await supabase.from('hosts').select('*').eq('id', hostId).single();
+                    if (error) return alert(error.message);
                     hostIdInput.value = host.id;
                     document.getElementById('host-nama').value = host.nama_host;
                     document.getElementById('host-platform').value = host.platform;
@@ -1038,13 +1039,14 @@
                 hostModal.classList.remove('hidden');
             }
             
-            function openTiktokModal(accountId = null) {
+            async function openTiktokModal(accountId = null) {
                 formTiktok.reset();
                 const modalTitle = document.getElementById('modal-tiktok-title');
                 const tiktokIdInput = document.getElementById('tiktok-id');
                 if (accountId) {
                     modalTitle.textContent = 'Ubah Akun TikTok';
-                    const account = tiktokAccounts.find(a => a.id === accountId);
+                    const { data: account, error } = await supabase.from('tiktok_accounts').select('*').eq('id', accountId).single();
+                    if (error) return alert(error.message);
                     tiktokIdInput.value = account.id;
                     document.getElementById('tiktok-username').value = account.username;
                     document.getElementById('tiktok-status').value = account.status;
@@ -1055,7 +1057,7 @@
                 tiktokModal.classList.remove('hidden');
             }
             
-            function openUserModal(userId = null) {
+            async function openUserModal(userId = null) {
                 formUser.reset();
                 const modalTitle = document.getElementById('modal-user-title');
                 const userIdInput = document.getElementById('user-id');
@@ -1063,7 +1065,7 @@
                 const userHostLinkSelect = document.getElementById('user-host-link');
                 const userEmailInput = document.getElementById('user-email');
                 
-                populateHostDropdowns(userHostLinkSelect);
+                await populateHostDropdowns(userHostLinkSelect);
 
                 if (userId) {
                     modalTitle.textContent = 'Ubah Pengguna';
@@ -1087,15 +1089,15 @@
                 userModal.classList.remove('hidden');
             }
 
-            function openRekapModal(rekapId = null) {
+            async function openRekapModal(rekapId = null) {
                 formRekap.reset();
                 const modalTitle = document.getElementById('modal-rekap-title');
                 const rekapIdInput = document.getElementById('rekap-id');
                 const hostSelect = document.getElementById('rekap-host');
                 const tiktokSelect = document.getElementById('rekap-tiktok-account');
                 
-                populateHostDropdowns(hostSelect);
-                populateTiktokDropdown(tiktokSelect);
+                await populateHostDropdowns(hostSelect);
+                await populateTiktokDropdown(tiktokSelect);
                 hostSelect.disabled = currentUser.user_metadata?.role === 'host';
                 
                 if (rekapId) {
@@ -1118,7 +1120,7 @@
                 rekapModal.classList.remove('hidden');
             }
 
-            function openDetailRekapModal(rekapId) {
+            async function openDetailRekapModal(rekapId) {
                 const rekap = rekapLive.find(r => r.id === rekapId);
                 if (!rekap) return;
 
@@ -1149,7 +1151,7 @@
                 settingsModal.classList.remove('hidden');
             }
 
-            function handleEditHost(rekapId) { openHostModal(rekapId); }
+            function handleEditHost(hostId) { openHostModal(hostId); }
             function handleEditTiktok(accountId) { openTiktokModal(accountId); }
             function handleEditRekap(rekapId) { openRekapModal(rekapId); }
             function handleEditUser(userId) { openUserModal(userId); }
@@ -1199,21 +1201,26 @@
                 itemToDelete = { id: null, type: '' };
                 confirmModal.classList.add('hidden');
             });
-            btnConfirmDelete.addEventListener('click', () => {
+            btnConfirmDelete.addEventListener('click', async () => {
                 if (!itemToDelete.id) return;
+                let error;
                 if (itemToDelete.type === 'host') {
-                    hosts = hosts.filter(h => h.id !== itemToDelete.id);
-                    rekapLive = rekapLive.filter(r => r.host_id !== itemToDelete.id);
+                    ({ error } = await supabase.from('hosts').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'rekap') {
-                    rekapLive = rekapLive.filter(r => r.id !== itemToDelete.id);
+                     ({ error } = await supabase.from('rekap_live').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'tiktok') {
-                    tiktokAccounts = tiktokAccounts.filter(t => t.id !== itemToDelete.id);
+                     ({ error } = await supabase.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
                 } else if (itemToDelete.type === 'user') {
-                    users = users.filter(u => u.id !== itemToDelete.id);
+                     ({ error } = await supabase.auth.admin.deleteUser(itemToDelete.id));
                 }
-                itemToDelete = { id: null, type: '' };
-                confirmModal.classList.add('hidden');
-                updateAll();
+                
+                if (error) {
+                    alert(`Error: ${error.message}`);
+                } else {
+                    itemToDelete = { id: null, type: '' };
+                    confirmModal.classList.add('hidden');
+                    await updateAll();
+                }
             });
             
             hostTableBody.addEventListener('click', (event) => {
@@ -1269,7 +1276,7 @@
             });
 
 
-            formHost.addEventListener('submit', (e) => {
+            formHost.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const hostId = parseInt(document.getElementById('host-id').value);
                 const hostData = {
@@ -1278,33 +1285,38 @@
                     tanggal_bergabung: document.getElementById('host-gabung').value,
                     status: document.getElementById('host-status').value,
                 };
+                let error;
                 if (hostId) {
-                    const index = hosts.findIndex(h => h.id === hostId);
-                    hosts[index] = { ...hosts[index], ...hostData };
+                    ({ error } = await supabase.from('hosts').update(hostData).eq('id', hostId));
                 } else {
-                    hostData.id = hosts.length > 0 ? Math.max(...hosts.map(h => h.id)) + 1 : 1;
-                    hosts.push(hostData);
+                    ({ error } = await supabase.from('hosts').insert(hostData));
                 }
-                hostModal.classList.add('hidden');
-                updateAll();
+                
+                if (error) alert(error.message);
+                else {
+                    hostModal.classList.add('hidden');
+                    await updateAll();
+                }
             });
             
-            formTiktok.addEventListener('submit', (e) => {
+            formTiktok.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const tiktokId = parseInt(document.getElementById('tiktok-id').value);
                 const tiktokData = {
                     username: document.getElementById('tiktok-username').value,
                     status: document.getElementById('tiktok-status').value,
                 };
+                let error;
                 if (tiktokId) {
-                    const index = tiktokAccounts.findIndex(t => t.id === tiktokId);
-                    tiktokAccounts[index] = { ...tiktokAccounts[index], ...tiktokData };
+                    ({ error } = await supabase.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
                 } else {
-                    tiktokData.id = tiktokAccounts.length > 0 ? Math.max(...tiktokAccounts.map(t => t.id)) + 1 : 1;
-                    tiktokAccounts.push(tiktokData);
+                    ({ error } = await supabase.from('tiktok_accounts').insert(tiktokData));
                 }
-                tiktokModal.classList.add('hidden');
-                updateAll();
+                if (error) alert(error.message);
+                else {
+                    tiktokModal.classList.add('hidden');
+                    await updateAll();
+                }
             });
             
             formUser.addEventListener('submit', async (e) => {
@@ -1333,7 +1345,7 @@
                     } else {
                         alert(`Pengguna ${email} berhasil dibuat.`);
                         userModal.classList.add('hidden');
-                        updateAll();
+                        await updateAll();
                     }
                 }
             });
@@ -1347,7 +1359,7 @@
                  }
             });
             
-            formRekap.addEventListener('submit', (e) => {
+            formRekap.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const rekapId = parseInt(document.getElementById('rekap-id').value);
                 const dateString = document.getElementById('rekap-tanggal').value;
@@ -1373,15 +1385,19 @@
                     pendapatan: parseInt(document.getElementById('rekap-pendapatan').value),
                     catatan: document.getElementById('rekap-catatan').value,
                 };
+                
+                let error;
                 if (rekapId) {
-                    const index = rekapLive.findIndex(r => r.id === rekapId);
-                    rekapLive[index] = { ...rekapLive[index], ...rekapData };
+                    ({ error } = await supabase.from('rekap_live').update(rekapData).eq('id', rekapId));
                 } else {
-                    rekapData.id = rekapLive.length > 0 ? Math.max(...rekapLive.map(r => r.id)) + 1 : 1;
-                    rekapLive.push(rekapData);
+                    ({ error } = await supabase.from('rekap_live').insert(rekapData));
                 }
-                rekapModal.classList.add('hidden');
-                updateAll();
+                
+                if (error) alert(error.message);
+                else {
+                    rekapModal.classList.add('hidden');
+                    await updateAll();
+                }
             });
             
             formSettings.addEventListener('submit', (e) => {
@@ -1406,9 +1422,9 @@
                 else rekapLive = rekapData;
 
                 if (currentUser.user_metadata?.role === 'superadmin') {
-                    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+                    const { data: { users: usersData }, error: usersError } = await supabase.auth.admin.listUsers();
                     if (usersError) console.error('Error fetching users:', usersError);
-                    else users = usersData.users;
+                    else users = usersData;
                 }
             }
 
