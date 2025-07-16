@@ -10,10 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: Aplikasi ini sekarang memiliki dua tampilan utama: Halaman Login dan Aplikasi Utama. Setelah login, aplikasi menggunakan struktur berbasis tab yang sama, tetapi menu dan konten disesuaikan secara dinamis berdasarkan peran pengguna ('superadmin' atau 'host'). Superadmin memiliki akses penuh, termasuk menu baru 'Manajemen Akun', 'Pengaturan Akses', dan 'Analisis Kinerja', sementara host hanya dapat melihat dan mengelola data mereka sendiri sesuai izin yang diberikan. Ini menciptakan alur kerja yang aman, terfokus pada peran, dan dapat dikonfigurasi. -->
-    <!-- Visualization & Content Choices: Pilihan visualisasi tetap sama, tetapi sekarang difilter berdasarkan peran. Superadmin melihat data agregat di dashboard. Host melihat dashboard yang dipersonalisasi hanya untuk kinerja mereka. Formulir rekap live sekarang menyertakan pilihan akun TikTok. Halaman Analisis Kinerja baru ditambahkan untuk melacak pencapaian target bulanan, termasuk jatah libur. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Inter', sans-serif; }
         .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 45vh; }
@@ -113,6 +109,7 @@
         </nav>
 
         <main>
+            <!-- All sections and modals remain the same as previous version -->
             <section id="section-dashboard">
                 <div class="mb-6">
                     <h2 class="text-xl font-semibold text-stone-800">Ringkasan Kinerja</h2>
@@ -484,8 +481,8 @@
     <script>
         // --- KONEKSI KE SUPABASE ---
         // Ganti dengan URL dan Kunci dari proyek Supabase Anda
-        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
+        const supabaseUrl = 'URL_SUPABASE_ANDA'; 
+        const supabaseKey = 'KUNCI_ANON_ANDA'; 
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         
         document.addEventListener('DOMContentLoaded', () => {
@@ -709,7 +706,7 @@
             function renderUserTable() {
                 userTableBody.innerHTML = '';
                 users.forEach(user => {
-                    const host = user.host_id ? hosts.find(h => h.id === user.host_id) : null;
+                    const host = user.user_metadata.host_id ? hosts.find(h => h.id === user.user_metadata.host_id) : null;
                     const row = document.createElement('tr');
                     row.className = 'bg-white border-b hover:bg-stone-50';
                     row.innerHTML = `
@@ -1310,19 +1307,35 @@
                 updateAll();
             });
             
-            formUser.addEventListener('submit', (e) => {
+            formUser.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const originalUserId = document.getElementById('user-id').value;
-                const newEmail = document.getElementById('user-email').value;
+                const email = document.getElementById('user-email').value;
                 const password = document.getElementById('user-password').value;
                 const role = document.getElementById('user-role').value;
                 const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
                 
-                // Supabase logic for user management will go here
-                alert('Fungsi manajemen pengguna memerlukan koneksi ke Supabase.');
+                if (originalUserId) {
+                    // Update user logic (requires another Edge Function)
+                    alert('Fungsi update pengguna belum diimplementasikan di prototipe ini.');
+                } else {
+                    // Create user via Edge Function
+                    if (!password) {
+                        alert('Password wajib diisi untuk pengguna baru.');
+                        return;
+                    }
+                    const { data, error } = await supabase.functions.invoke('create-user-with-role', {
+                        body: { email, password, role, host_id: hostId }
+                    });
 
-                userModal.classList.add('hidden');
-                updateAll();
+                    if (error) {
+                        alert(`Error: ${error.message}`);
+                    } else {
+                        alert(`Pengguna ${email} berhasil dibuat.`);
+                        userModal.classList.add('hidden');
+                        updateAll();
+                    }
+                }
             });
 
             document.getElementById('user-role').addEventListener('change', (e) => {
