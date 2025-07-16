@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kinerja Host</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 45vh; }
+        .nav-link { cursor: pointer; }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <!-- Login Page -->
+    <div id="login-page" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-stone-900">Login ke Dashboard</h2>
+            </div>
+            <form id="login-form" class="mt-8 space-y-6">
+                <div>
+                    <label for="email" class="sr-only">Email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Alamat email">
+                </div>
+                <div>
+                    <label for="password" class="sr-only">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Password">
+                </div>
+                <div id="login-error" class="text-sm text-red-600 hidden">Email atau password salah.</div>
+                <div>
+                    <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-2 px-4 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-stone-900">Sistem Informasi Kinerja Host</h1>
+                <p class="text-stone-500 mt-1">Selamat datang, <span id="user-display-name" class="font-semibold"></span>!</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                 <button id="btn-settings" class="hidden text-sm font-medium text-stone-600 hover:text-teal-700">⚙️ Pengaturan Akses</button>
+                 <button id="btn-logout" class="text-sm font-medium text-red-600 hover:text-red-800">Logout</button>
+            </div>
+        </header>
+
+        <nav class="mb-8 border-b border-stone-200">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-stone-500">
+                <li id="nav-item-dashboard" class="mr-2">
+                    <a id="nav-dashboard" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                        <span class="mr-2">📊</span> Dashboard
+                    </a>
+                </li>
+                <li id="nav-item-analysis" class="mr-2">
+                    <a id="nav-analysis" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                        <span class="mr-2">📈</span> Analisis Kinerja
+                    </a>
+                </li>
+                <li id="nav-item-rekap" class="mr-2">
+                    <a id="nav-rekap" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                         <span class="mr-2">📝</span> Rekap Live
+                    </a>
+                </li>
+                <li id="nav-item-hosts" class="mr-2">
+                    <a id="nav-hosts" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                        <span class="mr-2">👥</span> Manajemen Host
+                    </a>
+                </li>
+                 <li id="nav-item-tiktok" class="mr-2">
+                    <a id="nav-tiktok" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                        <span class="mr-2">📱</span> Manajemen Akun
+                    </a>
+                </li>
+                <li id="nav-item-users" class="mr-2">
+                    <a id="nav-users" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                        <span class="mr-2">👤</span> Manajemen Pengguna
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- All sections and modals remain the same as previous version -->
+            <section id="section-dashboard">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-stone-800">Ringkasan Kinerja</h2>
+                    <p id="dashboard-subtitle" class="text-sm text-stone-500 mt-1"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 id="kpi-title-hosts" class="text-sm font-medium text-stone-500">Total Host Aktif</h3>
+                        <p id="kpi-total-hosts" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Total Jam Live</h3>
+                        <p id="kpi-total-hours" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Total Diamond</h3>
+                        <p id="kpi-total-revenue" class="text-3xl font-bold mt-2">0 💎</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                        <div>
+                            <h2 class="text-xl font-semibold text-stone-800">Analisis Performa Host</h2>
+                            <p class="text-sm text-stone-500 mt-1">Visualisasi perbandingan kinerja antar host.</p>
+                        </div>
+                        <div class="mt-4 sm:mt-0">
+                            <select id="chart-metric-selector" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
+                                <option value="duration">Total Durasi (Jam)</option>
+                                <option value="revenue">Total Diamond</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-analysis" class="hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-stone-800">Analisis Kinerja Bulanan</h2>
+                    <p class="text-sm text-stone-500 mt-1">Evaluasi pencapaian target kerja dan jam live host per bulan.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="analysis-host" class="block mb-2 text-sm font-medium text-stone-900">Pilih Host</label>
+                            <select id="analysis-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                        </div>
+                        <div>
+                            <label for="analysis-month" class="block mb-2 text-sm font-medium text-stone-900">Bulan</label>
+                            <select id="analysis-month" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                        </div>
+                        <div>
+                            <label for="analysis-year" class="block mb-2 text-sm font-medium text-stone-900">Tahun</label>
+                            <select id="analysis-year" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Hari Kerja Tercapai</h3>
+                        <p id="analysis-work-days" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Target Hari Kerja</h3>
+                        <p id="analysis-target-days" class="text-3xl font-bold mt-2">26</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Jatah Libur Sebulan</h3>
+                        <p id="analysis-off-allowance" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Sisa Jatah Libur</h3>
+                        <p id="analysis-off-remaining" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Total Jam Live</h3>
+                        <p id="analysis-total-hours" class="text-3xl font-bold mt-2">0 jam</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                        <h3 class="text-sm font-medium text-stone-500">Keseimbangan Jam</h3>
+                        <p id="analysis-hour-balance" class="text-3xl font-bold mt-2">0 jam</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-hosts" class="hidden">
+                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Data Host</h2>
+                        <p class="text-sm text-stone-500 mt-1">Tambah, lihat, ubah, dan hapus data host Anda.</p>
+                    </div>
+                    <button id="btn-add-host" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Host Baru</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600">
+                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nama Host</th>
+                                <th scope="col" class="px-6 py-3">Platform</th>
+                                <th scope="col" class="px-6 py-3">Tanggal Bergabung</th>
+                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="host-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="section-tiktok" class="hidden">
+                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Akun TikTok</h2>
+                        <p class="text-sm text-stone-500 mt-1">Kelola akun TikTok yang digunakan untuk live.</p>
+                    </div>
+                    <button id="btn-add-tiktok" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Akun Baru</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600">
+                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Username TikTok</th>
+                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tiktok-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="section-rekap" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Rekap Live</h2>
+                        <p class="text-sm text-stone-500 mt-1">Tambah, lihat, ubah, dan hapus riwayat sesi live.</p>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                        <div class="flex items-center space-x-2">
+                             <select id="rekap-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                             <select id="rekap-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                        </div>
+                        <button id="btn-add-rekap" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 whitespace-nowrap">Tambah Rekap</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600">
+                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Tanggal</th>
+                                <th scope="col" class="px-6 py-3">Host</th>
+                                <th scope="col" class="px-6 py-3">Akun TikTok</th>
+                                <th scope="col" class="px-6 py-3">Durasi</th>
+                                <th scope="col" class="px-6 py-3">Diamond</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rekap-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="section-users" class="hidden">
+                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Pengguna</h2>
+                        <p class="text-sm text-stone-500 mt-1">Kelola akun login untuk superadmin dan host.</p>
+                    </div>
+                    <button id="btn-add-user" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Pengguna</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600">
+                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Email</th>
+                                <th scope="col" class="px-6 py-3">Peran</th>
+                                <th scope="col" class="px-6 py-3">Terhubung ke Host</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-rekap-detail" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Detail Rekap Live</h2>
+            <div id="rekap-detail-content" class="space-y-3 text-sm">
+                <!-- Detail content will be injected here -->
+            </div>
+            <div class="flex justify-end pt-6">
+                <button type="button" id="btn-close-rekap-detail" class="px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700">Tutup</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-rekap" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-rekap-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Rekap Baru</h2>
+            <form id="form-rekap" class="space-y-4">
+                <input type="hidden" id="rekap-id">
+                <div>
+                    <label for="rekap-host" class="block mb-2 text-sm font-medium text-stone-900">Pilih Host</label>
+                    <select id="rekap-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required></select>
+                </div>
+                <div>
+                    <label for="rekap-tiktok-account" class="block mb-2 text-sm font-medium text-stone-900">Akun TikTok</label>
+                    <select id="rekap-tiktok-account" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required></select>
+                </div>
+                <div>
+                    <label for="rekap-tanggal" class="block mb-2 text-sm font-medium text-stone-900">Tanggal Live</label>
+                    <input type="date" id="rekap-tanggal" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="rekap-mulai" class="block mb-2 text-sm font-medium text-stone-900">Waktu Mulai</label>
+                        <input type="time" id="rekap-mulai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                    </div>
+                    <div>
+                        <label for="rekap-selesai" class="block mb-2 text-sm font-medium text-stone-900">Waktu Selesai</label>
+                        <input type="time" id="rekap-selesai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="rekap-pendapatan" class="block mb-2 text-sm font-medium text-stone-900">Pendapatan (Diamond)</label>
+                    <input type="number" id="rekap-pendapatan" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Contoh: 5500" required>
+                </div>
+                <div>
+                    <label for="rekap-catatan" class="block mb-2 text-sm font-medium text-stone-900">Catatan</label>
+                    <textarea id="rekap-catatan" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Topik live, kendala, dll..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="btn-cancel-rekap" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-host" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-host-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Host Baru</h2>
+            <form id="form-host" class="space-y-4">
+                <input type="hidden" id="host-id">
+                <div>
+                    <label for="host-nama" class="block mb-2 text-sm font-medium text-stone-900">Nama Lengkap Host</label>
+                    <input type="text" id="host-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                </div>
+                <div>
+                    <label for="host-platform" class="block mb-2 text-sm font-medium text-stone-900">Platform</label>
+                    <input type="text" id="host-platform" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" placeholder="Contoh: TikTok, Shopee Live" required>
+                </div>
+                 <div>
+                    <label for="host-gabung" class="block mb-2 text-sm font-medium text-stone-900">Tanggal Bergabung</label>
+                    <input type="date" id="host-gabung" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                </div>
+                <div>
+                    <label for="host-status" class="block mb-2 text-sm font-medium text-stone-900">Status</label>
+                    <select id="host-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Tidak Aktif">Tidak Aktif</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="btn-cancel-host" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-tiktok" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-tiktok-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Akun TikTok</h2>
+            <form id="form-tiktok" class="space-y-4">
+                <input type="hidden" id="tiktok-id">
+                <div>
+                    <label for="tiktok-username" class="block mb-2 text-sm font-medium text-stone-900">Username TikTok</label>
+                    <input type="text" id="tiktok-username" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                </div>
+                <div>
+                    <label for="tiktok-status" class="block mb-2 text-sm font-medium text-stone-900">Status</label>
+                    <select id="tiktok-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Tidak Aktif">Tidak Aktif</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="btn-cancel-tiktok" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-user" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-user-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Pengguna Baru</h2>
+            <form id="form-user" class="space-y-4">
+                <input type="hidden" id="user-id">
+                <div>
+                    <label for="user-email" class="block mb-2 text-sm font-medium text-stone-900">Email</label>
+                    <input type="email" id="user-email" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                </div>
+                <div>
+                    <label for="user-password" class="block mb-2 text-sm font-medium text-stone-900">Password</label>
+                    <input type="password" id="user-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" placeholder="Kosongkan jika tidak ingin diubah">
+                </div>
+                <div>
+                    <label for="user-role" class="block mb-2 text-sm font-medium text-stone-900">Peran</label>
+                    <select id="user-role" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                        <option value="superadmin">Superadmin</option>
+                        <option value="host">Host</option>
+                    </select>
+                </div>
+                <div id="user-host-link-container" class="hidden">
+                    <label for="user-host-link" class="block mb-2 text-sm font-medium text-stone-900">Hubungkan ke Host</label>
+                    <select id="user-host-link" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5"></select>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="btn-cancel-user" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-confirm" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/3 lg:w-1/4 p-6">
+            <h2 id="confirm-title" class="text-lg font-semibold text-stone-800">Konfirmasi Hapus</h2>
+            <p id="confirm-message" class="text-sm text-stone-600 mt-2 mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="btn-confirm-cancel" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                <button id="btn-confirm-delete" class="bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-red-700">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-settings" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Pengaturan Akses Menu Host</h2>
+            <p class="text-sm text-stone-500 mb-6">Pilih menu mana saja yang dapat diakses oleh semua pengguna dengan peran "Host".</p>
+            <form id="form-settings" class="space-y-4">
+                <div class="flex items-center">
+                    <input id="setting-dashboard" name="dashboard" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <label for="setting-dashboard" class="ml-3 block text-sm font-medium text-stone-700">Dashboard</label>
+                </div>
+                 <div class="flex items-center">
+                    <input id="setting-analysis" name="analysis" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <label for="setting-analysis" class="ml-3 block text-sm font-medium text-stone-700">Analisis Kinerja</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="setting-rekap" name="rekap" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <label for="setting-rekap" class="ml-3 block text-sm font-medium text-stone-700">Rekap Live</label>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="btn-cancel-settings" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan Pengaturan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // --- KONEKSI KE SUPABASE ---
+        // GANTI DENGAN URL DAN KUNCI DARI PROYEK SUPABASE ANDA
+        const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA & AUTH SIMULATION ---
+            let currentUser = null;
+            let hostMenuAccess = {
+                dashboard: true,
+                analysis: true,
+                rekap: true,
+            };
+
+            let hosts = [];
+            let tiktokAccounts = [];
+            let rekapLive = [];
+            let users = [];
+            
+            let itemToDelete = { id: null, type: '' };
+
+            // --- UI ELEMENTS ---
+            const loginPage = document.getElementById('login-page');
+            const appPage = document.getElementById('app');
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnSettings = document.getElementById('btn-settings');
+
+            const sections = {
+                dashboard: document.getElementById('section-dashboard'),
+                analysis: document.getElementById('section-analysis'),
+                hosts: document.getElementById('section-hosts'),
+                tiktok: document.getElementById('section-tiktok'),
+                rekap: document.getElementById('section-rekap'),
+                users: document.getElementById('section-users'),
+            };
+            const navItems = {
+                dashboard: document.getElementById('nav-item-dashboard'),
+                analysis: document.getElementById('nav-item-analysis'),
+                hosts: document.getElementById('nav-item-hosts'),
+                tiktok: document.getElementById('nav-item-tiktok'),
+                rekap: document.getElementById('nav-item-rekap'),
+                users: document.getElementById('nav-item-users'),
+            }
+            const navLinks = {
+                dashboard: document.getElementById('nav-dashboard'),
+                analysis: document.getElementById('nav-analysis'),
+                hosts: document.getElementById('nav-hosts'),
+                tiktok: document.getElementById('nav-tiktok'),
+                rekap: document.getElementById('nav-rekap'),
+                users: document.getElementById('nav-users'),
+            };
+            const hostTableBody = document.getElementById('host-table-body');
+            const tiktokTableBody = document.getElementById('tiktok-table-body');
+            const rekapTableBody = document.getElementById('rekap-table-body');
+            const userTableBody = document.getElementById('user-table-body');
+            const performanceChartCanvas = document.getElementById('performanceChart').getContext('2d');
+            let performanceChart;
+            
+            const hostModal = document.getElementById('modal-host');
+            const tiktokModal = document.getElementById('modal-tiktok');
+            const rekapModal = document.getElementById('modal-rekap');
+            const userModal = document.getElementById('modal-user');
+            const rekapDetailModal = document.getElementById('modal-rekap-detail');
+            const confirmModal = document.getElementById('modal-confirm');
+            const settingsModal = document.getElementById('modal-settings');
+            const btnAddHost = document.getElementById('btn-add-host');
+            const btnAddTiktok = document.getElementById('btn-add-tiktok');
+            const btnAddRekap = document.getElementById('btn-add-rekap');
+            const btnAddUser = document.getElementById('btn-add-user');
+            const btnCancelHost = document.getElementById('btn-cancel-host');
+            const btnCancelTiktok = document.getElementById('btn-cancel-tiktok');
+            const btnCancelRekap = document.getElementById('btn-cancel-rekap');
+            const btnCancelUser = document.getElementById('btn-cancel-user');
+            const btnCloseRekapDetail = document.getElementById('btn-close-rekap-detail');
+            const btnCancelSettings = document.getElementById('btn-cancel-settings');
+            const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
+            const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+            const formHost = document.getElementById('form-host');
+            const formTiktok = document.getElementById('form-tiktok');
+            const formRekap = document.getElementById('form-rekap');
+            const formUser = document.getElementById('form-user');
+            const formSettings = document.getElementById('form-settings');
+            
+            const formatDiamond = (amount) => new Intl.NumberFormat('id-ID').format(amount) + ' 💎';
+            const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            function formatDuration(totalMinutes) {
+                if (totalMinutes === 0) return '0 menit';
+                const isNegative = totalMinutes < 0;
+                const absMinutes = Math.abs(totalMinutes);
+                const hours = Math.floor(absMinutes / 60);
+                const minutes = Math.round(absMinutes % 60);
+                let result = '';
+                if (hours > 0) {
+                    result += `${hours} jam `;
+                }
+                if (minutes > 0) {
+                    result += `${minutes} menit`;
+                }
+                return (isNegative ? '- ' : '') + result.trim();
+            }
+
+            // --- AUTH & UI CONTROL ---
+            async function handleLogin(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('hidden');
+                    return;
+                }
+
+                if (data.user) {
+                    await checkSession();
+                }
+            }
+
+            async function handleLogout() {
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                appPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                loginForm.reset();
+                loginError.classList.add('hidden');
+            }
+
+            async function checkSession() {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    loginPage.classList.add('hidden');
+                    appPage.classList.remove('hidden');
+                    await init();
+                } else {
+                    appPage.classList.add('hidden');
+                    loginPage.classList.remove('hidden');
+                }
+            }
+
+            async function setupUIForRole() {
+                document.getElementById('user-display-name').textContent = currentUser.email;
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+
+                btnSettings.style.display = isSuperAdmin ? 'block' : 'none';
+                document.getElementById('kpi-title-hosts').textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
+                document.getElementById('dashboard-subtitle').textContent = isSuperAdmin ? 'Metrik utama dari seluruh aktivitas host.' : 'Metrik utama dari aktivitas Anda.';
+                
+                navItems.hosts.style.display = isSuperAdmin ? 'flex' : 'none';
+                navItems.tiktok.style.display = isSuperAdmin ? 'flex' : 'none';
+                navItems.users.style.display = isSuperAdmin ? 'flex' : 'none';
+                navItems.dashboard.style.display = (isSuperAdmin || hostMenuAccess.dashboard) ? 'flex' : 'none';
+                navItems.analysis.style.display = (isSuperAdmin || hostMenuAccess.analysis) ? 'flex' : 'none';
+                navItems.rekap.style.display = (isSuperAdmin || hostMenuAccess.rekap) ? 'flex' : 'none';
+            }
+            
+            function showSection(sectionName) {
+                Object.values(sections).forEach(section => section.classList.add('hidden'));
+                Object.values(navLinks).forEach(link => link.classList.remove('text-teal-600', 'border-teal-600'));
+                sections[sectionName].classList.remove('hidden');
+                navLinks[sectionName].classList.add('text-teal-600', 'border-teal-600');
+            }
+            
+            function getFirstVisibleSection() {
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+                if (isSuperAdmin || hostMenuAccess.dashboard) return 'dashboard';
+                if (isSuperAdmin || hostMenuAccess.analysis) return 'analysis';
+                if (hostMenuAccess.rekap) return 'rekap';
+                if (isSuperAdmin) return 'hosts';
+                return 'dashboard'; // Fallback
+            }
+
+            // --- RENDER FUNCTIONS (now with role filtering) ---
+            function renderHostTable() {
+                hostTableBody.innerHTML = '';
+                hosts.forEach(host => {
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${host.nama_host}</td>
+                        <td class="px-6 py-4">${host.platform}</td>
+                        <td class="px-6 py-4">${formatDate(host.tanggal_bergabung)}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${host.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${host.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline btn-delete-host" data-id="${host.id}">Hapus</button>
+                        </td>
+                    `;
+                    hostTableBody.appendChild(row);
+                });
+            }
+            
+            function renderTiktokTable() {
+                tiktokTableBody.innerHTML = '';
+                tiktokAccounts.forEach(account => {
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${account.username}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${account.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${account.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline btn-delete-tiktok" data-id="${account.id}">Hapus</button>
+                        </td>
+                    `;
+                    tiktokTableBody.appendChild(row);
+                });
+            }
+
+            function renderUserTable() {
+                userTableBody.innerHTML = '';
+                users.forEach(user => {
+                    const host = user.user_metadata.host_id ? hosts.find(h => h.id === user.user_metadata.host_id) : null;
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${user.email}</td>
+                        <td class="px-6 py-4">${user.user_metadata.role}</td>
+                        <td class="px-6 py-4">${host ? host.nama_host : '-'}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
+                            ${currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
+                        </td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            }
+
+            function renderRekapTable() {
+                rekapTableBody.innerHTML = '';
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+                const month = parseInt(document.getElementById('rekap-month-filter').value);
+                const year = parseInt(document.getElementById('rekap-year-filter').value);
+                
+                let filteredRekap = rekapLive.filter(r => {
+                    const recDate = new Date(r.tanggal_live);
+                    return recDate.getFullYear() === year && recDate.getMonth() === month;
+                });
+
+                if (!isSuperAdmin) {
+                    filteredRekap = filteredRekap.filter(r => r.host_id === currentUser.user_metadata.host_id);
+                }
+
+                 if (filteredRekap.length === 0) {
+                    rekapTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-stone-500">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
+                    return;
+                }
+                filteredRekap.forEach(rekap => {
+                    const host = hosts.find(h => h.id === rekap.host_id);
+                    const tiktokAccount = tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-stone-50 cursor-pointer';
+                    row.dataset.rekapId = rekap.id;
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${formatDate(rekap.tanggal_live)}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
+                        <td class="px-6 py-4">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
+                        <td class="px-6 py-4">${formatDuration(rekap.durasi_menit)}</td>
+                        <td class="px-6 py-4">${formatDiamond(rekap.pendapatan)}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
+                        </td>
+                    `;
+                    rekapTableBody.appendChild(row);
+                });
+            }
+
+            function populateHostDropdowns(selectElement) {
+                const currentVal = selectElement.value;
+                selectElement.innerHTML = '<option value="" disabled>Pilih seorang host</option>';
+                hosts.filter(h => h.status === 'Aktif').forEach(host => {
+                    const option = document.createElement('option');
+                    option.value = host.id;
+                    option.textContent = host.nama_host;
+                    selectElement.appendChild(option);
+                });
+                selectElement.value = currentVal;
+            }
+            
+            function populateTiktokDropdown(selectElement) {
+                const currentVal = selectElement.value;
+                selectElement.innerHTML = '<option value="" disabled>Pilih Akun TikTok</option>';
+                tiktokAccounts.filter(t => t.status === 'Aktif').forEach(acc => {
+                    const option = document.createElement('option');
+                    option.value = acc.id;
+                    option.textContent = acc.username;
+                    selectElement.appendChild(option);
+                });
+                selectElement.value = currentVal;
+            }
+
+            function updateKPIs() {
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+                if (isSuperAdmin) {
+                    document.getElementById('kpi-total-hosts').textContent = hosts.filter(h => h.status === 'Aktif').length;
+                    const totalMinutes = rekapLive.reduce((sum, r) => sum + r.durasi_menit, 0);
+                    document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
+                    const totalRevenue = rekapLive.reduce((sum, r) => sum + r.pendapatan, 0);
+                    document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
+                } else {
+                    const hostData = hosts.find(h => h.id === currentUser.user_metadata.host_id);
+                    if (hostData) {
+                        document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${hostData.status}</span>`;
+                        const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
+                        const totalMinutes = hostRekap.reduce((sum, r) => sum + r.durasi_menit, 0);
+                        document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
+                        const totalRevenue = hostRekap.reduce((sum, r) => sum + r.pendapatan, 0);
+                        document.getElementById('kpi-total-revenue').textContent = formatDiamond(totalRevenue);
+                    }
+                }
+            }
+            
+            function updatePerformanceChart(metric = 'duration') {
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+                let hostData;
+
+                if (isSuperAdmin) {
+                    hostData = hosts.filter(h => h.status === 'Aktif').map(host => {
+                        const hostRekap = rekapLive.filter(r => r.host_id === host.id);
+                        return { name: host.nama_host, duration: hostRekap.reduce((s, r) => s + r.durasi_menit, 0) / 60, revenue: hostRekap.reduce((s, r) => s + r.pendapatan, 0) };
+                    });
+                } else {
+                    const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
+                    const dataByDate = hostRekap.reduce((acc, r) => {
+                        if (!acc[r.tanggal_live]) {
+                            acc[r.tanggal_live] = { duration: 0, revenue: 0 };
+                        }
+                        acc[r.tanggal_live].duration += r.durasi_menit / 60;
+                        acc[r.tanggal_live].revenue += r.pendapatan;
+                        return acc;
+                    }, {});
+                    hostData = Object.keys(dataByDate).map(date => ({
+                        name: formatDate(date),
+                        duration: dataByDate[date].duration,
+                        revenue: dataByDate[date].revenue
+                    })).sort((a,b) => new Date(a.name) - new Date(b.name));
+                }
+
+                const labels = hostData.map(h => h.name);
+                const dataPoints = hostData.map(h => h[metric]);
+                const chartLabel = metric === 'duration' ? 'Total Durasi (Jam)' : 'Total Diamond';
+                const backgroundColor = 'rgba(20, 150, 150, 0.6)';
+                const borderColor = 'rgba(15, 118, 110, 1)';
+                
+                if (performanceChart) { performanceChart.destroy(); }
+
+                performanceChart = new Chart(performanceChartCanvas, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ label: chartLabel, data: dataPoints, backgroundColor: backgroundColor, borderColor: borderColor, borderWidth: 1, borderRadius: 6 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) {
+                                            if (metric === 'revenue') { label += new Intl.NumberFormat('id-ID').format(context.parsed.y) + ' 💎'; } 
+                                            else { label += formatDuration(Math.round(context.parsed.y * 60)); }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- ANALYSIS SECTION LOGIC ---
+            function calculateMonthlyPerformance(hostId, year, month) {
+                const targetWorkDays = 26;
+                const dailyTargetHours = 6;
+                const minWorkHours = 2;
+
+                const hostRekaps = rekapLive.filter(r => {
+                    const recDate = new Date(r.tanggal_live);
+                    return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month;
+                });
+
+                const dailyData = hostRekaps.reduce((acc, r) => {
+                    const dateKey = r.tanggal_live;
+                    if (!acc[dateKey]) {
+                        acc[dateKey] = 0;
+                    }
+                    acc[dateKey] += r.durasi_menit;
+                    return acc;
+                }, {});
+
+                let achievedWorkDays = 0;
+                let totalLiveMinutes = 0;
+                let absentDays = 0;
+
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const offDayEntitlement = daysInMonth - targetWorkDays;
+                
+                const today = new Date();
+                const lastDayToCheck = (year === today.getFullYear() && month === today.getMonth()) ? today.getDate() : daysInMonth;
+
+                for (let day = 1; day <= lastDayToCheck; day++) {
+                    const currentDate = new Date(year, month, day);
+                    const dateString = currentDate.toISOString().split('T')[0];
+
+                    if (dailyData[dateString]) {
+                        const dailyMinutes = dailyData[dateString];
+                        totalLiveMinutes += dailyMinutes;
+                        if (dailyMinutes >= minWorkHours * 60) {
+                            achievedWorkDays++;
+                        }
+                    } else {
+                        absentDays++;
+                    }
+                }
+
+                const remainingOffDays = offDayEntitlement - absentDays;
+                const totalLiveHours = totalLiveMinutes / 60;
+                const targetLiveHours = achievedWorkDays * dailyTargetHours;
+                const hourBalance = totalLiveHours - targetLiveHours;
+
+                return {
+                    workDays: achievedWorkDays,
+                    totalHours: totalLiveHours,
+                    hourBalance: hourBalance,
+                    offDayEntitlement: offDayEntitlement,
+                    remainingOffDays: remainingOffDays
+                };
+            }
+
+            function renderAnalysisView() {
+                const hostId = parseInt(document.getElementById('analysis-host').value);
+                const month = parseInt(document.getElementById('analysis-month').value);
+                const year = parseInt(document.getElementById('analysis-year').value);
+
+                if (!hostId || isNaN(month) || isNaN(year)) {
+                    document.getElementById('analysis-work-days').textContent = '-';
+                    document.getElementById('analysis-total-hours').textContent = '-';
+                    document.getElementById('analysis-hour-balance').textContent = '-';
+                    document.getElementById('analysis-off-allowance').textContent = '-';
+                    document.getElementById('analysis-off-remaining').textContent = '-';
+                    return;
+                }
+
+                const performance = calculateMonthlyPerformance(hostId, year, month);
+                
+                document.getElementById('analysis-work-days').textContent = performance.workDays;
+                document.getElementById('analysis-off-allowance').textContent = performance.offDayEntitlement;
+                document.getElementById('analysis-off-remaining').textContent = performance.remainingOffDays;
+                document.getElementById('analysis-total-hours').textContent = formatDuration(Math.round(performance.totalHours * 60));
+                
+                const balanceEl = document.getElementById('analysis-hour-balance');
+                balanceEl.textContent = formatDuration(Math.round(performance.hourBalance * 60));
+                if (performance.hourBalance < 0) {
+                    balanceEl.classList.remove('text-green-600');
+                    balanceEl.classList.add('text-red-600');
+                } else {
+                    balanceEl.classList.remove('text-red-600');
+                    balanceEl.classList.add('text-green-600');
+                }
+            }
+
+            function setupAnalysisFilters() {
+                const hostSelect = document.getElementById('analysis-host');
+                const monthSelect = document.getElementById('analysis-month');
+                const yearSelect = document.getElementById('analysis-year');
+                
+                populateHostDropdowns(hostSelect);
+                if(currentUser.user_metadata?.role === 'host') {
+                    hostSelect.value = currentUser.user_metadata.host_id;
+                    hostSelect.disabled = true;
+                } else {
+                    hostSelect.disabled = false;
+                }
+
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                monthSelect.innerHTML = '';
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+                monthSelect.value = new Date().getMonth();
+
+                const currentYear = new Date().getFullYear();
+                yearSelect.innerHTML = '';
+                for (let i = currentYear; i >= currentYear - 5; i--) {
+                     const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    yearSelect.appendChild(option);
+                }
+                
+                [hostSelect, monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderAnalysisView));
+            }
+            
+            function setupRekapFilters() {
+                const monthSelect = document.getElementById('rekap-month-filter');
+                const yearSelect = document.getElementById('rekap-year-filter');
+                
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                monthSelect.innerHTML = '';
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+                monthSelect.value = new Date().getMonth();
+
+                const currentYear = new Date().getFullYear();
+                yearSelect.innerHTML = '';
+                for (let i = currentYear; i >= currentYear - 5; i--) {
+                     const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    yearSelect.appendChild(option);
+                }
+                [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderRekapTable));
+            }
+
+
+            // --- MODAL & CRUD LOGIC ---
+            async function openHostModal(hostId = null) {
+                formHost.reset();
+                const modalTitle = document.getElementById('modal-host-title');
+                const hostIdInput = document.getElementById('host-id');
+                if (hostId) {
+                    modalTitle.textContent = 'Ubah Data Host';
+                    const { data: host, error } = await supabaseClient.from('hosts').select('*').eq('id', hostId).single();
+                    if (error) return alert(error.message);
+                    hostIdInput.value = host.id;
+                    document.getElementById('host-nama').value = host.nama_host;
+                    document.getElementById('host-platform').value = host.platform;
+                    document.getElementById('host-gabung').value = host.tanggal_bergabung;
+                    document.getElementById('host-status').value = host.status;
+                } else {
+                    modalTitle.textContent = 'Tambah Host Baru';
+                    hostIdInput.value = '';
+                    document.getElementById('host-gabung').valueAsDate = new Date();
+                }
+                hostModal.classList.remove('hidden');
+            }
+            
+            async function openTiktokModal(accountId = null) {
+                formTiktok.reset();
+                const modalTitle = document.getElementById('modal-tiktok-title');
+                const tiktokIdInput = document.getElementById('tiktok-id');
+                if (accountId) {
+                    modalTitle.textContent = 'Ubah Akun TikTok';
+                    const { data: account, error } = await supabaseClient.from('tiktok_accounts').select('*').eq('id', accountId).single();
+                    if (error) return alert(error.message);
+                    tiktokIdInput.value = account.id;
+                    document.getElementById('tiktok-username').value = account.username;
+                    document.getElementById('tiktok-status').value = account.status;
+                } else {
+                    modalTitle.textContent = 'Tambah Akun TikTok';
+                    tiktokIdInput.value = '';
+                }
+                tiktokModal.classList.remove('hidden');
+            }
+            
+            async function openUserModal(userId = null) {
+                formUser.reset();
+                const modalTitle = document.getElementById('modal-user-title');
+                const userIdInput = document.getElementById('user-id');
+                const userHostLinkContainer = document.getElementById('user-host-link-container');
+                const userHostLinkSelect = document.getElementById('user-host-link');
+                const userEmailInput = document.getElementById('user-email');
+                
+                await populateHostDropdowns(userHostLinkSelect);
+
+                if (userId) {
+                    modalTitle.textContent = 'Ubah Pengguna';
+                    const user = users.find(u => u.id === userId);
+                    userIdInput.value = user.id;
+                    userEmailInput.value = user.email;
+                    userEmailInput.disabled = true;
+                    document.getElementById('user-role').value = user.user_metadata.role;
+                    if (user.user_metadata.role === 'host') {
+                        userHostLinkContainer.classList.remove('hidden');
+                        userHostLinkSelect.value = user.user_metadata.host_id;
+                    } else {
+                        userHostLinkContainer.classList.add('hidden');
+                    }
+                } else {
+                    modalTitle.textContent = 'Tambah Pengguna Baru';
+                    userIdInput.value = '';
+                    userEmailInput.disabled = false;
+                    userHostLinkContainer.classList.add('hidden');
+                }
+                userModal.classList.remove('hidden');
+            }
+
+            async function openRekapModal(rekapId = null) {
+                formRekap.reset();
+                const modalTitle = document.getElementById('modal-rekap-title');
+                const rekapIdInput = document.getElementById('rekap-id');
+                const hostSelect = document.getElementById('rekap-host');
+                const tiktokSelect = document.getElementById('rekap-tiktok-account');
+                
+                await populateHostDropdowns(hostSelect);
+                await populateTiktokDropdown(tiktokSelect);
+                hostSelect.disabled = currentUser.user_metadata?.role === 'host';
+                
+                if (rekapId) {
+                    modalTitle.textContent = 'Ubah Rekap Live';
+                    const rekap = rekapLive.find(r => r.id === rekapId);
+                    rekapIdInput.value = rekap.id;
+                    hostSelect.value = rekap.host_id;
+                    tiktokSelect.value = rekap.tiktok_account_id;
+                    document.getElementById('rekap-tanggal').value = rekap.tanggal_live;
+                    document.getElementById('rekap-mulai').value = rekap.waktu_mulai;
+                    document.getElementById('rekap-selesai').value = rekap.waktu_selesai;
+                    document.getElementById('rekap-pendapatan').value = rekap.pendapatan;
+                    document.getElementById('rekap-catatan').value = rekap.catatan;
+                } else {
+                    modalTitle.textContent = 'Tambah Rekap Baru';
+                    rekapIdInput.value = '';
+                    hostSelect.value = currentUser.user_metadata?.role === 'host' ? currentUser.user_metadata.host_id : '';
+                    document.getElementById('rekap-tanggal').valueAsDate = new Date();
+                }
+                rekapModal.classList.remove('hidden');
+            }
+
+            async function openDetailRekapModal(rekapId) {
+                const rekap = rekapLive.find(r => r.id === rekapId);
+                if (!rekap) return;
+
+                const host = hosts.find(h => h.id === rekap.host_id);
+                const tiktokAccount = tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
+                const detailContent = document.getElementById('rekap-detail-content');
+
+                detailContent.innerHTML = `
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Tanggal Live:</span> <span class="text-stone-900 font-semibold">${formatDate(rekap.tanggal_live)}</span></div>
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Host:</span> <span class="text-stone-900 font-semibold">${host ? host.nama_host : 'N/A'}</span></div>
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Akun TikTok:</span> <span class="text-stone-900 font-semibold">${tiktokAccount ? tiktokAccount.username : 'N/A'}</span></div>
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Waktu:</span> <span class="text-stone-900 font-semibold">${rekap.waktu_mulai} - ${rekap.waktu_selesai}</span></div>
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Durasi:</span> <span class="text-stone-900 font-semibold">${formatDuration(rekap.durasi_menit)}</span></div>
+                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Pendapatan:</span> <span class="text-stone-900 font-semibold">${formatDiamond(rekap.pendapatan)}</span></div>
+                    <div class="mt-4">
+                        <p class="font-medium text-stone-500 mb-1">Catatan:</p>
+                        <p class="text-stone-800 bg-stone-100 p-3 rounded-md min-h-[50px]">${rekap.catatan || 'Tidak ada catatan.'}</p>
+                    </div>
+                `;
+
+                rekapDetailModal.classList.remove('hidden');
+            }
+            
+            function openSettingsModal() {
+                document.getElementById('setting-dashboard').checked = hostMenuAccess.dashboard;
+                document.getElementById('setting-analysis').checked = hostMenuAccess.analysis;
+                document.getElementById('setting-rekap').checked = hostMenuAccess.rekap;
+                settingsModal.classList.remove('hidden');
+            }
+
+            function handleEditHost(hostId) { openHostModal(hostId); }
+            function handleEditTiktok(accountId) { openTiktokModal(accountId); }
+            function handleEditRekap(rekapId) { openRekapModal(rekapId); }
+            function handleEditUser(userId) { openUserModal(userId); }
+
+            function handleDeleteHost(hostId) {
+                itemToDelete = { id: hostId, type: 'host' };
+                document.getElementById('confirm-message').textContent = 'Menghapus host juga akan menghapus semua rekap terkait. Apakah Anda yakin?';
+                confirmModal.classList.remove('hidden');
+            }
+            
+            function handleDeleteTiktok(accountId) {
+                itemToDelete = { id: accountId, type: 'tiktok' };
+                document.getElementById('confirm-message').textContent = 'Menghapus akun TikTok tidak akan menghapus rekap live yang sudah ada. Apakah Anda yakin?';
+                confirmModal.classList.remove('hidden');
+            }
+
+            function handleDeleteRekap(rekapId) {
+                itemToDelete = { id: rekapId, type: 'rekap' };
+                document.getElementById('confirm-message').textContent = 'Apakah Anda yakin ingin menghapus data rekap ini?';
+                confirmModal.classList.remove('hidden');
+            }
+            
+            function handleDeleteUser(userId) {
+                itemToDelete = { id: userId, type: 'user' };
+                const user = users.find(u => u.id === userId);
+                document.getElementById('confirm-message').textContent = `Apakah Anda yakin ingin menghapus pengguna "${user.email}"?`;
+                confirmModal.classList.remove('hidden');
+            }
+
+            // --- EVENT LISTENERS ---
+            loginForm.addEventListener('submit', handleLogin);
+            btnLogout.addEventListener('click', handleLogout);
+            btnSettings.addEventListener('click', openSettingsModal);
+            Object.keys(navLinks).forEach(key => navLinks[key].addEventListener('click', () => showSection(key)));
+            document.getElementById('chart-metric-selector').addEventListener('change', (e) => updatePerformanceChart(e.target.value));
+            btnAddHost.addEventListener('click', () => openHostModal());
+            btnAddTiktok.addEventListener('click', () => openTiktokModal());
+            btnAddUser.addEventListener('click', () => openUserModal());
+            btnCancelHost.addEventListener('click', () => hostModal.classList.add('hidden'));
+            btnCancelTiktok.addEventListener('click', () => tiktokModal.classList.add('hidden'));
+            btnCancelUser.addEventListener('click', () => userModal.classList.add('hidden'));
+            btnAddRekap.addEventListener('click', () => openRekapModal());
+            btnCancelRekap.addEventListener('click', () => rekapModal.classList.add('hidden'));
+            btnCloseRekapDetail.addEventListener('click', () => rekapDetailModal.classList.add('hidden'));
+            btnCancelSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+            btnConfirmCancel.addEventListener('click', () => {
+                itemToDelete = { id: null, type: '' };
+                confirmModal.classList.add('hidden');
+            });
+            btnConfirmDelete.addEventListener('click', async () => {
+                if (!itemToDelete.id) return;
+                let error;
+                if (itemToDelete.type === 'host') {
+                    ({ error } = await supabaseClient.from('hosts').delete().eq('id', itemToDelete.id));
+                } else if (itemToDelete.type === 'rekap') {
+                     ({ error } = await supabaseClient.from('rekap_live').delete().eq('id', itemToDelete.id));
+                } else if (itemToDelete.type === 'tiktok') {
+                     ({ error } = await supabaseClient.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
+                } else if (itemToDelete.type === 'user') {
+                     ({ error } = await supabaseClient.auth.admin.deleteUser(itemToDelete.id));
+                }
+                
+                if (error) {
+                    alert(`Error: ${error.message}`);
+                } else {
+                    itemToDelete = { id: null, type: '' };
+                    confirmModal.classList.add('hidden');
+                    await updateAll();
+                }
+            });
+            
+            hostTableBody.addEventListener('click', (event) => {
+                const target = event.target;
+                const row = target.closest('tr');
+                if (!row) return;
+                const hostId = parseInt(row.querySelector('.btn-edit-host')?.dataset.id);
+                if (target.matches('.btn-edit-host')) {
+                    handleEditHost(hostId);
+                } else if (target.matches('.btn-delete-host')) {
+                    handleDeleteHost(hostId);
+                }
+            });
+
+            tiktokTableBody.addEventListener('click', (event) => {
+                const target = event.target;
+                const row = target.closest('tr');
+                if (!row) return;
+                const tiktokId = parseInt(row.querySelector('.btn-edit-tiktok')?.dataset.id);
+                if (target.matches('.btn-edit-tiktok')) {
+                    handleEditTiktok(tiktokId);
+                } else if (target.matches('.btn-delete-tiktok')) {
+                    handleDeleteTiktok(tiktokId);
+                }
+            });
+            
+            userTableBody.addEventListener('click', (event) => {
+                const target = event.target;
+                const row = target.closest('tr');
+                if (!row) return;
+                const userId = row.querySelector('.btn-edit-user')?.dataset.id;
+                if (target.matches('.btn-edit-user')) {
+                    handleEditUser(userId);
+                } else if (target.matches('.btn-delete-user')) {
+                    handleDeleteUser(userId);
+                }
+            });
+
+            rekapTableBody.addEventListener('click', (event) => {
+                const target = event.target;
+                const row = target.closest('tr[data-rekap-id]');
+                if (!row) return;
+                const rekapId = parseInt(row.dataset.rekapId);
+                if (target.matches('.btn-edit-rekap')) {
+                    event.stopPropagation();
+                    handleEditRekap(rekapId);
+                } else if (target.matches('.btn-delete-rekap')) {
+                    event.stopPropagation();
+                    handleDeleteRekap(rekapId);
+                } else {
+                    openDetailRekapModal(rekapId);
+                }
+            });
+
+
+            formHost.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const hostId = parseInt(document.getElementById('host-id').value);
+                const hostData = {
+                    nama_host: document.getElementById('host-nama').value,
+                    platform: document.getElementById('host-platform').value,
+                    tanggal_bergabung: document.getElementById('host-gabung').value,
+                    status: document.getElementById('host-status').value,
+                };
+                let error;
+                if (hostId) {
+                    ({ error } = await supabaseClient.from('hosts').update(hostData).eq('id', hostId));
+                } else {
+                    ({ error } = await supabaseClient.from('hosts').insert(hostData));
+                }
+                
+                if (error) alert(error.message);
+                else {
+                    hostModal.classList.add('hidden');
+                    await updateAll();
+                }
+            });
+            
+            formTiktok.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const tiktokId = parseInt(document.getElementById('tiktok-id').value);
+                const tiktokData = {
+                    username: document.getElementById('tiktok-username').value,
+                    status: document.getElementById('tiktok-status').value,
+                };
+                let error;
+                if (tiktokId) {
+                    ({ error } = await supabaseClient.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
+                } else {
+                    ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
+                }
+                if (error) alert(error.message);
+                else {
+                    tiktokModal.classList.add('hidden');
+                    await updateAll();
+                }
+            });
+            
+            formUser.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const originalUserId = document.getElementById('user-id').value;
+                const email = document.getElementById('user-email').value;
+                const password = document.getElementById('user-password').value;
+                const role = document.getElementById('user-role').value;
+                const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
+                
+                if (originalUserId) {
+                    // Update user logic
+                    const { data, error } = await supabaseClient.functions.invoke('update-user-role', {
+                        body: { userId: originalUserId, role, host_id: hostId }
+                    });
+
+                    if (error) {
+                        alert(`Error: ${error.message}`);
+                    } else {
+                        // Also update password if provided
+                        if (password) {
+                            const { error: passwordError } = await supabaseClient.auth.admin.updateUserById(originalUserId, { password: password });
+                            if (passwordError) {
+                                alert(`Error updating password: ${passwordError.message}`);
+                                return;
+                            }
+                        }
+                        alert(`Pengguna ${email} berhasil diperbarui.`);
+                        userModal.classList.add('hidden');
+                        await updateAll();
+                    }
+                } else {
+                    // Create user via Edge Function
+                    if (!password) {
+                        alert('Password wajib diisi untuk pengguna baru.');
+                        return;
+                    }
+                    const { data, error } = await supabaseClient.functions.invoke('create-user-with-role', {
+                        body: { email, password, role, host_id: hostId }
+                    });
+
+                    if (error) {
+                        alert(`Error: ${error.message}`);
+                    } else {
+                        alert(`Pengguna ${email} berhasil dibuat.`);
+                        userModal.classList.add('hidden');
+                        await updateAll();
+                    }
+                }
+            });
+
+            document.getElementById('user-role').addEventListener('change', (e) => {
+                 const hostLinkContainer = document.getElementById('user-host-link-container');
+                 if (e.target.value === 'host') {
+                     hostLinkContainer.classList.remove('hidden');
+                 } else {
+                     hostLinkContainer.classList.add('hidden');
+                 }
+            });
+            
+            formRekap.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const rekapId = parseInt(document.getElementById('rekap-id').value);
+                const dateString = document.getElementById('rekap-tanggal').value;
+                const startTimeString = document.getElementById('rekap-mulai').value;
+                const endTimeString = document.getElementById('rekap-selesai').value;
+
+                const startDateTime = new Date(`${dateString}T${startTimeString}`);
+                const endDateTime = new Date(`${dateString}T${endTimeString}`);
+
+                if (endDateTime <= startDateTime) {
+                    endDateTime.setDate(endDateTime.getDate() + 1);
+                }
+
+                const duration = Math.round((endDateTime - startDateTime) / (1000 * 60));
+
+                const rekapData = {
+                    host_id: parseInt(document.getElementById('rekap-host').value),
+                    tiktok_account_id: parseInt(document.getElementById('rekap-tiktok-account').value),
+                    tanggal_live: dateString,
+                    waktu_mulai: startTimeString,
+                    waktu_selesai: endTimeString,
+                    durasi_menit: duration,
+                    pendapatan: parseInt(document.getElementById('rekap-pendapatan').value),
+                    catatan: document.getElementById('rekap-catatan').value,
+                };
+                
+                let error;
+                if (rekapId) {
+                    ({ error } = await supabaseClient.from('rekap_live').update(rekapData).eq('id', rekapId));
+                } else {
+                    ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
+                }
+                
+                if (error) alert(error.message);
+                else {
+                    rekapModal.classList.add('hidden');
+                    await updateAll();
+                }
+            });
+            
+            formSettings.addEventListener('submit', (e) => {
+                e.preventDefault();
+                hostMenuAccess.dashboard = document.getElementById('setting-dashboard').checked;
+                hostMenuAccess.analysis = document.getElementById('setting-analysis').checked;
+                hostMenuAccess.rekap = document.getElementById('setting-rekap').checked;
+                settingsModal.classList.add('hidden');
+            });
+
+            async function fetchData() {
+                const { data: hostsData, error: hostsError } = await supabaseClient.from('hosts').select('*');
+                if (hostsError) console.error('Error fetching hosts:', hostsError);
+                else hosts = hostsData;
+
+                const { data: tiktokData, error: tiktokError } = await supabaseClient.from('tiktok_accounts').select('*');
+                if (tiktokError) console.error('Error fetching tiktok accounts:', tiktokError);
+                else tiktokAccounts = tiktokData;
+                
+                const { data: rekapData, error: rekapError } = await supabaseClient.from('rekap_live').select('*');
+                if (rekapError) console.error('Error fetching rekap live:', rekapError);
+                else rekapLive = rekapData;
+
+                if (currentUser.user_metadata?.role === 'superadmin') {
+                    const { data: usersData, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
+                    if (usersError) console.error('Error fetching users:', usersError);
+                    else users = usersData;
+                }
+            }
+
+            async function updateAll() {
+                await fetchData();
+                renderHostTable();
+                renderTiktokTable();
+                renderUserTable();
+                renderRekapTable();
+                updateKPIs();
+                updatePerformanceChart(document.getElementById('chart-metric-selector').value);
+                renderAnalysisView();
+            }
+
+            async function init() {
+                await setupUIForRole();
+                setupAnalysisFilters();
+                setupRekapFilters();
+                await updateAll();
+                showSection(getFirstVisibleSection());
+            }
+            
+            checkSession();
+        });
+    </script>
+</body>
+</html>
