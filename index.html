@@ -10,7 +10,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
         body { font-family: 'Inter', sans-serif; }
         .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 45vh; }
         .nav-link { cursor: pointer; }
@@ -30,29 +34,79 @@
             transform: translate(-50%, -50%);
             z-index: 50;
         }
+        #notification {
+            transition: transform 0.3s ease-in-out;
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .sortable-header {
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+        .sortable-header:hover {
+            background-color: #f1f5f9; /* stone-200 */
+        }
+        .dark .sortable-header:hover {
+            background-color: #334155; /* slate-700 */
+        }
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 8px;
+            color: #9ca3af; /* gray-400 */
+            width: 1em;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .sortable-header:hover .sort-indicator {
+            opacity: 0.5;
+        }
+        .sort-indicator.active {
+            opacity: 1;
+            color: #1f2937; /* gray-800 */
+        }
+        .dark .sort-indicator.active {
+            color: #f3f4f6; /* gray-100 */
+        }
+        .sort-indicator::after {
+            content: '▲';
+            font-size: 0.8em;
+            display: inline-block;
+            transform: rotate(180deg);
+        }
+        .sort-indicator.asc::after {
+            transform: rotate(0deg);
+        }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-800">
+<body class="bg-stone-50 text-stone-800 dark:bg-stone-900 dark:text-stone-200">
 
     <!-- Login Page -->
     <div id="login-page" class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg dark:bg-stone-800">
             <div>
-                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-stone-900">Login ke Dashboard</h2>
+                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-stone-900 dark:text-white">Login ke Dashboard</h2>
             </div>
             <form id="login-form" class="mt-8 space-y-6">
                 <div>
                     <label for="email" class="sr-only">Email</label>
-                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Alamat email">
+                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat email">
                 </div>
                 <div>
                     <label for="password" class="sr-only">Password</label>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm" placeholder="Password">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Password">
                 </div>
                 <div id="login-error" class="text-sm text-red-600 hidden">Email atau password salah.</div>
                 <div>
-                    <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-2 px-4 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
-                        Login
+                    <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-2 px-4 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-75">
+                        <span class="btn-text">Login</span>
+                        <svg class="spinner h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
                 </div>
             </form>
@@ -64,44 +118,48 @@
         
         <header class="mb-8 flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-stone-900">Sistem Informasi Kinerja Host</h1>
-                <p class="text-stone-500 mt-1">Selamat datang, <span id="user-display-name" class="font-semibold"></span>!</p>
+                <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Sistem Informasi Kinerja Host</h1>
+                <p class="text-stone-500 dark:text-stone-400 mt-1">Selamat datang, <span id="user-display-name" class="font-semibold"></span>!</p>
             </div>
             <div class="flex items-center space-x-4">
-                 <button id="btn-settings" class="hidden text-sm font-medium text-stone-600 hover:text-teal-700">⚙️ Pengaturan Akses</button>
-                 <button id="btn-logout" class="text-sm font-medium text-red-600 hover:text-red-800">Logout</button>
+                 <button id="btn-settings" class="hidden text-sm font-medium text-stone-600 hover:text-teal-700 dark:text-stone-300 dark:hover:text-teal-500">⚙️ Pengaturan Akses</button>
+                 <button id="btn-theme-toggle" title="Ubah Tema" class="text-stone-600 hover:text-teal-700 dark:text-stone-300 dark:hover:text-teal-500 text-lg px-2 py-1 rounded-md">
+                    <i id="icon-moon" class="fas fa-moon"></i>
+                    <i id="icon-sun" class="fas fa-sun hidden"></i>
+                 </button>
+                 <button id="btn-logout" class="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400">Logout</button>
             </div>
         </header>
 
-        <nav class="mb-8 border-b border-stone-200">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-stone-500">
+        <nav class="mb-8 border-b border-stone-200 dark:border-stone-700">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-stone-500 dark:text-stone-400">
                 <li id="nav-item-dashboard" class="mr-2">
-                    <a id="nav-dashboard" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-dashboard" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">📊</span> Dashboard
                     </a>
                 </li>
                 <li id="nav-item-analysis" class="mr-2">
-                    <a id="nav-analysis" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-analysis" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">📈</span> Analisis Kinerja
                     </a>
                 </li>
                 <li id="nav-item-rekap" class="mr-2">
-                    <a id="nav-rekap" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-rekap" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                          <span class="mr-2">📝</span> Rekap Live
                     </a>
                 </li>
                 <li id="nav-item-hosts" class="mr-2">
-                    <a id="nav-hosts" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-hosts" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">👥</span> Manajemen Host
                     </a>
                 </li>
                  <li id="nav-item-tiktok" class="mr-2">
-                    <a id="nav-tiktok" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-tiktok" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">📱</span> Manajemen Akun
                     </a>
                 </li>
                 <li id="nav-item-users" class="mr-2">
-                    <a id="nav-users" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 group">
+                    <a id="nav-users" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">👤</span> Manajemen Pengguna
                     </a>
                 </li>
@@ -109,34 +167,33 @@
         </nav>
 
         <main>
-            <!-- All sections and modals remain the same as previous version -->
             <section id="section-dashboard">
                 <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-stone-800">Ringkasan Kinerja</h2>
-                    <p id="dashboard-subtitle" class="text-sm text-stone-500 mt-1"></p>
+                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Ringkasan Kinerja</h2>
+                    <p id="dashboard-subtitle" class="text-sm text-stone-500 dark:text-stone-400 mt-1"></p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 id="kpi-title-hosts" class="text-sm font-medium text-stone-500">Total Host Aktif</h3>
-                        <p id="kpi-total-hosts" class="text-3xl font-bold mt-2">0</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 id="kpi-title-hosts" class="text-sm font-medium text-stone-500 dark:text-stone-400">Total Host Aktif</h3>
+                        <p id="kpi-total-hosts" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Total Jam Live</h3>
-                        <p id="kpi-total-hours" class="text-3xl font-bold mt-2">0</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Total Jam Live</h3>
+                        <p id="kpi-total-hours" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Total Diamond</h3>
-                        <p id="kpi-total-revenue" class="text-3xl font-bold mt-2">0 💎</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Total Diamond</h3>
+                        <p id="kpi-total-revenue" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 💎</p>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
+                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                         <div>
-                            <h2 class="text-xl font-semibold text-stone-800">Analisis Performa Host</h2>
-                            <p class="text-sm text-stone-500 mt-1">Visualisasi perbandingan kinerja antar host.</p>
+                            <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Analisis Performa Host</h2>
+                            <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Visualisasi perbandingan kinerja antar host.</p>
                         </div>
                         <div class="mt-4 sm:mt-0">
-                            <select id="chart-metric-selector" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
+                            <select id="chart-metric-selector" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white">
                                 <option value="duration">Total Durasi (Jam)</option>
                                 <option value="revenue">Total Diamond</option>
                             </select>
@@ -150,69 +207,85 @@
             
             <section id="section-analysis" class="hidden">
                 <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-stone-800">Analisis Kinerja Bulanan</h2>
-                    <p class="text-sm text-stone-500 mt-1">Evaluasi pencapaian target kerja dan jam live host per bulan.</p>
+                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Analisis Kinerja Bulanan</h2>
+                    <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Evaluasi pencapaian target kerja dan jam live host per bulan.</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100 mb-8">
+                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 mb-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label for="analysis-host" class="block mb-2 text-sm font-medium text-stone-900">Pilih Host</label>
-                            <select id="analysis-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                            <label for="analysis-host" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pilih Host</label>
+                            <select id="analysis-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
                         <div>
-                            <label for="analysis-month" class="block mb-2 text-sm font-medium text-stone-900">Bulan</label>
-                            <select id="analysis-month" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                            <label for="analysis-month" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Bulan</label>
+                            <select id="analysis-month" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
                         <div>
-                            <label for="analysis-year" class="block mb-2 text-sm font-medium text-stone-900">Tahun</label>
-                            <select id="analysis-year" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                            <label for="analysis-year" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Tahun</label>
+                            <select id="analysis-year" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Hari Kerja Tercapai</h3>
-                        <p id="analysis-work-days" class="text-3xl font-bold mt-2">0</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Hari Kerja Tercapai</h3>
+                        <p id="analysis-work-days" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Target Hari Kerja</h3>
-                        <p id="analysis-target-days" class="text-3xl font-bold mt-2">26</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Target Hari Kerja</h3>
+                        <p id="analysis-target-days" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">26</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Jatah Libur Sebulan</h3>
-                        <p id="analysis-off-allowance" class="text-3xl font-bold mt-2">0</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Jatah Libur Sebulan</h3>
+                        <p id="analysis-off-allowance" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Sisa Jatah Libur</h3>
-                        <p id="analysis-off-remaining" class="text-3xl font-bold mt-2">0</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Sisa Jatah Libur</h3>
+                        <p id="analysis-off-remaining" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Total Jam Live</h3>
-                        <p id="analysis-total-hours" class="text-3xl font-bold mt-2">0 jam</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Total Jam Live</h3>
+                        <p id="analysis-total-hours" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 jam</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-100">
-                        <h3 class="text-sm font-medium text-stone-500">Keseimbangan Jam</h3>
-                        <p id="analysis-hour-balance" class="text-3xl font-bold mt-2">0 jam</p>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Keseimbangan Jam</h3>
+                        <p id="analysis-hour-balance" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 jam</p>
                     </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="btn-generate-analysis" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-75 flex items-center justify-center mx-auto">
+                        <span class="btn-text">✨ Buat Ringkasan Analisis</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                </div>
+                <div id="gemini-analysis-container" class="hidden mt-8 bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                    <h3 class="text-lg font-semibold text-stone-800 dark:text-stone-100 mb-2">Analisis Performa Otomatis</h3>
+                    <div id="gemini-loader" class="flex items-center space-x-2 text-stone-500 dark:text-stone-400">
+                        <svg class="animate-spin h-5 w-5 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span>Menganalisis data...</span>
+                    </div>
+                    <div id="gemini-analysis-result" class="text-stone-600 dark:text-stone-300 prose prose-sm max-w-none"></div>
                 </div>
             </section>
 
             <section id="section-hosts" class="hidden">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Data Host</h2>
-                        <p class="text-sm text-stone-500 mt-1">Tambah, lihat, ubah, dan hapus data host Anda.</p>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Data Host</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Tambah, lihat, ubah, dan hapus data host Anda.</p>
                     </div>
                     <button id="btn-add-host" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Host Baru</button>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
-                    <table class="w-full text-sm text-left text-stone-600">
-                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="host-table">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Nama Host</th>
-                                <th scope="col" class="px-6 py-3">Platform</th>
-                                <th scope="col" class="px-6 py-3">Tanggal Bergabung</th>
-                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="nama_host">Nama Host<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="platform">Platform<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tanggal_bergabung" data-sort-type="date">Tgl Bergabung<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="status">Status<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -223,17 +296,17 @@
             <section id="section-tiktok" class="hidden">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Akun TikTok</h2>
-                        <p class="text-sm text-stone-500 mt-1">Kelola akun TikTok yang digunakan untuk live.</p>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Akun TikTok</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola akun TikTok yang digunakan untuk live.</p>
                     </div>
                     <button id="btn-add-tiktok" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Akun Baru</button>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
-                    <table class="w-full text-sm text-left text-stone-600">
-                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="tiktok-table">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Username TikTok</th>
-                                <th scope="col" class="px-6 py-3">Status</th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="username">Username TikTok<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="status">Status<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -244,26 +317,27 @@
             <section id="section-rekap" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Rekap Live</h2>
-                        <p class="text-sm text-stone-500 mt-1">Tambah, lihat, ubah, dan hapus riwayat sesi live.</p>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Rekap Live</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Tambah, lihat, ubah, dan hapus riwayat sesi live.</p>
                     </div>
                     <div class="flex items-center space-x-4 mt-4 sm:mt-0">
                         <div class="flex items-center space-x-2">
-                             <select id="rekap-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
-                             <select id="rekap-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5"></select>
+                             <select id="rekap-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                             <select id="rekap-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
                         <button id="btn-add-rekap" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 whitespace-nowrap">Tambah Rekap</button>
+                        <button id="btn-import-csv" class="bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">Import CSV</button>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
-                    <table class="w-full text-sm text-left text-stone-600">
-                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="rekap-table">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Tanggal</th>
-                                <th scope="col" class="px-6 py-3">Host</th>
-                                <th scope="col" class="px-6 py-3">Akun TikTok</th>
-                                <th scope="col" class="px-6 py-3">Durasi</th>
-                                <th scope="col" class="px-6 py-3">Diamond</th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tanggal_live" data-sort-type="date">Tanggal<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="host_id" data-sort-lookup="hosts">Host<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tiktok_account_id" data-sort-lookup="tiktok">Akun TikTok<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="durasi_menit" data-sort-type="number">Durasi<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="pendapatan" data-sort-type="number">Diamond<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -274,18 +348,21 @@
             <section id="section-users" class="hidden">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-semibold text-stone-800">Manajemen Pengguna</h2>
-                        <p class="text-sm text-stone-500 mt-1">Kelola akun login untuk superadmin dan host.</p>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Pengguna</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola akun login untuk superadmin dan host.</p>
                     </div>
-                    <button id="btn-add-user" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Pengguna</button>
+                    <button id="btn-add-user" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 flex items-center justify-center">
+                        <span class="btn-text">Tambah Pengguna</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-stone-100 overflow-x-auto">
-                    <table class="w-full text-sm text-left text-stone-600">
-                        <thead class="text-xs text-stone-700 uppercase bg-stone-100">
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="user-table">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Email</th>
-                                <th scope="col" class="px-6 py-3">Peran</th>
-                                <th scope="col" class="px-6 py-3">Terhubung ke Host</th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="email">Email<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="user_metadata.role">Peran<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="user_metadata.host_id" data-sort-lookup="hosts">Terhubung ke Host<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -297,10 +374,54 @@
     </div>
 
     <!-- Modals -->
+    <div id="modal-import-csv" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Import Rekap Live dari CSV</h2>
+            <form id="form-import-csv">
+                <div>
+                    <label for="csv-file" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pilih File CSV</label>
+                    <input type="file" id="csv-file" accept=".csv" class="block w-full text-sm text-stone-900 border border-stone-300 rounded-lg cursor-pointer bg-stone-50 focus:outline-none dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white">
+                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Pastikan kolom: Tanggal, Nama Host, Akun Tiktok, Waktu Mulai, Waktu Selesai, Pendapatan, Catatan.</p>
+                </div>
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button type="button" id="btn-cancel-import" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Tampilkan Pratinjau</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                </div>
+            </form>
+            <div id="import-preview-container" class="hidden mt-6">
+                <h3 class="text-lg font-semibold text-stone-800 dark:text-stone-100 mb-2">Pratinjau Data</h3>
+                <div class="max-h-64 overflow-y-auto border rounded-lg dark:border-stone-600">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-2">Status</th>
+                                <th class="px-4 py-2">Tanggal</th>
+                                <th class="px-4 py-2">Host</th>
+                                <th class="px-4 py-2">Akun</th>
+                                <th class="px-4 py-2">Durasi</th>
+                                <th class="px-4 py-2">Pendapatan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="import-preview-body"></tbody>
+                    </table>
+                </div>
+                <div class="flex justify-end pt-4">
+                     <button id="btn-confirm-import" class="hidden bg-green-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-green-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Konfirmasi & Simpan ke Database</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="modal-rekap-detail" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 class="text-xl font-semibold text-stone-800 mb-4">Detail Rekap Live</h2>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Detail Rekap Live</h2>
             <div id="rekap-detail-content" class="space-y-3 text-sm">
                 <!-- Detail content will be injected here -->
             </div>
@@ -311,172 +432,187 @@
     </div>
     <div id="modal-rekap" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 id="modal-rekap-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Rekap Baru</h2>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-rekap-title" class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Tambah Rekap Baru</h2>
             <form id="form-rekap" class="space-y-4">
                 <input type="hidden" id="rekap-id">
                 <div>
-                    <label for="rekap-host" class="block mb-2 text-sm font-medium text-stone-900">Pilih Host</label>
-                    <select id="rekap-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required></select>
+                    <label for="rekap-host" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pilih Host</label>
+                    <select id="rekap-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
                 </div>
                 <div>
-                    <label for="rekap-tiktok-account" class="block mb-2 text-sm font-medium text-stone-900">Akun TikTok</label>
-                    <select id="rekap-tiktok-account" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required></select>
+                    <label for="rekap-tiktok-account" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Akun TikTok</label>
+                    <select id="rekap-tiktok-account" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
                 </div>
                 <div>
-                    <label for="rekap-tanggal" class="block mb-2 text-sm font-medium text-stone-900">Tanggal Live</label>
-                    <input type="date" id="rekap-tanggal" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                    <label for="rekap-tanggal" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Tanggal Live</label>
+                    <input type="date" id="rekap-tanggal" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="rekap-mulai" class="block mb-2 text-sm font-medium text-stone-900">Waktu Mulai</label>
-                        <input type="time" id="rekap-mulai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                        <label for="rekap-mulai" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Waktu Mulai</label>
+                        <input type="time" id="rekap-mulai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                     </div>
                     <div>
-                        <label for="rekap-selesai" class="block mb-2 text-sm font-medium text-stone-900">Waktu Selesai</label>
-                        <input type="time" id="rekap-selesai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                        <label for="rekap-selesai" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Waktu Selesai</label>
+                        <input type="time" id="rekap-selesai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                     </div>
                 </div>
                 <div>
-                    <label for="rekap-pendapatan" class="block mb-2 text-sm font-medium text-stone-900">Pendapatan (Diamond)</label>
-                    <input type="number" id="rekap-pendapatan" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Contoh: 5500" required>
+                    <label for="rekap-pendapatan" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pendapatan (Diamond)</label>
+                    <input type="number" id="rekap-pendapatan" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: 5500" required>
                 </div>
                 <div>
-                    <label for="rekap-catatan" class="block mb-2 text-sm font-medium text-stone-900">Catatan</label>
-                    <textarea id="rekap-catatan" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Topik live, kendala, dll..."></textarea>
+                    <label for="rekap-catatan" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Catatan</label>
+                    <textarea id="rekap-catatan" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Topik live, kendala, dll..."></textarea>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="btn-cancel-rekap" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                    <button type="button" id="btn-cancel-rekap" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Simpan</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     <div id="modal-host" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 id="modal-host-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Host Baru</h2>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-host-title" class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Tambah Host Baru</h2>
             <form id="form-host" class="space-y-4">
                 <input type="hidden" id="host-id">
                 <div>
-                    <label for="host-nama" class="block mb-2 text-sm font-medium text-stone-900">Nama Lengkap Host</label>
-                    <input type="text" id="host-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="host-nama" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nama Lengkap Host</label>
+                    <input type="text" id="host-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="host-platform" class="block mb-2 text-sm font-medium text-stone-900">Platform</label>
-                    <input type="text" id="host-platform" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" placeholder="Contoh: TikTok, Shopee Live" required>
+                    <label for="host-platform" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Platform</label>
+                    <input type="text" id="host-platform" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: TikTok, Shopee Live" required>
                 </div>
                  <div>
-                    <label for="host-gabung" class="block mb-2 text-sm font-medium text-stone-900">Tanggal Bergabung</label>
-                    <input type="date" id="host-gabung" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="host-gabung" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Tanggal Bergabung</label>
+                    <input type="date" id="host-gabung" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="host-status" class="block mb-2 text-sm font-medium text-stone-900">Status</label>
-                    <select id="host-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="host-status" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Status</label>
+                    <select id="host-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                         <option value="Aktif">Aktif</option>
                         <option value="Tidak Aktif">Tidak Aktif</option>
                     </select>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="btn-cancel-host" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                    <button type="button" id="btn-cancel-host" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Simpan</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     <div id="modal-tiktok" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 id="modal-tiktok-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Akun TikTok</h2>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-tiktok-title" class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Tambah Akun TikTok</h2>
             <form id="form-tiktok" class="space-y-4">
                 <input type="hidden" id="tiktok-id">
                 <div>
-                    <label for="tiktok-username" class="block mb-2 text-sm font-medium text-stone-900">Username TikTok</label>
-                    <input type="text" id="tiktok-username" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="tiktok-username" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Username TikTok</label>
+                    <input type="text" id="tiktok-username" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="tiktok-status" class="block mb-2 text-sm font-medium text-stone-900">Status</label>
-                    <select id="tiktok-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="tiktok-status" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Status</label>
+                    <select id="tiktok-status" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                         <option value="Aktif">Aktif</option>
                         <option value="Tidak Aktif">Tidak Aktif</option>
                     </select>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="btn-cancel-tiktok" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                    <button type="button" id="btn-cancel-tiktok" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Simpan</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     <div id="modal-user" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 id="modal-user-title" class="text-xl font-semibold text-stone-800 mb-4">Tambah Pengguna Baru</h2>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 id="modal-user-title" class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Tambah Pengguna Baru</h2>
             <form id="form-user" class="space-y-4">
                 <input type="hidden" id="user-id">
                 <div>
-                    <label for="user-email" class="block mb-2 text-sm font-medium text-stone-900">Email</label>
-                    <input type="email" id="user-email" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="user-email" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Email</label>
+                    <input type="email" id="user-email" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="user-password" class="block mb-2 text-sm font-medium text-stone-900">Password</label>
-                    <input type="password" id="user-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" placeholder="Kosongkan jika tidak ingin diubah">
+                    <label for="user-password" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Password</label>
+                    <input type="password" id="user-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Kosongkan jika tidak ingin diubah">
                 </div>
                 <div>
-                    <label for="user-role" class="block mb-2 text-sm font-medium text-stone-900">Peran</label>
-                    <select id="user-role" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <label for="user-role" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Peran</label>
+                    <select id="user-role" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                         <option value="superadmin">Superadmin</option>
                         <option value="host">Host</option>
                     </select>
                 </div>
                 <div id="user-host-link-container" class="hidden">
-                    <label for="user-host-link" class="block mb-2 text-sm font-medium text-stone-900">Hubungkan ke Host</label>
-                    <select id="user-host-link" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5"></select>
+                    <label for="user-host-link" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Hubungkan ke Host</label>
+                    <select id="user-host-link" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="btn-cancel-user" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan</button>
+                    <button type="button" id="btn-cancel-user" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                        <span class="btn-text">Simpan</span>
+                        <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
     <div id="modal-confirm" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/3 lg:w-1/4 p-6">
-            <h2 id="confirm-title" class="text-lg font-semibold text-stone-800">Konfirmasi Hapus</h2>
-            <p id="confirm-message" class="text-sm text-stone-600 mt-2 mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/3 lg:w-1/4 p-6">
+            <h2 id="confirm-title" class="text-lg font-semibold text-stone-800 dark:text-stone-100">Konfirmasi Hapus</h2>
+            <p id="confirm-message" class="text-sm text-stone-600 dark:text-stone-300 mt-2 mb-6">Apakah Anda yakin ingin menghapus data ini?</p>
             <div class="flex justify-end space-x-4">
-                <button id="btn-confirm-cancel" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
-                <button id="btn-confirm-delete" class="bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-red-700">Ya, Hapus</button>
+                <button id="btn-confirm-cancel" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                <button id="btn-confirm-delete" class="bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-red-700 flex items-center justify-center disabled:opacity-75">
+                    <span class="btn-text">Ya, Hapus</span>
+                    <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </button>
             </div>
         </div>
     </div>
     <div id="modal-settings" class="hidden">
         <div class="modal-backdrop"></div>
-        <div class="modal bg-white rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
-            <h2 class="text-xl font-semibold text-stone-800 mb-4">Pengaturan Akses Menu Host</h2>
-            <p class="text-sm text-stone-500 mb-6">Pilih menu mana saja yang dapat diakses oleh semua pengguna dengan peran "Host".</p>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Pengaturan Akses Menu Host</h2>
+            <p class="text-sm text-stone-500 dark:text-stone-400 mb-6">Pilih menu mana saja yang dapat diakses oleh semua pengguna dengan peran "Host".</p>
             <form id="form-settings" class="space-y-4">
                 <div class="flex items-center">
                     <input id="setting-dashboard" name="dashboard" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
-                    <label for="setting-dashboard" class="ml-3 block text-sm font-medium text-stone-700">Dashboard</label>
+                    <label for="setting-dashboard" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Dashboard</label>
                 </div>
                  <div class="flex items-center">
                     <input id="setting-analysis" name="analysis" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
-                    <label for="setting-analysis" class="ml-3 block text-sm font-medium text-stone-700">Analisis Kinerja</label>
+                    <label for="setting-analysis" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Analisis Kinerja</label>
                 </div>
                 <div class="flex items-center">
                     <input id="setting-rekap" name="rekap" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
-                    <label for="setting-rekap" class="ml-3 block text-sm font-medium text-stone-700">Rekap Live</label>
+                    <label for="setting-rekap" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Rekap Live</label>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="btn-cancel-settings" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200">Batal</button>
+                    <button type="button" id="btn-cancel-settings" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
                     <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan Pengaturan</button>
                 </div>
             </form>
         </div>
     </div>
-    <div id="notification" class="fixed top-5 right-5 transform translate-x-[120%] transition-transform duration-300 ease-in-out"></div>
+    <div id="notification" class="fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transform translate-x-[120%] transition-transform duration-300 ease-in-out z-[100]"></div>
 
 
     <script>
@@ -501,6 +637,14 @@
             let users = [];
             
             let itemToDelete = { id: null, type: '' };
+            let parsedCsvData = [];
+            
+            let sortState = {
+                hosts: { key: 'nama_host', direction: 'asc' },
+                tiktok: { key: 'username', direction: 'asc' },
+                rekap: { key: 'tanggal_live', direction: 'desc' },
+                users: { key: 'email', direction: 'asc' }
+            };
 
             // --- UI ELEMENTS ---
             const loginPage = document.getElementById('login-page');
@@ -509,6 +653,9 @@
             const loginError = document.getElementById('login-error');
             const btnLogout = document.getElementById('btn-logout');
             const btnSettings = document.getElementById('btn-settings');
+            const btnThemeToggle = document.getElementById('btn-theme-toggle');
+            const iconMoon = document.getElementById('icon-moon');
+            const iconSun = document.getElementById('icon-sun');
 
             const sections = {
                 dashboard: document.getElementById('section-dashboard'),
@@ -548,14 +695,17 @@
             const rekapDetailModal = document.getElementById('modal-rekap-detail');
             const confirmModal = document.getElementById('modal-confirm');
             const settingsModal = document.getElementById('modal-settings');
+            const importCsvModal = document.getElementById('modal-import-csv');
             const btnAddHost = document.getElementById('btn-add-host');
             const btnAddTiktok = document.getElementById('btn-add-tiktok');
             const btnAddRekap = document.getElementById('btn-add-rekap');
             const btnAddUser = document.getElementById('btn-add-user');
+            const btnImportCsv = document.getElementById('btn-import-csv');
             const btnCancelHost = document.getElementById('btn-cancel-host');
             const btnCancelTiktok = document.getElementById('btn-cancel-tiktok');
             const btnCancelRekap = document.getElementById('btn-cancel-rekap');
             const btnCancelUser = document.getElementById('btn-cancel-user');
+            const btnCancelImport = document.getElementById('btn-cancel-import');
             const btnCloseRekapDetail = document.getElementById('btn-close-rekap-detail');
             const btnCancelSettings = document.getElementById('btn-cancel-settings');
             const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
@@ -564,7 +714,9 @@
             const formTiktok = document.getElementById('form-tiktok');
             const formRekap = document.getElementById('form-rekap');
             const formUser = document.getElementById('form-user');
+            const formImportCsv = document.getElementById('form-import-csv');
             const formSettings = document.getElementById('form-settings');
+            const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
             
             const formatDiamond = (amount) => new Intl.NumberFormat('id-ID').format(amount) + ' 💎';
             const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -588,63 +740,65 @@
             function showNotification(message, isError = false) {
                 const notification = document.getElementById('notification');
                 notification.textContent = message;
-                notification.className = `fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white ${isError ? 'bg-red-500' : 'bg-green-500'} transform translate-x-[120%]`
-                
-                // Show notification
-                setTimeout(() => {
-                    notification.classList.remove('translate-x-[120%]');
-                    notification.classList.add('translate-x-0');
-                }, 10);
 
-                // Hide notification after 3 seconds
+                notification.classList.remove('bg-green-500', 'bg-red-500');
+                notification.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+
+                notification.classList.remove('translate-x-[120%]');
+                notification.classList.add('translate-x-0');
+
                 setTimeout(() => {
                     notification.classList.remove('translate-x-0');
                     notification.classList.add('translate-x-[120%]');
                 }, 3000);
             }
 
+            function showButtonLoader(button) {
+                if (!button) return;
+                button.disabled = true;
+                const btnText = button.querySelector('.btn-text');
+                const spinner = button.querySelector('.spinner');
+                if (btnText) btnText.classList.add('hidden');
+                if (spinner) spinner.classList.remove('hidden');
+            }
+
+            function hideButtonLoader(button) {
+                if (!button) return;
+                button.disabled = false;
+                const btnText = button.querySelector('.btn-text');
+                const spinner = button.querySelector('.spinner');
+                if (btnText) btnText.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
+            }
+
             // --- AUTH & UI CONTROL ---
             async function handleLogin(e) {
                 e.preventDefault();
+                const button = e.submitter;
+                showButtonLoader(button);
+                loginError.classList.add('hidden');
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    loginError.textContent = error.message;
+                try {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    // onAuthStateChange will handle the rest
+                } catch (error) {
+                    loginError.textContent = "Email atau password salah.";
                     loginError.classList.remove('hidden');
-                    return;
-                }
-
-                if (data.user) {
-                    await checkSession();
+                } finally {
+                    hideButtonLoader(button);
                 }
             }
 
             async function handleLogout() {
                 await supabaseClient.auth.signOut();
-                currentUser = null;
-                appPage.classList.add('hidden');
-                loginPage.classList.remove('hidden');
-                loginForm.reset();
-                loginError.classList.add('hidden');
+                // onAuthStateChange will handle the rest
             }
-
-            async function checkSession() {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    currentUser = session.user;
-                    loginPage.classList.add('hidden');
-                    appPage.classList.remove('hidden');
-                    await init();
-                } else {
-                    appPage.classList.add('hidden');
-                    loginPage.classList.remove('hidden');
-                }
-            }
-
+            
             async function setupUIForRole() {
+                if (!currentUser) return;
                 document.getElementById('user-display-name').textContent = currentUser.email;
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
 
@@ -655,6 +809,7 @@
                 navItems.hosts.style.display = isSuperAdmin ? 'flex' : 'none';
                 navItems.tiktok.style.display = isSuperAdmin ? 'flex' : 'none';
                 navItems.users.style.display = isSuperAdmin ? 'flex' : 'none';
+                btnImportCsv.style.display = isSuperAdmin ? 'block' : 'none';
                 navItems.dashboard.style.display = (isSuperAdmin || hostMenuAccess.dashboard) ? 'flex' : 'none';
                 navItems.analysis.style.display = (isSuperAdmin || hostMenuAccess.analysis) ? 'flex' : 'none';
                 navItems.rekap.style.display = (isSuperAdmin || hostMenuAccess.rekap) ? 'flex' : 'none';
@@ -662,12 +817,15 @@
             
             function showSection(sectionName) {
                 Object.values(sections).forEach(section => section.classList.add('hidden'));
-                Object.values(navLinks).forEach(link => link.classList.remove('text-teal-600', 'border-teal-600'));
+                Object.values(navLinks).forEach(link => {
+                    link.classList.remove('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+                });
                 sections[sectionName].classList.remove('hidden');
-                navLinks[sectionName].classList.add('text-teal-600', 'border-teal-600');
+                navLinks[sectionName].classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
             }
             
             function getFirstVisibleSection() {
+                if (!currentUser) return 'dashboard';
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 if (isSuperAdmin || hostMenuAccess.dashboard) return 'dashboard';
                 if (isSuperAdmin || hostMenuAccess.analysis) return 'analysis';
@@ -675,73 +833,150 @@
                 if (isSuperAdmin) return 'hosts';
                 return 'dashboard'; // Fallback
             }
+            
+            // --- SORTING LOGIC ---
+            function universalSorter(a, b, key, direction, type, lookupInfo) {
+                let valA, valB;
+
+                function getValue(item) {
+                    if (lookupInfo) {
+                        const lookupArray = lookupInfo.array;
+                        const lookupId = key.includes('.') ? item[key.split('.')[0]][key.split('.')[1]] : item[key];
+                        const found = lookupArray.find(l => l.id === lookupId);
+                        return found ? found[lookupInfo.field] : null;
+                    }
+                    if (key.includes('.')) {
+                        const keys = key.split('.');
+                        return item[keys[0]] ? item[keys[0]][keys[1]] : null;
+                    }
+                    return item[key];
+                }
+
+                valA = getValue(a);
+                valB = getValue(b);
+
+                if (valA === null) return 1;
+                if (valB === null) return -1;
+
+                if (type === 'date') {
+                    valA = new Date(valA);
+                    valB = new Date(valB);
+                } else if (type === 'number') {
+                    valA = Number(valA);
+                    valB = Number(valB);
+                } else if (typeof valA === 'string' && typeof valB === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+                
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            }
+            
+            function updateSortIndicators(tableId, currentSortState) {
+                 const table = document.getElementById(tableId);
+                 if (!table) return;
+                 table.querySelectorAll('.sortable-header').forEach(header => {
+                    const indicator = header.querySelector('.sort-indicator');
+                    if (header.dataset.sortKey === currentSortState.key) {
+                        indicator.classList.add('active', currentSortState.direction);
+                        indicator.classList.remove(currentSortState.direction === 'asc' ? 'desc' : 'asc');
+                    } else {
+                        indicator.className = 'sort-indicator';
+                    }
+                });
+            }
+
 
             // --- RENDER FUNCTIONS (now with role filtering) ---
             function renderHostTable() {
+                const { key, direction } = sortState.hosts;
+                const type = document.querySelector(`#host-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
+                const sortedData = [...hosts].sort((a,b) => universalSorter(a, b, key, direction, type));
+
                 hostTableBody.innerHTML = '';
-                hosts.forEach(host => {
+                sortedData.forEach(host => {
                     const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
                     row.innerHTML = `
-                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${host.nama_host}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${host.nama_host}</td>
                         <td class="px-6 py-4">${host.platform}</td>
                         <td class="px-6 py-4">${formatDate(host.tanggal_bergabung)}</td>
                         <td class="px-6 py-4">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${host.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${host.status === 'Aktif' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}">
                                 ${host.status}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
-                            <button class="font-medium text-red-600 hover:underline btn-delete-host" data-id="${host.id}">Hapus</button>
+                            <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-host" data-id="${host.id}">Hapus</button>
                         </td>
                     `;
                     hostTableBody.appendChild(row);
                 });
+                updateSortIndicators('host-table', sortState.hosts);
             }
             
             function renderTiktokTable() {
+                const { key, direction } = sortState.tiktok;
+                const type = document.querySelector(`#tiktok-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
+                const sortedData = [...tiktokAccounts].sort((a,b) => universalSorter(a, b, key, direction, type));
+
                 tiktokTableBody.innerHTML = '';
-                tiktokAccounts.forEach(account => {
+                sortedData.forEach(account => {
                     const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
                     row.innerHTML = `
-                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${account.username}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${account.username}</td>
                         <td class="px-6 py-4">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${account.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${account.status === 'Aktif' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}">
                                 ${account.status}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
-                            <button class="font-medium text-red-600 hover:underline btn-delete-tiktok" data-id="${account.id}">Hapus</button>
+                            <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-tiktok" data-id="${account.id}">Hapus</button>
                         </td>
                     `;
                     tiktokTableBody.appendChild(row);
                 });
+                updateSortIndicators('tiktok-table', sortState.tiktok);
             }
 
             function renderUserTable() {
+                const { key, direction } = sortState.users;
+                const header = document.querySelector(`#user-table th[data-sort-key="${key}"]`);
+                const type = header.dataset.sortType || 'string';
+                const lookupType = header.dataset.sortLookup;
+                let lookupInfo = null;
+                if (lookupType === 'hosts') {
+                    lookupInfo = { array: hosts, field: 'nama_host' };
+                }
+                
+                const sortedData = [...users].sort((a, b) => universalSorter(a, b, key, direction, type, lookupInfo));
+
                 userTableBody.innerHTML = '';
-                users.forEach(user => {
+                sortedData.forEach(user => {
                     const host = user.user_metadata.host_id ? hosts.find(h => h.id === user.user_metadata.host_id) : null;
                     const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-stone-50';
+                    row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
                     row.innerHTML = `
-                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${user.email}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${user.email}</td>
                         <td class="px-6 py-4">${user.user_metadata.role}</td>
                         <td class="px-6 py-4">${host ? host.nama_host : '-'}</td>
                         <td class="px-6 py-4 text-center">
-                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
-                            ${currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
+                            <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
+                            ${currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
                         </td>
                     `;
                     userTableBody.appendChild(row);
                 });
+                updateSortIndicators('user-table', sortState.users);
             }
 
             function renderRekapTable() {
-                rekapTableBody.innerHTML = '';
+                if (!currentUser) return;
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 const month = parseInt(document.getElementById('rekap-month-filter').value);
                 const year = parseInt(document.getElementById('rekap-year-filter').value);
@@ -754,30 +989,45 @@
                 if (!isSuperAdmin) {
                     filteredRekap = filteredRekap.filter(r => r.host_id === currentUser.user_metadata.host_id);
                 }
+                
+                const { key, direction } = sortState.rekap;
+                const header = document.querySelector(`#rekap-table th[data-sort-key="${key}"]`);
+                const type = header.dataset.sortType || 'string';
+                const lookupType = header.dataset.sortLookup;
+                let lookupInfo = null;
+                if (lookupType === 'hosts') {
+                    lookupInfo = { array: hosts, field: 'nama_host' };
+                } else if (lookupType === 'tiktok') {
+                    lookupInfo = { array: tiktokAccounts, field: 'username' };
+                }
+                
+                const sortedData = [...filteredRekap].sort((a,b) => universalSorter(a, b, key, direction, type, lookupInfo));
 
-                 if (filteredRekap.length === 0) {
-                    rekapTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-stone-500">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
+                rekapTableBody.innerHTML = '';
+                 if (sortedData.length === 0) {
+                    rekapTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
                     return;
                 }
-                filteredRekap.forEach(rekap => {
+                sortedData.forEach(rekap => {
                     const host = hosts.find(h => h.id === rekap.host_id);
                     const tiktokAccount = tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
                     const row = document.createElement('tr');
-                    row.className = 'bg-white border-b hover:bg-stone-50 cursor-pointer';
+                    row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 cursor-pointer';
                     row.dataset.rekapId = rekap.id;
                     row.innerHTML = `
                         <td class="px-6 py-4">${formatDate(rekap.tanggal_live)}</td>
-                        <td class="px-6 py-4 font-medium text-stone-900 whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
+                        <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
                         <td class="px-6 py-4">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
                         <td class="px-6 py-4">${formatDuration(rekap.durasi_menit)}</td>
                         <td class="px-6 py-4">${formatDiamond(rekap.pendapatan)}</td>
                         <td class="px-6 py-4 text-center">
-                            <button class="font-medium text-teal-600 hover:underline mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
-                            <button class="font-medium text-red-600 hover:underline btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
+                            <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
+                            <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
                         </td>
                     `;
                     rekapTableBody.appendChild(row);
                 });
+                updateSortIndicators('rekap-table', sortState.rekap);
             }
 
             function populateHostDropdowns(selectElement) {
@@ -805,6 +1055,7 @@
             }
 
             function updateKPIs() {
+                if (!currentUser) return;
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 if (isSuperAdmin) {
                     document.getElementById('kpi-total-hosts').textContent = hosts.filter(h => h.status === 'Aktif').length;
@@ -815,7 +1066,7 @@
                 } else {
                     const hostData = hosts.find(h => h.id === currentUser.user_metadata.host_id);
                     if (hostData) {
-                        document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${hostData.status}</span>`;
+                        document.getElementById('kpi-total-hosts').innerHTML = `<span class="px-3 py-1 text-base leading-5 font-semibold rounded-full ${hostData.status === 'Aktif' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}">${hostData.status}</span>`;
                         const hostRekap = rekapLive.filter(r => r.host_id === currentUser.user_metadata.host_id);
                         const totalMinutes = hostRekap.reduce((sum, r) => sum + r.durasi_menit, 0);
                         document.getElementById('kpi-total-hours').textContent = formatDuration(totalMinutes);
@@ -826,6 +1077,7 @@
             }
             
             function updatePerformanceChart(metric = 'duration') {
+                if (!currentUser) return;
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 let hostData;
 
@@ -854,6 +1106,10 @@
                 const labels = hostData.map(h => h.name);
                 const dataPoints = hostData.map(h => h[metric]);
                 const chartLabel = metric === 'duration' ? 'Total Durasi (Jam)' : 'Total Diamond';
+                
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e5e7eb';
+                const tickColor = isDarkMode ? '#9ca3af' : '#374151';
                 const backgroundColor = 'rgba(20, 150, 150, 0.6)';
                 const borderColor = 'rgba(15, 118, 110, 1)';
                 
@@ -864,7 +1120,17 @@
                     data: { labels: labels, datasets: [{ label: chartLabel, data: dataPoints, backgroundColor: backgroundColor, borderColor: borderColor, borderWidth: 1, borderRadius: 6 }] },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } },
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                grid: { color: gridColor },
+                                ticks: { color: tickColor }
+                            }, 
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: tickColor }
+                            } 
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
@@ -945,9 +1211,18 @@
             }
 
             function renderAnalysisView() {
-                const hostId = parseInt(document.getElementById('analysis-host').value);
+                if (!currentUser) return;
+                const hostSelect = document.getElementById('analysis-host');
+                let hostId = parseInt(hostSelect.value);
                 const month = parseInt(document.getElementById('analysis-month').value);
                 const year = parseInt(document.getElementById('analysis-year').value);
+
+                // If superadmin and no host is selected, select the first one.
+                const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
+                if (isSuperAdmin && !hostId && hostSelect.options.length > 1) {
+                    hostSelect.value = hostSelect.options[1].value;
+                    hostId = parseInt(hostSelect.value);
+                }
 
                 if (!hostId || isNaN(month) || isNaN(year)) {
                     document.getElementById('analysis-work-days').textContent = '-';
@@ -968,15 +1243,16 @@
                 const balanceEl = document.getElementById('analysis-hour-balance');
                 balanceEl.textContent = formatDuration(Math.round(performance.hourBalance * 60));
                 if (performance.hourBalance < 0) {
-                    balanceEl.classList.remove('text-green-600');
-                    balanceEl.classList.add('text-red-600');
+                    balanceEl.classList.remove('text-green-600', 'dark:text-green-400');
+                    balanceEl.classList.add('text-red-600', 'dark:text-red-400');
                 } else {
-                    balanceEl.classList.remove('text-red-600');
-                    balanceEl.classList.add('text-green-600');
+                    balanceEl.classList.remove('text-red-600', 'dark:text-red-400');
+                    balanceEl.classList.add('text-green-600', 'dark:text-green-400');
                 }
             }
 
             function setupAnalysisFilters() {
+                if (!currentUser) return;
                 const hostSelect = document.getElementById('analysis-host');
                 const monthSelect = document.getElementById('analysis-month');
                 const yearSelect = document.getElementById('analysis-year');
@@ -1116,8 +1392,8 @@
                 const hostSelect = document.getElementById('rekap-host');
                 const tiktokSelect = document.getElementById('rekap-tiktok-account');
                 
-                await populateHostDropdowns(hostSelect);
-                await populateTiktokDropdown(tiktokSelect);
+                populateHostDropdowns(hostSelect);
+                populateTiktokDropdown(tiktokSelect);
                 hostSelect.disabled = currentUser.user_metadata?.role === 'host';
                 
                 if (rekapId) {
@@ -1149,15 +1425,15 @@
                 const detailContent = document.getElementById('rekap-detail-content');
 
                 detailContent.innerHTML = `
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Tanggal Live:</span> <span class="text-stone-900 font-semibold">${formatDate(rekap.tanggal_live)}</span></div>
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Host:</span> <span class="text-stone-900 font-semibold">${host ? host.nama_host : 'N/A'}</span></div>
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Akun TikTok:</span> <span class="text-stone-900 font-semibold">${tiktokAccount ? tiktokAccount.username : 'N/A'}</span></div>
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Waktu:</span> <span class="text-stone-900 font-semibold">${rekap.waktu_mulai} - ${rekap.waktu_selesai}</span></div>
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Durasi:</span> <span class="text-stone-900 font-semibold">${formatDuration(rekap.durasi_menit)}</span></div>
-                    <div class="flex justify-between border-b pb-2"><span class="font-medium text-stone-500">Pendapatan:</span> <span class="text-stone-900 font-semibold">${formatDiamond(rekap.pendapatan)}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Tanggal Live:</span> <span class="text-stone-900 dark:text-white font-semibold">${formatDate(rekap.tanggal_live)}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Host:</span> <span class="text-stone-900 dark:text-white font-semibold">${host ? host.nama_host : 'N/A'}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Akun TikTok:</span> <span class="text-stone-900 dark:text-white font-semibold">${tiktokAccount ? tiktokAccount.username : 'N/A'}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Waktu:</span> <span class="text-stone-900 dark:text-white font-semibold">${rekap.waktu_mulai} - ${rekap.waktu_selesai}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Durasi:</span> <span class="text-stone-900 dark:text-white font-semibold">${formatDuration(rekap.durasi_menit)}</span></div>
+                    <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Pendapatan:</span> <span class="text-stone-900 dark:text-white font-semibold">${formatDiamond(rekap.pendapatan)}</span></div>
                     <div class="mt-4">
-                        <p class="font-medium text-stone-500 mb-1">Catatan:</p>
-                        <p class="text-stone-800 bg-stone-100 p-3 rounded-md min-h-[50px]">${rekap.catatan || 'Tidak ada catatan.'}</p>
+                        <p class="font-medium text-stone-500 dark:text-stone-400 mb-1">Catatan:</p>
+                        <p class="text-stone-800 dark:text-stone-200 bg-stone-100 dark:bg-stone-700 p-3 rounded-md min-h-[50px]">${rekap.catatan || 'Tidak ada catatan.'}</p>
                     </div>
                 `;
 
@@ -1202,263 +1478,496 @@
             }
 
             // --- EVENT LISTENERS ---
-            loginForm.addEventListener('submit', handleLogin);
-            btnLogout.addEventListener('click', handleLogout);
-            btnSettings.addEventListener('click', openSettingsModal);
-            Object.keys(navLinks).forEach(key => navLinks[key].addEventListener('click', () => showSection(key)));
-            document.getElementById('chart-metric-selector').addEventListener('change', (e) => updatePerformanceChart(e.target.value));
-            btnAddHost.addEventListener('click', () => openHostModal());
-            btnAddTiktok.addEventListener('click', () => openTiktokModal());
-            btnAddUser.addEventListener('click', () => openUserModal());
-            btnCancelHost.addEventListener('click', () => hostModal.classList.add('hidden'));
-            btnCancelTiktok.addEventListener('click', () => tiktokModal.classList.add('hidden'));
-            btnCancelUser.addEventListener('click', () => userModal.classList.add('hidden'));
-            btnAddRekap.addEventListener('click', () => openRekapModal());
-            btnCancelRekap.addEventListener('click', () => rekapModal.classList.add('hidden'));
-            btnCloseRekapDetail.addEventListener('click', () => rekapDetailModal.classList.add('hidden'));
-            btnCancelSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
-            btnConfirmCancel.addEventListener('click', () => {
-                itemToDelete = { id: null, type: '' };
-                confirmModal.classList.add('hidden');
-            });
-            btnConfirmDelete.addEventListener('click', async () => {
-                if (!itemToDelete.id) return;
-                let error;
-                if (itemToDelete.type === 'host') {
-                    ({ error } = await supabaseClient.from('hosts').delete().eq('id', itemToDelete.id));
-                } else if (itemToDelete.type === 'rekap') {
-                     ({ error } = await supabaseClient.from('rekap_live').delete().eq('id', itemToDelete.id));
-                } else if (itemToDelete.type === 'tiktok') {
-                     ({ error } = await supabaseClient.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
-                } else if (itemToDelete.type === 'user') {
-                     ({ data, error } = await supabaseClient.functions.invoke('delete-user', {
-                        body: { userId: itemToDelete.id }
-                    }));
-                }
+            function setupEventListeners() {
+                loginForm.addEventListener('submit', handleLogin);
+                btnLogout.addEventListener('click', handleLogout);
+                btnSettings.addEventListener('click', openSettingsModal);
+                Object.keys(navLinks).forEach(key => navLinks[key].addEventListener('click', () => showSection(key)));
+                document.getElementById('chart-metric-selector').addEventListener('change', (e) => updatePerformanceChart(e.target.value));
                 
-                if (error) {
-                    showNotification(`Error: ${error.message}`, true);
-                } else {
+                btnAddRekap.addEventListener('click', () => openRekapModal());
+
+                btnAddHost.addEventListener('click', () => openHostModal());
+                btnAddTiktok.addEventListener('click', () => openTiktokModal());
+                btnAddUser.addEventListener('click', () => openUserModal());
+                btnImportCsv.addEventListener('click', () => importCsvModal.classList.remove('hidden'));
+                btnCancelHost.addEventListener('click', () => hostModal.classList.add('hidden'));
+                btnCancelTiktok.addEventListener('click', () => tiktokModal.classList.add('hidden'));
+                btnCancelRekap.addEventListener('click', () => rekapModal.classList.add('hidden'));
+                btnCancelUser.addEventListener('click', () => userModal.classList.add('hidden'));
+                btnCancelImport.addEventListener('click', () => importCsvModal.classList.add('hidden'));
+                btnCloseRekapDetail.addEventListener('click', () => rekapDetailModal.classList.add('hidden'));
+                btnCancelSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+                btnConfirmCancel.addEventListener('click', () => {
                     itemToDelete = { id: null, type: '' };
                     confirmModal.classList.add('hidden');
-                    showNotification('Data berhasil dihapus.');
-                    await updateAll();
-                }
-            });
-            
-            hostTableBody.addEventListener('click', (event) => {
-                const target = event.target;
-                const row = target.closest('tr');
-                if (!row) return;
-                const hostId = parseInt(row.querySelector('.btn-edit-host')?.dataset.id);
-                if (target.matches('.btn-edit-host')) {
-                    handleEditHost(hostId);
-                } else if (target.matches('.btn-delete-host')) {
-                    handleDeleteHost(hostId);
-                }
-            });
-
-            tiktokTableBody.addEventListener('click', (event) => {
-                const target = event.target;
-                const row = target.closest('tr');
-                if (!row) return;
-                const tiktokId = parseInt(row.querySelector('.btn-edit-tiktok')?.dataset.id);
-                if (target.matches('.btn-edit-tiktok')) {
-                    handleEditTiktok(tiktokId);
-                } else if (target.matches('.btn-delete-tiktok')) {
-                    handleDeleteTiktok(tiktokId);
-                }
-            });
-            
-            userTableBody.addEventListener('click', (event) => {
-                const target = event.target;
-                const row = target.closest('tr');
-                if (!row) return;
-                const userId = row.querySelector('.btn-edit-user')?.dataset.id;
-                if (target.matches('.btn-edit-user')) {
-                    handleEditUser(userId);
-                } else if (target.matches('.btn-delete-user')) {
-                    handleDeleteUser(userId);
-                }
-            });
-
-            rekapTableBody.addEventListener('click', (event) => {
-                const target = event.target;
-                const row = target.closest('tr[data-rekap-id]');
-                if (!row) return;
-                const rekapId = parseInt(row.dataset.rekapId);
-                if (target.matches('.btn-edit-rekap')) {
-                    event.stopPropagation();
-                    handleEditRekap(rekapId);
-                } else if (target.matches('.btn-delete-rekap')) {
-                    event.stopPropagation();
-                    handleDeleteRekap(rekapId);
-                } else {
-                    openDetailRekapModal(rekapId);
-                }
-            });
-
-
-            formHost.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const hostId = parseInt(document.getElementById('host-id').value);
-                const hostData = {
-                    nama_host: document.getElementById('host-nama').value,
-                    platform: document.getElementById('host-platform').value,
-                    tanggal_bergabung: document.getElementById('host-gabung').value,
-                    status: document.getElementById('host-status').value,
-                };
-                let error;
-                if (hostId) {
-                    ({ error } = await supabaseClient.from('hosts').update(hostData).eq('id', hostId));
-                } else {
-                    ({ error } = await supabaseClient.from('hosts').insert(hostData));
-                }
-                
-                if (error) showNotification(error.message, true);
-                else {
-                    hostModal.classList.add('hidden');
-                    showNotification('Data host berhasil disimpan.');
-                    await updateAll();
-                }
-            });
-            
-            formTiktok.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const tiktokId = parseInt(document.getElementById('tiktok-id').value);
-                const tiktokData = {
-                    username: document.getElementById('tiktok-username').value,
-                    status: document.getElementById('tiktok-status').value,
-                };
-                let error;
-                if (tiktokId) {
-                    ({ error } = await supabaseClient.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
-                } else {
-                    ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
-                }
-                if (error) showNotification(error.message, true);
-                else {
-                    tiktokModal.classList.add('hidden');
-                    showNotification('Akun TikTok berhasil disimpan.');
-                    await updateAll();
-                }
-            });
-            
-            formUser.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const originalUserId = document.getElementById('user-id').value;
-                const email = document.getElementById('user-email').value;
-                const password = document.getElementById('user-password').value;
-                const role = document.getElementById('user-role').value;
-                const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
-                
-                if (originalUserId) {
-                    // Update user logic
-                    const { data, error } = await supabaseClient.functions.invoke('update-user-role', {
-                        body: { userId: originalUserId, role, host_id: hostId }
-                    });
-
-                    if (error) {
-                        showNotification(`Error: ${error.message}`, true);
-                    } else {
-                        // Also update password if provided
-                        if (password) {
-                            const { error: passwordError } = await supabaseClient.functions.invoke('update-user-password', {
-                                body: { userId: originalUserId, password: password }
-                            });
-                            if (passwordError) {
-                                showNotification(`Error updating password: ${passwordError.message}`, true);
-                                return;
-                            }
+                });
+                btnConfirmDelete.addEventListener('click', async (e) => {
+                    const button = e.currentTarget;
+                    showButtonLoader(button);
+                    if (!itemToDelete.id) return;
+                    let error;
+                    try {
+                        if (itemToDelete.type === 'host') {
+                            ({ error } = await supabaseClient.from('hosts').delete().eq('id', itemToDelete.id));
+                        } else if (itemToDelete.type === 'rekap') {
+                            ({ error } = await supabaseClient.from('rekap_live').delete().eq('id', itemToDelete.id));
+                        } else if (itemToDelete.type === 'tiktok') {
+                            ({ error } = await supabaseClient.from('tiktok_accounts').delete().eq('id', itemToDelete.id));
+                        } else if (itemToDelete.type === 'user') {
+                            ({ data, error } = await supabaseClient.functions.invoke('delete-user', {
+                                body: { userId: itemToDelete.id }
+                            }));
                         }
-                        showNotification(`Pengguna ${email} berhasil diperbarui.`);
-                        userModal.classList.add('hidden');
-                        await updateAll();
+                        if (error) throw error;
+                        itemToDelete = { id: null, type: '' };
+                        confirmModal.classList.add('hidden');
+                        showNotification('Data berhasil dihapus.');
+                        await updateAllUI();
+                    } catch (err) {
+                        showNotification(`Error: ${err.message}`, true);
+                    } finally {
+                        hideButtonLoader(button);
                     }
-                } else {
-                    // Create user via Edge Function
-                    if (!password) {
-                        showNotification('Password wajib diisi untuk pengguna baru.', true);
+                });
+                
+                hostTableBody.addEventListener('click', (event) => {
+                    const target = event.target;
+                    const row = target.closest('tr');
+                    if (!row) return;
+                    const hostId = parseInt(row.querySelector('.btn-edit-host')?.dataset.id);
+                    if (target.matches('.btn-edit-host')) {
+                        handleEditHost(hostId);
+                    } else if (target.matches('.btn-delete-host')) {
+                        handleDeleteHost(hostId);
+                    }
+                });
+
+                tiktokTableBody.addEventListener('click', (event) => {
+                    const target = event.target;
+                    const row = target.closest('tr');
+                    if (!row) return;
+                    const tiktokId = parseInt(row.querySelector('.btn-edit-tiktok')?.dataset.id);
+                    if (target.matches('.btn-edit-tiktok')) {
+                        handleEditTiktok(tiktokId);
+                    } else if (target.matches('.btn-delete-tiktok')) {
+                        handleDeleteTiktok(tiktokId);
+                    }
+                });
+                
+                userTableBody.addEventListener('click', (event) => {
+                    const target = event.target;
+                    const row = target.closest('tr');
+                    if (!row) return;
+                    const userId = row.querySelector('.btn-edit-user')?.dataset.id;
+                    if (target.matches('.btn-edit-user')) {
+                        handleEditUser(userId);
+                    } else if (target.matches('.btn-delete-user')) {
+                        handleDeleteUser(userId);
+                    }
+                });
+
+                rekapTableBody.addEventListener('click', (event) => {
+                    const target = event.target;
+                    const row = target.closest('tr[data-rekap-id]');
+                    if (!row) return;
+                    const rekapId = parseInt(row.dataset.rekapId);
+                    if (target.matches('.btn-edit-rekap')) {
+                        event.stopPropagation();
+                        handleEditRekap(rekapId);
+                    } else if (target.matches('.btn-delete-rekap')) {
+                        event.stopPropagation();
+                        handleDeleteRekap(rekapId);
+                    } else {
+                        openDetailRekapModal(rekapId);
+                    }
+                });
+
+
+                formHost.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+                    const hostId = parseInt(document.getElementById('host-id').value);
+                    const hostData = {
+                        nama_host: document.getElementById('host-nama').value,
+                        platform: document.getElementById('host-platform').value,
+                        tanggal_bergabung: document.getElementById('host-gabung').value,
+                        status: document.getElementById('host-status').value,
+                    };
+                    let error;
+                    try {
+                        if (hostId) {
+                            ({ error } = await supabaseClient.from('hosts').update(hostData).eq('id', hostId));
+                        } else {
+                            ({ error } = await supabaseClient.from('hosts').insert(hostData));
+                        }
+                        if (error) throw error;
+                        hostModal.classList.add('hidden');
+                        showNotification('Data host berhasil disimpan.');
+                        await updateAllUI();
+                    } catch(err) {
+                        showNotification(err.message, true);
+                    } finally {
+                        hideButtonLoader(button);
+                    }
+                });
+                
+                formTiktok.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+                    const tiktokId = parseInt(document.getElementById('tiktok-id').value);
+                    const tiktokData = {
+                        username: document.getElementById('tiktok-username').value,
+                        status: document.getElementById('tiktok-status').value,
+                    };
+                    let error;
+                    try {
+                        if (tiktokId) {
+                            ({ error } = await supabaseClient.from('tiktok_accounts').update(tiktokData).eq('id', tiktokId));
+                        } else {
+                            ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
+                        }
+                        if (error) throw error;
+                        tiktokModal.classList.add('hidden');
+                        showNotification('Akun TikTok berhasil disimpan.');
+                        await updateAllUI();
+                    } catch (err) {
+                        showNotification(err.message, true);
+                    } finally {
+                        hideButtonLoader(button);
+                    }
+                });
+                
+                formUser.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+                    const originalUserId = document.getElementById('user-id').value;
+                    const email = document.getElementById('user-email').value;
+                    const password = document.getElementById('user-password').value;
+                    const role = document.getElementById('user-role').value;
+                    const hostId = role === 'host' ? parseInt(document.getElementById('user-host-link').value) : null;
+                    
+                    try {
+                        if (originalUserId) {
+                            const { data, error } = await supabaseClient.functions.invoke('update-user-role', {
+                                body: { userId: originalUserId, role, host_id: hostId }
+                            });
+                            if (error) throw error;
+                            if (password) {
+                                const { error: passwordError } = await supabaseClient.functions.invoke('update-user-password', {
+                                    body: { userId: originalUserId, password: password }
+                                });
+                                if (passwordError) throw passwordError;
+                            }
+                            showNotification(`Pengguna ${email} berhasil diperbarui.`);
+                        } else {
+                            if (!password) throw new Error('Password wajib diisi untuk pengguna baru.');
+                            const { data, error } = await supabaseClient.functions.invoke('create-user-with-role', {
+                                body: { email, password, role, host_id: hostId }
+                            });
+                            if (error) throw error;
+                            showNotification(`Pengguna ${email} berhasil dibuat.`);
+                        }
+                        userModal.classList.add('hidden');
+                        await updateAllUI();
+                    } catch (err) {
+                        showNotification(`Error: ${err.message}`, true);
+                    } finally {
+                        hideButtonLoader(button);
+                    }
+                });
+
+                document.getElementById('user-role').addEventListener('change', (e) => {
+                     const hostLinkContainer = document.getElementById('user-host-link-container');
+                     if (e.target.value === 'host') {
+                         hostLinkContainer.classList.remove('hidden');
+                     } else {
+                         hostLinkContainer.classList.add('hidden');
+                     }
+                });
+                
+                formRekap.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+                    const rekapId = parseInt(document.getElementById('rekap-id').value);
+                    const dateString = document.getElementById('rekap-tanggal').value;
+                    const startTimeString = document.getElementById('rekap-mulai').value;
+                    const endTimeString = document.getElementById('rekap-selesai').value;
+
+                    const startDateTime = new Date(`${dateString}T${startTimeString}`);
+                    const endDateTime = new Date(`${dateString}T${endTimeString}`);
+
+                    if (endDateTime <= startDateTime) {
+                        endDateTime.setDate(endDateTime.getDate() + 1);
+                    }
+
+                    const duration = Math.round((endDateTime - startDateTime) / (1000 * 60));
+
+                    const rekapData = {
+                        host_id: parseInt(document.getElementById('rekap-host').value),
+                        tiktok_account_id: parseInt(document.getElementById('rekap-tiktok-account').value),
+                        tanggal_live: dateString,
+                        waktu_mulai: startTimeString,
+                        waktu_selesai: endTimeString,
+                        durasi_menit: duration,
+                        pendapatan: parseInt(document.getElementById('rekap-pendapatan').value),
+                        catatan: document.getElementById('rekap-catatan').value,
+                    };
+                    
+                    let error;
+                    try {
+                        if (rekapId) {
+                            ({ error } = await supabaseClient.from('rekap_live').update(rekapData).eq('id', rekapId));
+                        } else {
+                            ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
+                        }
+                        if (error) throw error;
+                        rekapModal.classList.add('hidden');
+                        showNotification('Data rekap berhasil disimpan.');
+                        await updateAllUI();
+                    } catch(err) {
+                        showNotification(err.message, true);
+                    } finally {
+                        hideButtonLoader(button);
+                    }
+                });
+                
+                formSettings.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const settingsData = {
+                        dashboard: document.getElementById('setting-dashboard').checked,
+                        analysis: document.getElementById('setting-analysis').checked,
+                        rekap: document.getElementById('setting-rekap').checked,
+                    };
+                    // In a real app, you would save this to a settings table in Supabase.
+                    // For this simulation, we'll just update the local variable.
+                    hostMenuAccess = settingsData;
+                    settingsModal.classList.add('hidden');
+                    showNotification('Pengaturan akses berhasil disimpan.');
+                });
+                
+                formImportCsv.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+                    const fileInput = document.getElementById('csv-file');
+                    const file = fileInput.files[0];
+                    if (!file) {
+                        showNotification('Silakan pilih file CSV terlebih dahulu.', true);
+                        hideButtonLoader(button);
                         return;
                     }
-                    const { data, error } = await supabaseClient.functions.invoke('create-user-with-role', {
-                        body: { email, password, role, host_id: hostId }
-                    });
 
-                    if (error) {
-                        showNotification(`Error: ${error.message}`, true);
-                    } else {
-                        showNotification(`Pengguna ${email} berhasil dibuat.`);
-                        userModal.classList.add('hidden');
-                        await updateAll();
+                    const previewContainer = document.getElementById('import-preview-container');
+                    const previewBody = document.getElementById('import-preview-body');
+                    const confirmButton = document.getElementById('btn-confirm-import');
+                    previewBody.innerHTML = '';
+                    previewContainer.classList.remove('hidden');
+                    confirmButton.classList.add('hidden');
+                    parsedCsvData = [];
+
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        const csvData = event.target.result;
+                        const rows = csvData.split('\n').slice(1);
+                        let hasValidData = false;
+
+                        for (const row of rows) {
+                            if (!row) continue;
+                            const cols = row.split(',');
+                            const [date, hostName, tiktokUsername, startTime, endTime, revenue, ...noteParts] = cols;
+                            const note = noteParts.join(',').replace(/"/g, '');
+                            
+                            const host = hosts.find(h => h.nama_host.trim().toLowerCase() === hostName.trim().toLowerCase());
+                            const tiktokAccount = tiktokAccounts.find(t => t.username.trim().toLowerCase() === tiktokUsername.trim().toLowerCase());
+                            
+                            let status = '<span class="text-green-600 font-semibold">Valid</span>';
+                            let rowData = null;
+
+                            if (host && tiktokAccount) {
+                                const dateString = new Date(date.trim()).toISOString().split('T')[0];
+                                const startDateTime = new Date(`${dateString}T${startTime.trim()}`);
+                                const endDateTime = new Date(`${dateString}T${endTime.trim()}`);
+                                if (endDateTime <= startDateTime) {
+                                    endDateTime.setDate(endDateTime.getDate() + 1);
+                                }
+                                const duration = Math.round((endDateTime - startDateTime) / (1000 * 60));
+                                
+                                rowData = {
+                                    tanggal_live: dateString,
+                                    host_id: host.id,
+                                    tiktok_account_id: tiktokAccount.id,
+                                    waktu_mulai: startTime.trim(),
+                                    waktu_selesai: endTime.trim(),
+                                    durasi_menit: duration,
+                                    pendapatan: parseInt(revenue.trim()) || 0,
+                                    catatan: note.trim()
+                                };
+                                hasValidData = true;
+                            } else {
+                                status = `<span class="text-red-600 font-semibold">${!host ? 'Host tidak ditemukan' : 'Akun tidak ditemukan'}</span>`;
+                            }
+                            
+                            parsedCsvData.push({ data: rowData, valid: !!rowData });
+
+                            const previewRow = document.createElement('tr');
+                            previewRow.className = !rowData ? 'bg-red-50' : 'bg-white';
+                            previewRow.innerHTML = `
+                                <td class="px-4 py-2 border-b">${status}</td>
+                                <td class="px-4 py-2 border-b">${date}</td>
+                                <td class="px-4 py-2 border-b">${hostName}</td>
+                                <td class="px-4 py-2 border-b">${tiktokUsername}</td>
+                                <td class="px-4 py-2 border-b">${rowData ? formatDuration(rowData.durasi_menit) : '-'}</td>
+                                <td class="px-4 py-2 border-b">${revenue}</td>
+                            `;
+                            previewBody.appendChild(previewRow);
+                        }
+                        if (hasValidData) {
+                            confirmButton.classList.remove('hidden');
+                        }
+                        hideButtonLoader(button);
+                    };
+                    reader.readAsText(file);
+                });
+
+                document.getElementById('btn-confirm-import').addEventListener('click', async (e) => {
+                    const button = e.currentTarget;
+                    showButtonLoader(button);
+                    const validData = parsedCsvData.filter(row => row.valid).map(row => row.data);
+                    try {
+                        if (validData.length > 0) {
+                            const { error } = await supabaseClient.from('rekap_live').insert(validData);
+                            if (error) throw error;
+                            showNotification(`${validData.length} data berhasil diimport.`);
+                            importCsvModal.classList.add('hidden');
+                            await updateAllUI();
+                        } else {
+                            showNotification('Tidak ada data valid untuk diimport.', true);
+                        }
+                    } catch (err) {
+                        showNotification(`Error saat import: ${err.message}`, true);
+                    } finally {
+                        hideButtonLoader(button);
                     }
-                }
-            });
-
-            document.getElementById('user-role').addEventListener('change', (e) => {
-                 const hostLinkContainer = document.getElementById('user-host-link-container');
-                 if (e.target.value === 'host') {
-                     hostLinkContainer.classList.remove('hidden');
-                 } else {
-                     hostLinkContainer.classList.add('hidden');
-                 }
-            });
-            
-            formRekap.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const rekapId = parseInt(document.getElementById('rekap-id').value);
-                const dateString = document.getElementById('rekap-tanggal').value;
-                const startTimeString = document.getElementById('rekap-mulai').value;
-                const endTimeString = document.getElementById('rekap-selesai').value;
-
-                const startDateTime = new Date(`${dateString}T${startTimeString}`);
-                const endDateTime = new Date(`${dateString}T${endTimeString}`);
-
-                if (endDateTime <= startDateTime) {
-                    endDateTime.setDate(endDateTime.getDate() + 1);
-                }
-
-                const duration = Math.round((endDateTime - startDateTime) / (1000 * 60));
-
-                const rekapData = {
-                    host_id: parseInt(document.getElementById('rekap-host').value),
-                    tiktok_account_id: parseInt(document.getElementById('rekap-tiktok-account').value),
-                    tanggal_live: dateString,
-                    waktu_mulai: startTimeString,
-                    waktu_selesai: endTimeString,
-                    durasi_menit: duration,
-                    pendapatan: parseInt(document.getElementById('rekap-pendapatan').value),
-                    catatan: document.getElementById('rekap-catatan').value,
-                };
+                });
                 
-                let error;
-                if (rekapId) {
-                    ({ error } = await supabaseClient.from('rekap_live').update(rekapData).eq('id', rekapId));
-                } else {
-                    ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
-                }
-                
-                if (error) showNotification(error.message, true);
-                else {
-                    rekapModal.classList.add('hidden');
-                    showNotification('Data rekap berhasil disimpan.');
-                    await updateAll();
-                }
-            });
-            
-            formSettings.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const settingsData = {
-                    dashboard: document.getElementById('setting-dashboard').checked,
-                    analysis: document.getElementById('setting-analysis').checked,
-                    rekap: document.getElementById('setting-rekap').checked,
-                };
-                // In a real app, you would save this to a settings table in Supabase.
-                // For this simulation, we'll just update the local variable.
-                hostMenuAccess = settingsData;
-                settingsModal.classList.add('hidden');
-                showNotification('Pengaturan akses berhasil disimpan.');
-            });
+                btnGenerateAnalysis.addEventListener('click', async (e) => {
+                    const button = e.currentTarget;
+                    showButtonLoader(button);
+
+                    const hostId = parseInt(document.getElementById('analysis-host').value);
+                    const month = parseInt(document.getElementById('analysis-month').value);
+                    const year = parseInt(document.getElementById('analysis-year').value);
+                    if (!hostId) {
+                        showNotification('Silakan pilih host terlebih dahulu.', true);
+                        hideButtonLoader(button);
+                        return;
+                    }
+
+                    const geminiContainer = document.getElementById('gemini-analysis-container');
+                    const loader = document.getElementById('gemini-loader');
+                    const resultDiv = document.getElementById('gemini-analysis-result');
+                    
+                    geminiContainer.classList.remove('hidden');
+                    loader.classList.remove('hidden');
+                    resultDiv.innerHTML = '';
+
+                    const performance = calculateMonthlyPerformance(hostId, year, month);
+                    const host = hosts.find(h => h.id === hostId);
+                    
+                    const prompt = `
+                        Anda adalah seorang analis kinerja untuk manajer agensi host live streaming.
+                        Berdasarkan data kinerja berikut untuk host bernama ${host.nama_host} pada bulan ${new Date(year, month).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}, buatlah sebuah ringkasan analisis yang singkat dan jelas.
+
+                        Data Kinerja:
+                        - Hari Kerja Tercapai: ${performance.workDays} hari
+                        - Target Hari Kerja: 26 hari
+                        - Total Jam Live: ${performance.totalHours.toFixed(1)} jam
+                        - Keseimbangan Jam (dibandingkan target 6 jam/hari kerja): ${performance.hourBalance.toFixed(1)} jam
+                        - Sisa Jatah Libur: ${performance.remainingOffDays} hari
+
+                        Format laporan dalam poin-poin sebagai berikut:
+                        1.  **Ringkasan Umum:** Berikan kesimpulan singkat tentang kinerja host di bulan ini.
+                        2.  **Kekuatan:** Sebutkan 1-2 hal positif utama dari data (misalnya, melebihi target jam, konsisten).
+                        3.  **Area Perbaikan:** Sebutkan 1-2 area yang perlu ditingkatkan (misalnya, kurang dari target hari kerja, jam kerja minus).
+                        4.  **Saran Tindak Lanjut:** Berikan satu saran konkret yang bisa dilakukan host untuk meningkatkan performa di bulan berikutnya.
+
+                        Gunakan bahasa yang profesional, suportif, dan mudah dimengerti.
+                    `;
+
+                    try {
+                        let chatHistory = [];
+                        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                        const payload = { contents: chatHistory };
+                        const apiKey = ""; 
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                        
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            // Simple markdown to HTML conversion
+                            let html = text
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\n/g, '<br>');
+                            resultDiv.innerHTML = html;
+                        } else {
+                            throw new Error("Respons dari API tidak valid.");
+                        }
+                    } catch (error) {
+                        console.error("Error calling Gemini API:", error);
+                        resultDiv.innerHTML = `<p class="text-red-500">Gagal menghasilkan analisis. Silakan coba lagi. Error: ${error.message}</p>`;
+                    } finally {
+                        loader.classList.add('hidden');
+                        hideButtonLoader(button);
+                    }
+                });
+
+                document.querySelectorAll('.sortable-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const tableId = header.closest('table').id;
+                        const sortKey = header.dataset.sortKey;
+                        let tableType;
+
+                        if (tableId === 'host-table') tableType = 'hosts';
+                        else if (tableId === 'tiktok-table') tableType = 'tiktok';
+                        else if (tableId === 'rekap-table') tableType = 'rekap';
+                        else if (tableId === 'user-table') tableType = 'users';
+                        
+                        if (!tableType) return;
+
+                        if (sortState[tableType].key === sortKey) {
+                            sortState[tableType].direction = sortState[tableType].direction === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            sortState[tableType].key = sortKey;
+                            sortState[tableType].direction = 'asc';
+                        }
+
+                        switch(tableType) {
+                            case 'hosts': renderHostTable(); break;
+                            case 'tiktok': renderTiktokTable(); break;
+                            case 'rekap': renderRekapTable(); break;
+                            case 'users': renderUserTable(); break;
+                        }
+                    });
+                });
+            }
 
             async function fetchData() {
                 const { data: hostsData, error: hostsError } = await supabaseClient.from('hosts').select('*');
@@ -1473,15 +1982,17 @@
                 if (rekapError) console.error('Error fetching rekap live:', rekapError);
                 else rekapLive = rekapData;
 
-                if (currentUser.user_metadata?.role === 'superadmin') {
+                if (currentUser?.user_metadata?.role === 'superadmin') {
                     const { data: usersData, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
                     if (usersError) console.error('Error fetching users:', usersError.message);
                     else users = usersData;
                 }
             }
 
-            async function updateAll() {
-                await fetchData();
+            async function updateAllUI() {
+                await setupUIForRole();
+                setupRekapFilters();
+                setupAnalysisFilters(); 
                 renderHostTable();
                 renderTiktokTable();
                 renderUserTable();
@@ -1489,17 +2000,57 @@
                 updateKPIs();
                 updatePerformanceChart(document.getElementById('chart-metric-selector').value);
                 renderAnalysisView();
-            }
-
-            async function init() {
-                await setupUIForRole();
-                setupAnalysisFilters();
-                setupRekapFilters();
-                await updateAll();
                 showSection(getFirstVisibleSection());
             }
             
-            checkSession();
+            // Theme toggling logic
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    iconMoon.classList.add('hidden');
+                    iconSun.classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    iconMoon.classList.remove('hidden');
+                    iconSun.classList.add('hidden');
+                }
+                localStorage.setItem('theme', theme);
+                if (performanceChart) {
+                    updatePerformanceChart(document.getElementById('chart-metric-selector').value);
+                }
+            }
+
+            btnThemeToggle.addEventListener('click', () => {
+                const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+                applyTheme(currentTheme);
+            });
+
+            // --- MAIN INITIALIZATION ---
+            setupEventListeners();
+            
+            // Apply initial theme
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                const wasLoggedIn = !!currentUser;
+                const isLoggedIn = !!session?.user;
+
+                if (isLoggedIn && !wasLoggedIn) { // User just logged in
+                    currentUser = session.user;
+                    loginPage.classList.add('hidden');
+                    appPage.classList.remove('hidden');
+                    await fetchData();
+                    await updateAllUI();
+                } else if (!isLoggedIn && wasLoggedIn) { // User just logged out
+                    currentUser = null;
+                    appPage.classList.add('hidden');
+                    loginPage.classList.remove('hidden');
+                    loginForm.reset();
+                    loginError.classList.add('hidden');
+                }
+            });
+
         });
     </script>
 </body>
