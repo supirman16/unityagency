@@ -1,7 +1,7 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns } from './render.js';
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView } from './render.js';
 
 // --- KONEKSI KE SUPABASE ---
 const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
@@ -30,6 +30,34 @@ export let state = {
         rekap: true,
     }
 };
+
+async function refreshDataAndRender() {
+    await fetchData();
+    // Re-render all components that might have changed
+    renderHostTable();
+    renderTiktokTable();
+    renderUserTable();
+    renderRekapTable();
+    updateKPIs();
+    updatePerformanceChart();
+    
+    // Re-populate dropdowns in case data changed (e.g., new host added)
+    populateHostDropdowns(document.getElementById('rekap-host'));
+    populateTiktokDropdowns(document.getElementById('rekap-tiktok-account'));
+    populateHostDropdowns(document.getElementById('user-host-link'));
+
+    // Re-populate profile form if the user is a host
+    if (state.currentUser.user_metadata?.role === 'host') {
+        const hostData = state.hosts.find(h => h.id === state.currentUser.user_metadata.host_id);
+        if (hostData) {
+            document.getElementById('profile-nama').value = hostData.nama_host || '';
+            document.getElementById('profile-telepon').value = hostData.nomor_telepon || '';
+            document.getElementById('profile-alamat').value = hostData.alamat || '';
+            document.getElementById('profile-bank').value = hostData.nama_bank || '';
+            document.getElementById('profile-rekening').value = hostData.nomor_rekening || '';
+        }
+    }
+}
 
 function setupEventListeners() {
     const loginForm = document.getElementById('login-form');
@@ -116,7 +144,7 @@ function setupEventListeners() {
             state.itemToDelete = { id: null, type: '' };
             document.getElementById('modal-confirm').classList.add('hidden');
             showNotification('Data berhasil dihapus.');
-            await updateAllDataAndUI();
+            await refreshDataAndRender();
         } catch (err) {
             showNotification(`Error: ${err.message}`, true);
         } finally {
@@ -198,7 +226,7 @@ function setupEventListeners() {
             if (error) throw error;
             document.getElementById('modal-host').classList.add('hidden');
             showNotification('Data host berhasil disimpan.');
-            await updateAllDataAndUI();
+            await refreshDataAndRender();
         } catch(err) {
             showNotification(err.message, true);
         } finally {
@@ -225,7 +253,7 @@ function setupEventListeners() {
             if (error) throw error;
             document.getElementById('modal-tiktok').classList.add('hidden');
             showNotification('Akun TikTok berhasil disimpan.');
-            await updateAllDataAndUI();
+            await refreshDataAndRender();
         } catch (err) {
             showNotification(err.message, true);
         } finally {
@@ -265,7 +293,7 @@ function setupEventListeners() {
                 showNotification(`Pengguna ${email} berhasil dibuat.`);
             }
             document.getElementById('modal-user').classList.add('hidden');
-            await updateAllDataAndUI();
+            await refreshDataAndRender();
         } catch (err) {
             showNotification(`Error: ${err.message}`, true);
         } finally {
@@ -321,7 +349,7 @@ function setupEventListeners() {
             if (error) throw error;
             document.getElementById('modal-rekap').classList.add('hidden');
             showNotification('Data rekap berhasil disimpan.');
-            await updateAllDataAndUI();
+            await refreshDataAndRender();
         } catch(err) {
             showNotification(err.message, true);
         } finally {
@@ -437,7 +465,7 @@ function setupEventListeners() {
                 if (error) throw error;
                 showNotification(`${validData.length} data berhasil diimport.`);
                 importCsvModal.classList.add('hidden');
-                await updateAllDataAndUI();
+                await refreshDataAndRender();
             } else {
                 showNotification('Tidak ada data valid untuk diimport.', true);
             }
