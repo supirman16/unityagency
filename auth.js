@@ -1,4 +1,4 @@
-import { supabase, state } from './main.js';
+import { supabaseClient, state } from './main.js';
 import { showButtonLoader, hideButtonLoader } from './ui.js';
 
 export async function handleLogin(e) {
@@ -12,7 +12,7 @@ export async function handleLogin(e) {
     const password = document.getElementById('password').value;
     
     try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
         // onAuthStateChange in main.js will handle the UI change
     } catch (error) {
@@ -24,11 +24,11 @@ export async function handleLogin(e) {
 }
 
 export async function handleLogout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     // onAuthStateChange in main.js will handle the UI change
 }
 
 export async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     return session;
 }
