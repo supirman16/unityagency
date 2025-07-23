@@ -2,7 +2,7 @@ import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { setupEventListeners, setupUIForRole, showSection, getFirstVisibleSection, applyTheme, setupRekapFilters, setupAnalysisFilters } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView } from './render.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 // --- KONEKSI KE SUPABASE ---
 const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
