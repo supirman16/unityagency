@@ -1,4 +1,4 @@
-import { state } from './main.js';
+import { state, updateAllDataAndUI } from './main.js';
 import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns } from './render.js';
 
 // --- FUNGSI UTILITAS TAMPILAN ---
@@ -253,6 +253,11 @@ export async function openDetailRekapModal(rekapId) {
 
     document.getElementById('modal-rekap-detail').classList.remove('hidden');
 }
+
+export function handleEditHost(hostId) { openHostModal(hostId); }
+export function handleEditTiktok(accountId) { openTiktokModal(accountId); }
+export function handleEditRekap(rekapId) { openRekapModal(rekapId); }
+export function handleEditUser(userId) { openUserModal(userId); }
 
 export function handleDeleteHost(hostId) {
     state.itemToDelete = { id: hostId, type: 'host' };
