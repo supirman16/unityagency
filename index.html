@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         html {
             scroll-behavior: smooth;
@@ -148,6 +148,11 @@
                          <span class="mr-2">📝</span> Rekap Live
                     </a>
                 </li>
+                 <li id="nav-item-profile" class="mr-2">
+                    <a id="nav-profile" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
+                         <span class="mr-2">👤</span> Profil Saya
+                    </a>
+                </li>
                 <li id="nav-item-hosts" class="mr-2">
                     <a id="nav-hosts" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">👥</span> Manajemen Host
@@ -267,6 +272,46 @@
                         <span>Menganalisis data...</span>
                     </div>
                     <div id="gemini-analysis-result" class="text-stone-600 dark:text-stone-300 prose prose-sm max-w-none"></div>
+                </div>
+            </section>
+
+            <section id="section-profile" class="hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Profil Saya</h2>
+                    <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Perbarui data pribadi dan informasi bank Anda.</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                    <form id="form-profile" class="space-y-6 max-w-lg">
+                        <div>
+                            <label for="profile-nama" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nama Lengkap</label>
+                            <input type="text" id="profile-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label for="profile-telepon" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nomor Telepon</label>
+                            <input type="tel" id="profile-telepon" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="08...">
+                        </div>
+                        <div>
+                            <label for="profile-alamat" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Alamat</label>
+                            <textarea id="profile-alamat" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat lengkap..."></textarea>
+                        </div>
+                        <div class="border-t border-stone-200 dark:border-stone-700 pt-6">
+                             <h3 class="text-lg font-medium text-stone-900 dark:text-stone-200">Informasi Bank</h3>
+                        </div>
+                        <div>
+                            <label for="profile-bank" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nama Bank</label>
+                            <input type="text" id="profile-bank" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: BCA, Mandiri">
+                        </div>
+                        <div>
+                            <label for="profile-rekening" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nomor Rekening</label>
+                            <input type="text" id="profile-rekening" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Masukkan nomor rekening">
+                        </div>
+                        <div class="flex justify-end pt-2">
+                             <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                                <span class="btn-text">Simpan Perubahan</span>
+                                <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
 
@@ -423,8 +468,7 @@
         <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
             <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Detail Rekap Live</h2>
             <div id="rekap-detail-content" class="space-y-3 text-sm">
-                <!-- Detail content will be injected here -->
-            </div>
+                </div>
             <div class="flex justify-end pt-6">
                 <button type="button" id="btn-close-rekap-detail" class="px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700">Tutup</button>
             </div>
@@ -651,72 +695,8 @@
             const appPage = document.getElementById('app');
             const loginForm = document.getElementById('login-form');
             const loginError = document.getElementById('login-error');
-            const btnLogout = document.getElementById('btn-logout');
-            const btnSettings = document.getElementById('btn-settings');
-            const btnThemeToggle = document.getElementById('btn-theme-toggle');
-            const iconMoon = document.getElementById('icon-moon');
-            const iconSun = document.getElementById('icon-sun');
-
-            const sections = {
-                dashboard: document.getElementById('section-dashboard'),
-                analysis: document.getElementById('section-analysis'),
-                hosts: document.getElementById('section-hosts'),
-                tiktok: document.getElementById('section-tiktok'),
-                rekap: document.getElementById('section-rekap'),
-                users: document.getElementById('section-users'),
-            };
-            const navItems = {
-                dashboard: document.getElementById('nav-item-dashboard'),
-                analysis: document.getElementById('nav-item-analysis'),
-                hosts: document.getElementById('nav-item-hosts'),
-                tiktok: document.getElementById('nav-item-tiktok'),
-                rekap: document.getElementById('nav-item-rekap'),
-                users: document.getElementById('nav-item-users'),
-            }
-            const navLinks = {
-                dashboard: document.getElementById('nav-dashboard'),
-                analysis: document.getElementById('nav-analysis'),
-                hosts: document.getElementById('nav-hosts'),
-                tiktok: document.getElementById('nav-tiktok'),
-                rekap: document.getElementById('nav-rekap'),
-                users: document.getElementById('nav-users'),
-            };
-            const hostTableBody = document.getElementById('host-table-body');
-            const tiktokTableBody = document.getElementById('tiktok-table-body');
-            const rekapTableBody = document.getElementById('rekap-table-body');
-            const userTableBody = document.getElementById('user-table-body');
-            const performanceChartCanvas = document.getElementById('performanceChart').getContext('2d');
             let performanceChart;
             
-            const hostModal = document.getElementById('modal-host');
-            const tiktokModal = document.getElementById('modal-tiktok');
-            const rekapModal = document.getElementById('modal-rekap');
-            const userModal = document.getElementById('modal-user');
-            const rekapDetailModal = document.getElementById('modal-rekap-detail');
-            const confirmModal = document.getElementById('modal-confirm');
-            const settingsModal = document.getElementById('modal-settings');
-            const importCsvModal = document.getElementById('modal-import-csv');
-            const btnAddHost = document.getElementById('btn-add-host');
-            const btnAddTiktok = document.getElementById('btn-add-tiktok');
-            const btnAddRekap = document.getElementById('btn-add-rekap');
-            const btnAddUser = document.getElementById('btn-add-user');
-            const btnImportCsv = document.getElementById('btn-import-csv');
-            const btnCancelHost = document.getElementById('btn-cancel-host');
-            const btnCancelTiktok = document.getElementById('btn-cancel-tiktok');
-            const btnCancelRekap = document.getElementById('btn-cancel-rekap');
-            const btnCancelUser = document.getElementById('btn-cancel-user');
-            const btnCancelImport = document.getElementById('btn-cancel-import');
-            const btnCloseRekapDetail = document.getElementById('btn-close-rekap-detail');
-            const btnCancelSettings = document.getElementById('btn-cancel-settings');
-            const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
-            const btnConfirmDelete = document.getElementById('btn-confirm-delete');
-            const formHost = document.getElementById('form-host');
-            const formTiktok = document.getElementById('form-tiktok');
-            const formRekap = document.getElementById('form-rekap');
-            const formUser = document.getElementById('form-user');
-            const formImportCsv = document.getElementById('form-import-csv');
-            const formSettings = document.getElementById('form-settings');
-            const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
             
             const formatDiamond = (amount) => new Intl.NumberFormat('id-ID').format(amount) + ' 💎';
             const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -802,26 +782,27 @@
                 document.getElementById('user-display-name').textContent = currentUser.email;
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
 
-                btnSettings.style.display = isSuperAdmin ? 'block' : 'none';
+                document.getElementById('btn-settings').style.display = isSuperAdmin ? 'block' : 'none';
                 document.getElementById('kpi-title-hosts').textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
                 document.getElementById('dashboard-subtitle').textContent = isSuperAdmin ? 'Metrik utama dari seluruh aktivitas host.' : 'Metrik utama dari aktivitas Anda.';
                 
-                navItems.hosts.style.display = isSuperAdmin ? 'flex' : 'none';
-                navItems.tiktok.style.display = isSuperAdmin ? 'flex' : 'none';
-                navItems.users.style.display = isSuperAdmin ? 'flex' : 'none';
-                btnImportCsv.style.display = isSuperAdmin ? 'block' : 'none';
-                navItems.dashboard.style.display = (isSuperAdmin || hostMenuAccess.dashboard) ? 'flex' : 'none';
-                navItems.analysis.style.display = (isSuperAdmin || hostMenuAccess.analysis) ? 'flex' : 'none';
-                navItems.rekap.style.display = (isSuperAdmin || hostMenuAccess.rekap) ? 'flex' : 'none';
+                document.getElementById('nav-item-hosts').style.display = isSuperAdmin ? 'flex' : 'none';
+                document.getElementById('nav-item-tiktok').style.display = isSuperAdmin ? 'flex' : 'none';
+                document.getElementById('nav-item-users').style.display = isSuperAdmin ? 'flex' : 'none';
+                document.getElementById('btn-import-csv').style.display = isSuperAdmin ? 'block' : 'none';
+                document.getElementById('nav-item-dashboard').style.display = (isSuperAdmin || hostMenuAccess.dashboard) ? 'flex' : 'none';
+                document.getElementById('nav-item-analysis').style.display = (isSuperAdmin || hostMenuAccess.analysis) ? 'flex' : 'none';
+                document.getElementById('nav-item-rekap').style.display = (isSuperAdmin || hostMenuAccess.rekap) ? 'flex' : 'none';
+                document.getElementById('nav-item-profile').style.display = !isSuperAdmin ? 'flex' : 'none';
             }
             
             function showSection(sectionName) {
-                Object.values(sections).forEach(section => section.classList.add('hidden'));
-                Object.values(navLinks).forEach(link => {
+                Object.values(document.querySelectorAll('main > section')).forEach(section => section.classList.add('hidden'));
+                Object.values(document.querySelectorAll('.nav-link')).forEach(link => {
                     link.classList.remove('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
                 });
-                sections[sectionName].classList.remove('hidden');
-                navLinks[sectionName].classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+                document.getElementById(`section-${sectionName}`).classList.remove('hidden');
+                document.getElementById(`nav-${sectionName}`).classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
             }
             
             function getFirstVisibleSection() {
@@ -891,6 +872,7 @@
 
             // --- RENDER FUNCTIONS (now with role filtering) ---
             function renderHostTable() {
+                const hostTableBody = document.getElementById('host-table-body');
                 const { key, direction } = sortState.hosts;
                 const type = document.querySelector(`#host-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
                 const sortedData = [...hosts].sort((a,b) => universalSorter(a, b, key, direction, type));
@@ -919,6 +901,7 @@
             }
             
             function renderTiktokTable() {
+                const tiktokTableBody = document.getElementById('tiktok-table-body');
                 const { key, direction } = sortState.tiktok;
                 const type = document.querySelector(`#tiktok-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
                 const sortedData = [...tiktokAccounts].sort((a,b) => universalSorter(a, b, key, direction, type));
@@ -945,6 +928,7 @@
             }
 
             function renderUserTable() {
+                const userTableBody = document.getElementById('user-table-body');
                 const { key, direction } = sortState.users;
                 const header = document.querySelector(`#user-table th[data-sort-key="${key}"]`);
                 const type = header.dataset.sortType || 'string';
@@ -977,6 +961,7 @@
 
             function renderRekapTable() {
                 if (!currentUser) return;
+                const rekapTableBody = document.getElementById('rekap-table-body');
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 const month = parseInt(document.getElementById('rekap-month-filter').value);
                 const year = parseInt(document.getElementById('rekap-year-filter').value);
@@ -1078,6 +1063,7 @@
             
             function updatePerformanceChart(metric = 'duration') {
                 if (!currentUser) return;
+                const performanceChartCanvas = document.getElementById('performanceChart').getContext('2d');
                 const isSuperAdmin = currentUser.user_metadata?.role === 'superadmin';
                 let hostData;
 
@@ -1113,7 +1099,9 @@
                 const backgroundColor = 'rgba(20, 150, 150, 0.6)';
                 const borderColor = 'rgba(15, 118, 110, 1)';
                 
-                if (performanceChart) { performanceChart.destroy(); }
+                if (performanceChart && typeof performanceChart.destroy === 'function') { 
+                    performanceChart.destroy(); 
+                }
 
                 performanceChart = new Chart(performanceChartCanvas, {
                     type: 'bar',
@@ -1315,6 +1303,7 @@
 
             // --- MODAL & CRUD LOGIC ---
             async function openHostModal(hostId = null) {
+                const formHost = document.getElementById('form-host');
                 formHost.reset();
                 const modalTitle = document.getElementById('modal-host-title');
                 const hostIdInput = document.getElementById('host-id');
@@ -1332,10 +1321,11 @@
                     hostIdInput.value = '';
                     document.getElementById('host-gabung').valueAsDate = new Date();
                 }
-                hostModal.classList.remove('hidden');
+                document.getElementById('modal-host').classList.remove('hidden');
             }
             
             async function openTiktokModal(accountId = null) {
+                const formTiktok = document.getElementById('form-tiktok');
                 formTiktok.reset();
                 const modalTitle = document.getElementById('modal-tiktok-title');
                 const tiktokIdInput = document.getElementById('tiktok-id');
@@ -1350,10 +1340,11 @@
                     modalTitle.textContent = 'Tambah Akun TikTok';
                     tiktokIdInput.value = '';
                 }
-                tiktokModal.classList.remove('hidden');
+                document.getElementById('modal-tiktok').classList.remove('hidden');
             }
             
             async function openUserModal(userId = null) {
+                const formUser = document.getElementById('form-user');
                 formUser.reset();
                 const modalTitle = document.getElementById('modal-user-title');
                 const userIdInput = document.getElementById('user-id');
@@ -1382,10 +1373,11 @@
                     userEmailInput.disabled = false;
                     userHostLinkContainer.classList.add('hidden');
                 }
-                userModal.classList.remove('hidden');
+                document.getElementById('modal-user').classList.remove('hidden');
             }
 
             async function openRekapModal(rekapId = null) {
+                const formRekap = document.getElementById('form-rekap');
                 formRekap.reset();
                 const modalTitle = document.getElementById('modal-rekap-title');
                 const rekapIdInput = document.getElementById('rekap-id');
@@ -1413,7 +1405,7 @@
                     hostSelect.value = currentUser.user_metadata?.role === 'host' ? currentUser.user_metadata.host_id : '';
                     document.getElementById('rekap-tanggal').valueAsDate = new Date();
                 }
-                rekapModal.classList.remove('hidden');
+                document.getElementById('modal-rekap').classList.remove('hidden');
             }
 
             async function openDetailRekapModal(rekapId) {
@@ -1437,14 +1429,14 @@
                     </div>
                 `;
 
-                rekapDetailModal.classList.remove('hidden');
+                document.getElementById('modal-rekap-detail').classList.remove('hidden');
             }
             
             function openSettingsModal() {
                 document.getElementById('setting-dashboard').checked = hostMenuAccess.dashboard;
                 document.getElementById('setting-analysis').checked = hostMenuAccess.analysis;
                 document.getElementById('setting-rekap').checked = hostMenuAccess.rekap;
-                settingsModal.classList.remove('hidden');
+                document.getElementById('modal-settings').classList.remove('hidden');
             }
 
             function handleEditHost(hostId) { openHostModal(hostId); }
@@ -1455,33 +1447,72 @@
             function handleDeleteHost(hostId) {
                 itemToDelete = { id: hostId, type: 'host' };
                 document.getElementById('confirm-message').textContent = 'Menghapus host juga akan menghapus semua rekap terkait. Apakah Anda yakin?';
-                confirmModal.classList.remove('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
             }
             
             function handleDeleteTiktok(accountId) {
                 itemToDelete = { id: accountId, type: 'tiktok' };
                 document.getElementById('confirm-message').textContent = 'Menghapus akun TikTok tidak akan menghapus rekap live yang sudah ada. Apakah Anda yakin?';
-                confirmModal.classList.remove('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
             }
 
             function handleDeleteRekap(rekapId) {
                 itemToDelete = { id: rekapId, type: 'rekap' };
                 document.getElementById('confirm-message').textContent = 'Apakah Anda yakin ingin menghapus data rekap ini?';
-                confirmModal.classList.remove('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
             }
             
             function handleDeleteUser(userId) {
                 itemToDelete = { id: userId, type: 'user' };
                 const user = users.find(u => u.id === userId);
                 document.getElementById('confirm-message').textContent = `Apakah Anda yakin ingin menghapus pengguna "${user.email}"?`;
-                confirmModal.classList.remove('hidden');
+                document.getElementById('modal-confirm').classList.remove('hidden');
             }
 
             // --- EVENT LISTENERS ---
             function setupEventListeners() {
+                const btnLogout = document.getElementById('btn-logout');
+                const btnSettings = document.getElementById('btn-settings');
+                const btnThemeToggle = document.getElementById('btn-theme-toggle');
+                const btnAddRekap = document.getElementById('btn-add-rekap');
+                const btnAddHost = document.getElementById('btn-add-host');
+                const btnAddTiktok = document.getElementById('btn-add-tiktok');
+                const btnAddUser = document.getElementById('btn-add-user');
+                const btnImportCsv = document.getElementById('btn-import-csv');
+                const btnCancelHost = document.getElementById('btn-cancel-host');
+                const btnCancelTiktok = document.getElementById('btn-cancel-tiktok');
+                const btnCancelRekap = document.getElementById('btn-cancel-rekap');
+                const btnCancelUser = document.getElementById('btn-cancel-user');
+                const btnCancelImport = document.getElementById('btn-cancel-import');
+                const btnCloseRekapDetail = document.getElementById('btn-close-rekap-detail');
+                const btnCancelSettings = document.getElementById('btn-cancel-settings');
+                const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
+                const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+                const formHost = document.getElementById('form-host');
+                const formTiktok = document.getElementById('form-tiktok');
+                const formRekap = document.getElementById('form-rekap');
+                const formUser = document.getElementById('form-user');
+                const formImportCsv = document.getElementById('form-import-csv');
+                const formSettings = document.getElementById('form-settings');
+                const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
+                const formProfile = document.getElementById('form-profile');
+                const navLinks = {
+                    dashboard: document.getElementById('nav-dashboard'),
+                    analysis: document.getElementById('nav-analysis'),
+                    hosts: document.getElementById('nav-hosts'),
+                    tiktok: document.getElementById('nav-tiktok'),
+                    rekap: document.getElementById('nav-rekap'),
+                    users: document.getElementById('nav-users'),
+                    profile: document.getElementById('nav-profile'),
+                };
+
                 loginForm.addEventListener('submit', handleLogin);
                 btnLogout.addEventListener('click', handleLogout);
                 btnSettings.addEventListener('click', openSettingsModal);
+                btnThemeToggle.addEventListener('click', () => {
+                    const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
+                    applyTheme(currentTheme);
+                });
                 Object.keys(navLinks).forEach(key => navLinks[key].addEventListener('click', () => showSection(key)));
                 document.getElementById('chart-metric-selector').addEventListener('change', (e) => updatePerformanceChart(e.target.value));
                 
@@ -1490,17 +1521,17 @@
                 btnAddHost.addEventListener('click', () => openHostModal());
                 btnAddTiktok.addEventListener('click', () => openTiktokModal());
                 btnAddUser.addEventListener('click', () => openUserModal());
-                btnImportCsv.addEventListener('click', () => importCsvModal.classList.remove('hidden'));
-                btnCancelHost.addEventListener('click', () => hostModal.classList.add('hidden'));
-                btnCancelTiktok.addEventListener('click', () => tiktokModal.classList.add('hidden'));
-                btnCancelRekap.addEventListener('click', () => rekapModal.classList.add('hidden'));
-                btnCancelUser.addEventListener('click', () => userModal.classList.add('hidden'));
-                btnCancelImport.addEventListener('click', () => importCsvModal.classList.add('hidden'));
-                btnCloseRekapDetail.addEventListener('click', () => rekapDetailModal.classList.add('hidden'));
-                btnCancelSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+                btnImportCsv.addEventListener('click', () => document.getElementById('modal-import-csv').classList.remove('hidden'));
+                btnCancelHost.addEventListener('click', () => document.getElementById('modal-host').classList.add('hidden'));
+                btnCancelTiktok.addEventListener('click', () => document.getElementById('modal-tiktok').classList.add('hidden'));
+                btnCancelRekap.addEventListener('click', () => document.getElementById('modal-rekap').classList.add('hidden'));
+                btnCancelUser.addEventListener('click', () => document.getElementById('modal-user').classList.add('hidden'));
+                btnCancelImport.addEventListener('click', () => document.getElementById('modal-import-csv').classList.add('hidden'));
+                btnCloseRekapDetail.addEventListener('click', () => document.getElementById('modal-rekap-detail').classList.add('hidden'));
+                btnCancelSettings.addEventListener('click', () => document.getElementById('modal-settings').classList.add('hidden'));
                 btnConfirmCancel.addEventListener('click', () => {
                     itemToDelete = { id: null, type: '' };
-                    confirmModal.classList.add('hidden');
+                    document.getElementById('modal-confirm').classList.add('hidden');
                 });
                 btnConfirmDelete.addEventListener('click', async (e) => {
                     const button = e.currentTarget;
@@ -1521,7 +1552,7 @@
                         }
                         if (error) throw error;
                         itemToDelete = { id: null, type: '' };
-                        confirmModal.classList.add('hidden');
+                        document.getElementById('modal-confirm').classList.add('hidden');
                         showNotification('Data berhasil dihapus.');
                         await updateAllUI();
                     } catch (err) {
@@ -1531,7 +1562,7 @@
                     }
                 });
                 
-                hostTableBody.addEventListener('click', (event) => {
+                document.getElementById('host-table-body').addEventListener('click', (event) => {
                     const target = event.target;
                     const row = target.closest('tr');
                     if (!row) return;
@@ -1543,7 +1574,7 @@
                     }
                 });
 
-                tiktokTableBody.addEventListener('click', (event) => {
+                document.getElementById('tiktok-table-body').addEventListener('click', (event) => {
                     const target = event.target;
                     const row = target.closest('tr');
                     if (!row) return;
@@ -1555,7 +1586,7 @@
                     }
                 });
                 
-                userTableBody.addEventListener('click', (event) => {
+                document.getElementById('user-table-body').addEventListener('click', (event) => {
                     const target = event.target;
                     const row = target.closest('tr');
                     if (!row) return;
@@ -1567,7 +1598,7 @@
                     }
                 });
 
-                rekapTableBody.addEventListener('click', (event) => {
+                document.getElementById('rekap-table-body').addEventListener('click', (event) => {
                     const target = event.target;
                     const row = target.closest('tr[data-rekap-id]');
                     if (!row) return;
@@ -1603,7 +1634,7 @@
                             ({ error } = await supabaseClient.from('hosts').insert(hostData));
                         }
                         if (error) throw error;
-                        hostModal.classList.add('hidden');
+                        document.getElementById('modal-host').classList.add('hidden');
                         showNotification('Data host berhasil disimpan.');
                         await updateAllUI();
                     } catch(err) {
@@ -1630,7 +1661,7 @@
                             ({ error } = await supabaseClient.from('tiktok_accounts').insert(tiktokData));
                         }
                         if (error) throw error;
-                        tiktokModal.classList.add('hidden');
+                        document.getElementById('modal-tiktok').classList.add('hidden');
                         showNotification('Akun TikTok berhasil disimpan.');
                         await updateAllUI();
                     } catch (err) {
@@ -1671,7 +1702,7 @@
                             if (error) throw error;
                             showNotification(`Pengguna ${email} berhasil dibuat.`);
                         }
-                        userModal.classList.add('hidden');
+                        document.getElementById('modal-user').classList.add('hidden');
                         await updateAllUI();
                     } catch (err) {
                         showNotification(`Error: ${err.message}`, true);
@@ -1726,7 +1757,7 @@
                             ({ error } = await supabaseClient.from('rekap_live').insert(rekapData));
                         }
                         if (error) throw error;
-                        rekapModal.classList.add('hidden');
+                        document.getElementById('modal-rekap').classList.add('hidden');
                         showNotification('Data rekap berhasil disimpan.');
                         await updateAllUI();
                     } catch(err) {
@@ -1746,7 +1777,7 @@
                     // In a real app, you would save this to a settings table in Supabase.
                     // For this simulation, we'll just update the local variable.
                     hostMenuAccess = settingsData;
-                    settingsModal.classList.add('hidden');
+                    document.getElementById('modal-settings').classList.add('hidden');
                     showNotification('Pengaturan akses berhasil disimpan.');
                 });
                 
@@ -1938,6 +1969,51 @@
                         hideButtonLoader(button);
                     }
                 });
+                
+                formProfile.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const button = e.submitter;
+                    showButtonLoader(button);
+
+                    if (!currentUser || currentUser.user_metadata?.role !== 'host') {
+                        showNotification('Aksi tidak diizinkan.', true);
+                        hideButtonLoader(button);
+                        return;
+                    }
+                    
+                    const hostId = currentUser.user_metadata.host_id;
+                    if (!hostId) {
+                         showNotification('ID Host tidak ditemukan.', true);
+                         hideButtonLoader(button);
+                         return;
+                    }
+
+                    // Ambil data dari form, ubah string kosong menjadi null
+                    const updatedData = {
+                        nama_host: document.getElementById('profile-nama').value,
+                        nomor_telepon: document.getElementById('profile-telepon').value || null,
+                        alamat: document.getElementById('profile-alamat').value || null,
+                        nama_bank: document.getElementById('profile-bank').value || null,
+                        nomor_rekening: document.getElementById('profile-rekening').value || null,
+                    };
+
+                    try {
+                        const { error } = await supabaseClient
+                            .from('hosts')
+                            .update(updatedData)
+                            .eq('id', hostId);
+
+                        if (error) throw error;
+                        
+                        showNotification('Profil berhasil diperbarui.');
+                        await fetchData(); // Ambil data terbaru setelah update
+                        
+                    } catch (err) {
+                        showNotification(`Gagal memperbarui profil: ${err.message}`, true);
+                    } finally {
+                        hideButtonLoader(button);
+                    }
+                });
 
                 document.querySelectorAll('.sortable-header').forEach(header => {
                     header.addEventListener('click', () => {
@@ -2000,11 +2076,26 @@
                 updateKPIs();
                 updatePerformanceChart(document.getElementById('chart-metric-selector').value);
                 renderAnalysisView();
+                
+                if (currentUser.user_metadata?.role === 'host') {
+                    const hostData = hosts.find(h => h.id === currentUser.user_metadata.host_id);
+                    if (hostData) {
+                        document.getElementById('profile-nama').value = hostData.nama_host || '';
+                        document.getElementById('profile-telepon').value = hostData.nomor_telepon || '';
+                        document.getElementById('profile-alamat').value = hostData.alamat || '';
+                        document.getElementById('profile-bank').value = hostData.nama_bank || '';
+                        document.getElementById('profile-rekening').value = hostData.nomor_rekening || '';
+                    }
+                }
+                
                 showSection(getFirstVisibleSection());
             }
             
             // Theme toggling logic
             function applyTheme(theme) {
+                const root = document.documentElement;
+                const iconMoon = document.getElementById('icon-moon');
+                const iconSun = document.getElementById('icon-sun');
                 if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                     iconMoon.classList.add('hidden');
@@ -2019,11 +2110,6 @@
                     updatePerformanceChart(document.getElementById('chart-metric-selector').value);
                 }
             }
-
-            btnThemeToggle.addEventListener('click', () => {
-                const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
-                applyTheme(currentTheme);
-            });
 
             // --- MAIN INITIALIZATION ---
             setupEventListeners();
@@ -2055,3 +2141,4 @@
     </script>
 </body>
 </html>
+
