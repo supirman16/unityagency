@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns } from './render.js';
 
 // --- KONEKSI KE SUPABASE ---
@@ -637,6 +637,8 @@ export async function updateAllDataAndUI() {
     await fetchData();
     await setupUIForRole();
     // Setup filters and render tables
+    setupRekapFilters();
+    setupAnalysisFilters(); 
     renderHostTable();
     renderTiktokTable();
     renderUserTable();

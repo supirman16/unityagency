@@ -1,5 +1,26 @@
 import { state } from './main.js';
 
+// --- FUNGSI FORMAT DATA ---
+const formatDiamond = (amount) => amount ? new Intl.NumberFormat('id-ID').format(amount) + ' 💎' : '0 💎';
+const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
+function formatDuration(totalMinutes) {
+    if (!totalMinutes || totalMinutes === 0) return '0 menit';
+    const isNegative = totalMinutes < 0;
+    const absMinutes = Math.abs(totalMinutes);
+    const hours = Math.floor(absMinutes / 60);
+    const minutes = Math.round(absMinutes % 60);
+    let result = '';
+    if (hours > 0) {
+        result += `${hours} jam `;
+    }
+    if (minutes > 0) {
+        result += `${minutes} menit`;
+    }
+    return (isNegative ? '- ' : '') + result.trim();
+}
+
+// --- FUNGSI SORTING ---
 function universalSorter(a, b, key, direction, type, lookupInfo) {
     let valA, valB;
 
@@ -20,8 +41,8 @@ function universalSorter(a, b, key, direction, type, lookupInfo) {
     valA = getValue(a);
     valB = getValue(b);
 
-    if (valA === null) return 1;
-    if (valB === null) return -1;
+    if (valA === null || valA === undefined) return 1;
+    if (valB === null || valB === undefined) return -1;
 
     if (type === 'date') {
         valA = new Date(valA);
@@ -53,25 +74,7 @@ function updateSortIndicators(tableId, currentSortState) {
     });
 }
 
-const formatDiamond = (amount) => new Intl.NumberFormat('id-ID').format(amount) + ' 💎';
-const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
-function formatDuration(totalMinutes) {
-    if (totalMinutes === 0) return '0 menit';
-    const isNegative = totalMinutes < 0;
-    const absMinutes = Math.abs(totalMinutes);
-    const hours = Math.floor(absMinutes / 60);
-    const minutes = Math.round(absMinutes % 60);
-    let result = '';
-    if (hours > 0) {
-        result += `${hours} jam `;
-    }
-    if (minutes > 0) {
-        result += `${minutes} menit`;
-    }
-    return (isNegative ? '- ' : '') + result.trim();
-}
-
+// --- FUNGSI RENDER TABEL ---
 export function renderHostTable() {
     const hostTableBody = document.getElementById('host-table-body');
     const { key, direction } = state.sortState.hosts;
@@ -338,4 +341,105 @@ export function updatePerformanceChart(metric = 'duration') {
             }
         }
     });
+}
+
+// --- ANALYSIS LOGIC & RENDER ---
+
+function calculateMonthlyPerformance(hostId, year, month) {
+    const targetWorkDays = 26;
+    const dailyTargetHours = 6;
+    const minWorkHours = 2;
+
+    const hostRekaps = state.rekapLive.filter(r => {
+        const recDate = new Date(r.tanggal_live);
+        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month;
+    });
+
+    const dailyData = hostRekaps.reduce((acc, r) => {
+        const dateKey = r.tanggal_live;
+        if (!acc[dateKey]) {
+            acc[dateKey] = 0;
+        }
+        acc[dateKey] += r.durasi_menit;
+        return acc;
+    }, {});
+
+    let achievedWorkDays = 0;
+    let totalLiveMinutes = 0;
+    let absentDays = 0;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const offDayEntitlement = daysInMonth - targetWorkDays;
+    
+    const today = new Date();
+    const lastDayToCheck = (year === today.getFullYear() && month === today.getMonth()) ? today.getDate() : daysInMonth;
+
+    for (let day = 1; day <= lastDayToCheck; day++) {
+        const currentDate = new Date(year, month, day);
+        const dateString = currentDate.toISOString().split('T')[0];
+
+        if (dailyData[dateString]) {
+            const dailyMinutes = dailyData[dateString];
+            totalLiveMinutes += dailyMinutes;
+            if (dailyMinutes >= minWorkHours * 60) {
+                achievedWorkDays++;
+            }
+        } else {
+            absentDays++;
+        }
+    }
+
+    const remainingOffDays = offDayEntitlement - absentDays;
+    const totalLiveHours = totalLiveMinutes / 60;
+    const targetLiveHours = achievedWorkDays * dailyTargetHours;
+    const hourBalance = totalLiveHours - targetLiveHours;
+
+    return {
+        workDays: achievedWorkDays,
+        totalHours: totalLiveHours,
+        hourBalance: hourBalance,
+        offDayEntitlement: offDayEntitlement,
+        remainingOffDays: remainingOffDays
+    };
+}
+
+export function renderAnalysisView() {
+    if (!state.currentUser) return;
+    const hostSelect = document.getElementById('analysis-host');
+    let hostId = parseInt(hostSelect.value);
+    const month = parseInt(document.getElementById('analysis-month').value);
+    const year = parseInt(document.getElementById('analysis-year').value);
+
+    // If superadmin and no host is selected, select the first one.
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    if (isSuperAdmin && !hostId && hostSelect.options.length > 1) {
+        hostSelect.value = hostSelect.options[1].value;
+        hostId = parseInt(hostSelect.value);
+    }
+
+    if (!hostId || isNaN(month) || isNaN(year)) {
+        document.getElementById('analysis-work-days').textContent = '-';
+        document.getElementById('analysis-total-hours').textContent = '-';
+        document.getElementById('analysis-hour-balance').textContent = '-';
+        document.getElementById('analysis-off-allowance').textContent = '-';
+        document.getElementById('analysis-off-remaining').textContent = '-';
+        return;
+    }
+
+    const performance = calculateMonthlyPerformance(hostId, year, month);
+    
+    document.getElementById('analysis-work-days').textContent = performance.workDays;
+    document.getElementById('analysis-off-allowance').textContent = performance.offDayEntitlement;
+    document.getElementById('analysis-off-remaining').textContent = performance.remainingOffDays;
+    document.getElementById('analysis-total-hours').textContent = formatDuration(Math.round(performance.totalHours * 60));
+    
+    const balanceEl = document.getElementById('analysis-hour-balance');
+    balanceEl.textContent = formatDuration(Math.round(performance.hourBalance * 60));
+    if (performance.hourBalance < 0) {
+        balanceEl.classList.remove('text-green-600', 'dark:text-green-400');
+        balanceEl.classList.add('text-red-600', 'dark:text-red-400');
+    } else {
+        balanceEl.classList.remove('text-red-600', 'dark:text-red-400');
+        balanceEl.classList.add('text-green-600', 'dark:text-green-400');
+    }
 }

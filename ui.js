@@ -1,5 +1,5 @@
-import { state, updateAllDataAndUI } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns } from './render.js';
+import { state } from './main.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable } from './render.js';
 
 // --- FUNGSI UTILITAS TAMPILAN ---
 
@@ -32,25 +32,6 @@ export function hideButtonLoader(button) {
     const spinner = button.querySelector('.spinner');
     if (btnText) btnText.classList.remove('hidden');
     if (spinner) spinner.classList.add('hidden');
-}
-
-const formatDiamond = (amount) => new Intl.NumberFormat('id-ID').format(amount) + ' 💎';
-const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
-function formatDuration(totalMinutes) {
-    if (totalMinutes === 0) return '0 menit';
-    const isNegative = totalMinutes < 0;
-    const absMinutes = Math.abs(totalMinutes);
-    const hours = Math.floor(absMinutes / 60);
-    const minutes = Math.round(absMinutes % 60);
-    let result = '';
-    if (hours > 0) {
-        result += `${hours} jam `;
-    }
-    if (minutes > 0) {
-        result += `${minutes} menit`;
-    }
-    return (isNegative ? '- ' : '') + result.trim();
 }
 
 // --- KONTROL TAMPILAN UTAMA ---
@@ -113,6 +94,68 @@ export function applyTheme(theme) {
     if (state.performanceChart) {
         updatePerformanceChart(document.getElementById('chart-metric-selector').value);
     }
+}
+
+// --- FUNGSI SETUP FILTER ---
+export function setupAnalysisFilters() {
+    if (!state.currentUser) return;
+    const hostSelect = document.getElementById('analysis-host');
+    const monthSelect = document.getElementById('analysis-month');
+    const yearSelect = document.getElementById('analysis-year');
+    
+    populateHostDropdowns(hostSelect);
+    if(state.currentUser.user_metadata?.role === 'host') {
+        hostSelect.value = state.currentUser.user_metadata.host_id;
+        hostSelect.disabled = true;
+    } else {
+        hostSelect.disabled = false;
+    }
+
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    monthSelect.innerHTML = '';
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+    monthSelect.value = new Date().getMonth();
+
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+         const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    
+    [hostSelect, monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderAnalysisView));
+}
+
+export function setupRekapFilters() {
+    const monthSelect = document.getElementById('rekap-month-filter');
+    const yearSelect = document.getElementById('rekap-year-filter');
+    
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    monthSelect.innerHTML = '';
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+    monthSelect.value = new Date().getMonth();
+
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+         const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderRekapTable));
 }
 
 // --- FUNGSI UNTUK MODAL & AKSI ---
