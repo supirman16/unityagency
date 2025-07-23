@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
+import { setupEventListeners, setupUIForRole, showSection, getFirstVisibleSection, applyTheme, setupRekapFilters, setupAnalysisFilters } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -372,6 +372,25 @@ function setupEventListeners() {
         showNotification('Pengaturan akses berhasil disimpan.');
     });
     
+    function parseDateFromCSV(dateStr) {
+        if (!dateStr || typeof dateStr !== 'string') return null;
+        const trimmedDate = dateStr.trim();
+        // Coba format DD/MM/YYYY
+        const parts = trimmedDate.split('/');
+        if (parts.length === 3) {
+            const [day, month, year] = parts;
+            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                // Kembalikan format YYYY-MM-DD yang aman untuk new Date()
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+        }
+        // Fallback untuk format lain yang mungkin bisa dipahami new Date()
+        if (!isNaN(new Date(trimmedDate).getTime())) {
+            return trimmedDate;
+        }
+        return null; // Kembalikan null jika format tidak dikenali
+    }
+
     formImportCsv.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
@@ -399,9 +418,22 @@ function setupEventListeners() {
             let hasValidData = false;
 
             for (const row of rows) {
-                if (!row) continue;
+                if (!row || row.split(',').length < 6) continue;
                 const cols = row.split(',');
                 const [date, hostName, tiktokUsername, startTime, endTime, revenue, ...noteParts] = cols;
+                
+                if (!date || !hostName || !tiktokUsername) {
+                    console.warn('Melewatkan baris karena data penting kosong:', row);
+                    continue;
+                }
+
+                const parsedDate = parseDateFromCSV(date);
+                if (!parsedDate) {
+                    console.warn(`Melewatkan baris karena format tanggal tidak valid: ${date}`);
+                    continue;
+                }
+                const dateString = new Date(parsedDate).toISOString().split('T')[0];
+
                 const note = noteParts.join(',').replace(/"/g, '');
                 
                 const host = state.hosts.find(h => h.nama_host.trim().toLowerCase() === hostName.trim().toLowerCase());
@@ -411,7 +443,6 @@ function setupEventListeners() {
                 let rowData = null;
 
                 if (host && tiktokAccount) {
-                    const dateString = new Date(date.trim()).toISOString().split('T')[0];
                     const startDateTime = new Date(`${dateString}T${startTime.trim()}`);
                     const endDateTime = new Date(`${dateString}T${endTime.trim()}`);
                     if (endDateTime <= startDateTime) {
