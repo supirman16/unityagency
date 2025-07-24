@@ -99,34 +99,38 @@ function setupEventListeners() {
         profile: document.getElementById('nav-profile'),
     };
 
-    loginForm.addEventListener('submit', handleLogin);
-    btnLogout.addEventListener('click', handleLogout);
-    btnSettings.addEventListener('click', openSettingsModal);
-    btnThemeToggle.addEventListener('click', () => {
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    if (btnLogout) btnLogout.addEventListener('click', handleLogout);
+    if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
+    if (btnThemeToggle) btnThemeToggle.addEventListener('click', () => {
         const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
         applyTheme(currentTheme);
     });
-    Object.keys(navLinks).forEach(key => navLinks[key].addEventListener('click', () => showSection(key)));
-    document.getElementById('chart-metric-selector').addEventListener('change', (e) => updatePerformanceChart(e.target.value));
+    Object.keys(navLinks).forEach(key => {
+        if (navLinks[key]) {
+            navLinks[key].addEventListener('click', () => showSection(key));
+        }
+    });
+    const chartMetricSelector = document.getElementById('chart-metric-selector');
+    if (chartMetricSelector) chartMetricSelector.addEventListener('change', (e) => updatePerformanceChart(e.target.value));
     
-    btnAddRekap.addEventListener('click', () => openRekapModal());
-
-    btnAddHost.addEventListener('click', () => openHostModal());
-    btnAddTiktok.addEventListener('click', () => openTiktokModal());
-    btnAddUser.addEventListener('click', () => openUserModal());
-    btnImportCsv.addEventListener('click', () => document.getElementById('modal-import-csv').classList.remove('hidden'));
-    btnCancelHost.addEventListener('click', () => document.getElementById('modal-host').classList.add('hidden'));
-    btnCancelTiktok.addEventListener('click', () => document.getElementById('modal-tiktok').classList.add('hidden'));
-    btnCancelRekap.addEventListener('click', () => document.getElementById('modal-rekap').classList.add('hidden'));
-    btnCancelUser.addEventListener('click', () => document.getElementById('modal-user').classList.add('hidden'));
-    btnCancelImport.addEventListener('click', () => document.getElementById('modal-import-csv').classList.add('hidden'));
-    btnCloseRekapDetail.addEventListener('click', () => document.getElementById('modal-rekap-detail').classList.add('hidden'));
-    btnCancelSettings.addEventListener('click', () => document.getElementById('modal-settings').classList.add('hidden'));
-    btnConfirmCancel.addEventListener('click', () => {
+    if (btnAddRekap) btnAddRekap.addEventListener('click', () => openRekapModal());
+    if (btnAddHost) btnAddHost.addEventListener('click', () => openHostModal());
+    if (btnAddTiktok) btnAddTiktok.addEventListener('click', () => openTiktokModal());
+    if (btnAddUser) btnAddUser.addEventListener('click', () => openUserModal());
+    if (btnImportCsv) btnImportCsv.addEventListener('click', () => document.getElementById('modal-import-csv').classList.remove('hidden'));
+    if (btnCancelHost) btnCancelHost.addEventListener('click', () => document.getElementById('modal-host').classList.add('hidden'));
+    if (btnCancelTiktok) btnCancelTiktok.addEventListener('click', () => document.getElementById('modal-tiktok').classList.add('hidden'));
+    if (btnCancelRekap) btnCancelRekap.addEventListener('click', () => document.getElementById('modal-rekap').classList.add('hidden'));
+    if (btnCancelUser) btnCancelUser.addEventListener('click', () => document.getElementById('modal-user').classList.add('hidden'));
+    if (btnCancelImport) btnCancelImport.addEventListener('click', () => document.getElementById('modal-import-csv').classList.add('hidden'));
+    if (btnCloseRekapDetail) btnCloseRekapDetail.addEventListener('click', () => document.getElementById('modal-rekap-detail').classList.add('hidden'));
+    if (btnCancelSettings) btnCancelSettings.addEventListener('click', () => document.getElementById('modal-settings').classList.add('hidden'));
+    if (btnConfirmCancel) btnConfirmCancel.addEventListener('click', () => {
         state.itemToDelete = { id: null, type: '' };
         document.getElementById('modal-confirm').classList.add('hidden');
     });
-    btnConfirmDelete.addEventListener('click', async (e) => {
+    if (btnConfirmDelete) btnConfirmDelete.addEventListener('click', async (e) => {
         const button = e.currentTarget;
         showButtonLoader(button);
         if (!state.itemToDelete.id) return;
@@ -155,7 +159,8 @@ function setupEventListeners() {
         }
     });
     
-    document.getElementById('host-table-body').addEventListener('click', (event) => {
+    const hostTableBody = document.getElementById('host-table-body');
+    if (hostTableBody) hostTableBody.addEventListener('click', (event) => {
         const target = event.target;
         const row = target.closest('tr');
         if (!row) return;
@@ -167,7 +172,8 @@ function setupEventListeners() {
         }
     });
 
-    document.getElementById('tiktok-table-body').addEventListener('click', (event) => {
+    const tiktokTableBody = document.getElementById('tiktok-table-body');
+    if (tiktokTableBody) tiktokTableBody.addEventListener('click', (event) => {
         const target = event.target;
         const row = target.closest('tr');
         if (!row) return;
@@ -179,7 +185,8 @@ function setupEventListeners() {
         }
     });
     
-    document.getElementById('user-table-body').addEventListener('click', (event) => {
+    const userTableBody = document.getElementById('user-table-body');
+    if (userTableBody) userTableBody.addEventListener('click', (event) => {
         const target = event.target;
         const row = target.closest('tr');
         if (!row) return;
@@ -191,7 +198,8 @@ function setupEventListeners() {
         }
     });
 
-    document.getElementById('rekap-table-body').addEventListener('click', (event) => {
+    const rekapTableBody = document.getElementById('rekap-table-body');
+    if (rekapTableBody) rekapTableBody.addEventListener('click', (event) => {
         const target = event.target;
         const row = target.closest('tr[data-rekap-id]');
         if (!row) return;
@@ -208,7 +216,7 @@ function setupEventListeners() {
     });
 
 
-    formHost.addEventListener('submit', async (e) => {
+    if (formHost) formHost.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
@@ -237,7 +245,7 @@ function setupEventListeners() {
         }
     });
     
-    formTiktok.addEventListener('submit', async (e) => {
+    if (formTiktok) formTiktok.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
@@ -264,7 +272,7 @@ function setupEventListeners() {
         }
     });
     
-    formUser.addEventListener('submit', async (e) => {
+    if (formUser) formUser.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
@@ -304,7 +312,8 @@ function setupEventListeners() {
         }
     });
 
-    document.getElementById('user-role').addEventListener('change', (e) => {
+    const userRoleSelect = document.getElementById('user-role');
+    if (userRoleSelect) userRoleSelect.addEventListener('change', (e) => {
          const hostLinkContainer = document.getElementById('user-host-link-container');
          if (e.target.value === 'host') {
              hostLinkContainer.classList.remove('hidden');
@@ -313,7 +322,7 @@ function setupEventListeners() {
          }
     });
     
-    formRekap.addEventListener('submit', async (e) => {
+    if (formRekap) formRekap.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
@@ -360,7 +369,7 @@ function setupEventListeners() {
         }
     });
     
-    formSettings.addEventListener('submit', async (e) => {
+    if (formSettings) formSettings.addEventListener('submit', async (e) => {
         e.preventDefault();
         const settingsData = {
             dashboard: document.getElementById('setting-dashboard').checked,
@@ -393,7 +402,7 @@ function setupEventListeners() {
         return null; // Kembalikan null jika format tidak dikenali
     }
 
-    formImportCsv.addEventListener('submit', async (e) => {
+    if (formImportCsv) formImportCsv.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
@@ -489,7 +498,8 @@ function setupEventListeners() {
         reader.readAsText(file);
     });
 
-    document.getElementById('btn-confirm-import').addEventListener('click', async (e) => {
+    const btnConfirmImport = document.getElementById('btn-confirm-import');
+    if (btnConfirmImport) btnConfirmImport.addEventListener('click', async (e) => {
         const button = e.currentTarget;
         showButtonLoader(button);
         const validData = state.parsedCsvData.filter(row => row.valid).map(row => row.data);
@@ -510,7 +520,7 @@ function setupEventListeners() {
         }
     });
     
-    btnGenerateAnalysis.addEventListener('click', async (e) => {
+    if (btnGenerateAnalysis) btnGenerateAnalysis.addEventListener('click', async (e) => {
         const button = e.currentTarget;
         showButtonLoader(button);
 
@@ -594,7 +604,7 @@ function setupEventListeners() {
         }
     });
     
-    formProfile.addEventListener('submit', async (e) => {
+    if (formProfile) formProfile.addEventListener('submit', async (e) => {
         e.preventDefault();
         const button = e.submitter;
         showButtonLoader(button);
