@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupEventListeners, setupUIForRole, showSection, getFirstVisibleSection, applyTheme, setupRekapFilters, setupAnalysisFilters } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
@@ -522,6 +522,13 @@ function setupEventListeners() {
     
     if (btnGenerateAnalysis) btnGenerateAnalysis.addEventListener('click', async (e) => {
         const button = e.currentTarget;
+        const apiKey = localStorage.getItem('geminiApiKey');
+
+        if (!apiKey) {
+            document.getElementById('modal-api-key').classList.remove('hidden');
+            return;
+        }
+        
         showButtonLoader(button);
 
         const hostId = parseInt(document.getElementById('analysis-host').value);
@@ -554,11 +561,12 @@ function setupEventListeners() {
             - Total Jam Live: ${performance.totalHours.toFixed(1)} jam
             - Keseimbangan Jam (dibandingkan target 6 jam/hari kerja): ${performance.hourBalance.toFixed(1)} jam
             - Sisa Jatah Libur: ${performance.remainingOffDays} hari
+            - Efisiensi Pendapatan: ${performance.revenuePerHour} diamond per jam
 
             Format laporan dalam poin-poin sebagai berikut:
             1.  **Ringkasan Umum:** Berikan kesimpulan singkat tentang kinerja host di bulan ini.
-            2.  **Kekuatan:** Sebutkan 1-2 hal positif utama dari data (misalnya, melebihi target jam, konsisten).
-            3.  **Area Perbaikan:** Sebutkan 1-2 area yang perlu ditingkatkan (misalnya, kurang dari target hari kerja, jam kerja minus).
+            2.  **Kekuatan:** Sebutkan 1-2 hal positif utama dari data (misalnya, melebihi target jam, efisiensi pendapatan tinggi).
+            3.  **Area Perbaikan:** Sebutkan 1-2 area yang perlu ditingkatkan (misalnya, kurang dari target hari kerja, efisiensi pendapatan rendah).
             4.  **Saran Tindak Lanjut:** Berikan satu saran konkret yang bisa dilakukan host untuk meningkatkan performa di bulan berikutnya.
 
             Gunakan bahasa yang profesional, suportif, dan mudah dimengerti.
@@ -568,7 +576,6 @@ function setupEventListeners() {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
             const payload = { contents: chatHistory };
-            const apiKey = ""; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const response = await fetch(apiUrl, {
@@ -583,12 +590,8 @@ function setupEventListeners() {
 
             const result = await response.json();
 
-            if (result.candidates && result.candidates.length > 0 &&
-                result.candidates[0].content && result.candidates[0].content.parts &&
-                result.candidates[0].content.parts.length > 0) {
-                const text = result.candidates[0].content.parts[0].text;
-                // Simple markdown to HTML conversion
-                let html = text
+            if (result.candidates && result.candidates[0].content.parts[0].text) {
+                let html = result.candidates[0].content.parts[0].text
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>');
                 resultDiv.innerHTML = html;
@@ -597,11 +600,29 @@ function setupEventListeners() {
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            resultDiv.innerHTML = `<p class="text-red-500">Gagal menghasilkan analisis. Silakan coba lagi. Error: ${error.message}</p>`;
+            resultDiv.innerHTML = `<p class="text-red-500">Gagal menghasilkan analisis. Error: ${error.message}. Pastikan kunci API Anda benar.</p>`;
         } finally {
             loader.classList.add('hidden');
             hideButtonLoader(button);
         }
+    });
+    
+    if (formApiKey) formApiKey.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const apiKeyInput = document.getElementById('gemini-api-key');
+        const key = apiKeyInput.value.trim();
+        
+        if (key) {
+            localStorage.setItem('geminiApiKey', key);
+            document.getElementById('modal-api-key').classList.add('hidden');
+            apiKeyInput.value = '';
+            // Setelah kunci disimpan, langsung coba lagi panggilan API
+            btnGenerateAnalysis.click();
+        }
+    });
+
+    if (btnCancelApiKey) btnCancelApiKey.addEventListener('click', () => {
+        document.getElementById('modal-api-key').classList.add('hidden');
     });
     
     if (formProfile) formProfile.addEventListener('submit', async (e) => {
