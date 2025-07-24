@@ -89,6 +89,9 @@ function setupEventListeners() {
     const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
     const formProfile = document.getElementById('form-profile');
     const importCsvModal = document.getElementById('modal-import-csv');
+    const apiKeyModal = document.getElementById('modal-api-key');
+    const formApiKey = document.getElementById('form-api-key');
+    const btnCancelApiKey = document.getElementById('btn-cancel-api-key');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
@@ -522,6 +525,13 @@ function setupEventListeners() {
     
     if (btnGenerateAnalysis) btnGenerateAnalysis.addEventListener('click', async (e) => {
         const button = e.currentTarget;
+        const apiKey = localStorage.getItem('geminiApiKey');
+
+        if (!apiKey) {
+            document.getElementById('modal-api-key').classList.remove('hidden');
+            return;
+        }
+        
         showButtonLoader(button);
 
         const hostId = parseInt(document.getElementById('analysis-host').value);
@@ -568,7 +578,6 @@ function setupEventListeners() {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
             const payload = { contents: chatHistory };
-            const apiKey = ""; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const response = await fetch(apiUrl, {
@@ -583,12 +592,8 @@ function setupEventListeners() {
 
             const result = await response.json();
 
-            if (result.candidates && result.candidates.length > 0 &&
-                result.candidates[0].content && result.candidates[0].content.parts &&
-                result.candidates[0].content.parts.length > 0) {
-                const text = result.candidates[0].content.parts[0].text;
-                // Simple markdown to HTML conversion
-                let html = text
+            if (result.candidates && result.candidates[0].content.parts[0].text) {
+                let html = result.candidates[0].content.parts[0].text
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>');
                 resultDiv.innerHTML = html;
@@ -597,11 +602,29 @@ function setupEventListeners() {
             }
         } catch (error) {
             console.error("Error calling Gemini API:", error);
-            resultDiv.innerHTML = `<p class="text-red-500">Gagal menghasilkan analisis. Silakan coba lagi. Error: ${error.message}</p>`;
+            resultDiv.innerHTML = `<p class="text-red-500">Gagal menghasilkan analisis. Error: ${error.message}. Pastikan kunci API Anda benar.</p>`;
         } finally {
             loader.classList.add('hidden');
             hideButtonLoader(button);
         }
+    });
+    
+    if (formApiKey) formApiKey.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const apiKeyInput = document.getElementById('gemini-api-key');
+        const key = apiKeyInput.value.trim();
+        
+        if (key) {
+            localStorage.setItem('geminiApiKey', key);
+            apiKeyModal.classList.add('hidden');
+            apiKeyInput.value = '';
+            // Setelah kunci disimpan, langsung coba lagi panggilan API
+            btnGenerateAnalysis.click();
+        }
+    });
+
+    if (btnCancelApiKey) btnCancelApiKey.addEventListener('click', () => {
+        apiKeyModal.classList.add('hidden');
     });
     
     if (formProfile) formProfile.addEventListener('submit', async (e) => {

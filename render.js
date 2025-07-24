@@ -58,6 +58,7 @@ function updateSortIndicators(tableId, currentSortState) {
 // --- FUNGSI RENDER TABEL ---
 export function renderHostTable() {
     const hostTableBody = document.getElementById('host-table-body');
+    if (!hostTableBody) return;
     const { key, direction } = state.sortState.hosts;
     const type = document.querySelector(`#host-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
     const sortedData = [...state.hosts].sort((a,b) => universalSorter(a, b, key, direction, type));
@@ -87,6 +88,7 @@ export function renderHostTable() {
 
 export function renderTiktokTable() {
     const tiktokTableBody = document.getElementById('tiktok-table-body');
+    if (!tiktokTableBody) return;
     const { key, direction } = state.sortState.tiktok;
     const type = document.querySelector(`#tiktok-table th[data-sort-key="${key}"]`).dataset.sortType || 'string';
     const sortedData = [...state.tiktokAccounts].sort((a,b) => universalSorter(a, b, key, direction, type));
@@ -114,6 +116,7 @@ export function renderTiktokTable() {
 
 export function renderUserTable() {
     const userTableBody = document.getElementById('user-table-body');
+    if (!userTableBody) return;
     const { key, direction } = state.sortState.users;
     const header = document.querySelector(`#user-table th[data-sort-key="${key}"]`);
     const type = header.dataset.sortType || 'string';
@@ -147,6 +150,7 @@ export function renderUserTable() {
 export function renderRekapTable() {
     if (!state.currentUser) return;
     const rekapTableBody = document.getElementById('rekap-table-body');
+    if (!rekapTableBody) return;
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
     const month = parseInt(document.getElementById('rekap-month-filter').value);
     const year = parseInt(document.getElementById('rekap-year-filter').value);
@@ -220,6 +224,7 @@ export function renderRekapTable() {
 }
 
 export function populateHostDropdowns(selectElement) {
+    if (!selectElement) return;
     const currentVal = selectElement.value;
     selectElement.innerHTML = '<option value="" disabled>Pilih seorang host</option>';
     state.hosts.filter(h => h.status === 'Aktif').forEach(host => {
@@ -232,6 +237,7 @@ export function populateHostDropdowns(selectElement) {
 }
 
 export function populateTiktokDropdowns(selectElement) {
+    if (!selectElement) return;
     const currentVal = selectElement.value;
     selectElement.innerHTML = '<option value="" disabled>Pilih Akun TikTok</option>';
     state.tiktokAccounts.filter(t => t.status === 'Aktif').forEach(acc => {
