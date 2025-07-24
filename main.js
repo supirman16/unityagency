@@ -88,6 +88,7 @@ function setupEventListeners() {
     const formSettings = document.getElementById('form-settings');
     const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
     const formProfile = document.getElementById('form-profile');
+    const importCsvModal = document.getElementById('modal-import-csv');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
