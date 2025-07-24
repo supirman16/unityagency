@@ -364,14 +364,16 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     const dailyData = hostRekaps.reduce((acc, r) => {
         const dateKey = r.tanggal_live;
         if (!acc[dateKey]) {
-            acc[dateKey] = 0;
+            acc[dateKey] = { minutes: 0, revenue: 0 };
         }
-        acc[dateKey] += r.durasi_menit;
+        acc[dateKey].minutes += r.durasi_menit;
+        acc[dateKey].revenue += r.pendapatan;
         return acc;
     }, {});
 
     let achievedWorkDays = 0;
     let totalLiveMinutes = 0;
+    let totalRevenue = 0;
     let absentDays = 0;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -385,8 +387,9 @@ export function calculateMonthlyPerformance(hostId, year, month) {
         const dateString = currentDate.toISOString().split('T')[0];
 
         if (dailyData[dateString]) {
-            const dailyMinutes = dailyData[dateString];
+            const dailyMinutes = dailyData[dateString].minutes;
             totalLiveMinutes += dailyMinutes;
+            totalRevenue += dailyData[dateString].revenue;
             if (dailyMinutes >= minWorkHours * 60) {
                 achievedWorkDays++;
             }
@@ -399,13 +402,15 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     const totalLiveHours = totalLiveMinutes / 60;
     const targetLiveHours = achievedWorkDays * dailyTargetHours;
     const hourBalance = totalLiveHours - targetLiveHours;
+    const revenuePerHour = totalLiveHours > 0 ? Math.round(totalRevenue / totalLiveHours) : 0;
 
     return {
         workDays: achievedWorkDays,
         totalHours: totalLiveHours,
         hourBalance: hourBalance,
         offDayEntitlement: offDayEntitlement,
-        remainingOffDays: remainingOffDays
+        remainingOffDays: remainingOffDays,
+        revenuePerHour: revenuePerHour
     };
 }
 
@@ -429,6 +434,7 @@ export function renderAnalysisView() {
         document.getElementById('analysis-hour-balance').textContent = '-';
         document.getElementById('analysis-off-allowance').textContent = '-';
         document.getElementById('analysis-off-remaining').textContent = '-';
+        document.getElementById('analysis-revenue-per-hour').textContent = '-';
         return;
     }
 
@@ -438,6 +444,7 @@ export function renderAnalysisView() {
     document.getElementById('analysis-off-allowance').textContent = performance.offDayEntitlement;
     document.getElementById('analysis-off-remaining').textContent = performance.remainingOffDays;
     document.getElementById('analysis-total-hours').textContent = formatDuration(Math.round(performance.totalHours * 60));
+    document.getElementById('analysis-revenue-per-hour').textContent = `${new Intl.NumberFormat('id-ID').format(performance.revenuePerHour)} 💎/jam`;
     
     const balanceEl = document.getElementById('analysis-hour-balance');
     balanceEl.textContent = formatDuration(Math.round(performance.hourBalance * 60));
