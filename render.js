@@ -173,9 +173,21 @@ export function renderRekapTable() {
     
     const sortedData = [...filteredRekap].sort((a,b) => universalSorter(a, b, key, direction, type, lookupInfo));
 
+    // --- Logika Deteksi Duplikat ---
+    const seen = new Map();
+    const duplicates = new Set();
+    sortedData.forEach(rekap => {
+        const uniqueKey = `${rekap.tanggal_live}-${rekap.host_id}-${rekap.waktu_mulai}-${rekap.waktu_selesai}-${rekap.pendapatan}`;
+        if (seen.has(uniqueKey)) {
+            duplicates.add(uniqueKey);
+        } else {
+            seen.set(uniqueKey, rekap.id);
+        }
+    });
+
     rekapTableBody.innerHTML = '';
      if (sortedData.length === 0) {
-        rekapTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
+        rekapTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
         return;
     }
     sortedData.forEach(rekap => {
@@ -184,12 +196,19 @@ export function renderRekapTable() {
         const row = document.createElement('tr');
         row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 cursor-pointer';
         row.dataset.rekapId = rekap.id;
+
+        const uniqueKey = `${rekap.tanggal_live}-${rekap.host_id}-${rekap.waktu_mulai}-${rekap.waktu_selesai}-${rekap.pendapatan}`;
+        const isDuplicate = duplicates.has(uniqueKey);
+
         row.innerHTML = `
             <td class="px-6 py-4">${formatDate(rekap.tanggal_live)}</td>
             <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
             <td class="px-6 py-4">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
             <td class="px-6 py-4">${formatDuration(rekap.durasi_menit)}</td>
             <td class="px-6 py-4">${formatDiamond(rekap.pendapatan)}</td>
+            <td class="px-6 py-4">
+                ${isDuplicate ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Duplikat</span>' : ''}
+            </td>
             <td class="px-6 py-4 text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
