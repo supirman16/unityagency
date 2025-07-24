@@ -345,7 +345,7 @@ export function updatePerformanceChart(metric = 'duration') {
 
 // --- ANALYSIS LOGIC & RENDER ---
 
-function calculateMonthlyPerformance(hostId, year, month) {
+export function calculateMonthlyPerformance(hostId, year, month) {
     const targetWorkDays = 26;
     const dailyTargetHours = 6;
     const minWorkHours = 2;

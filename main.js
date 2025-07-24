@@ -1,7 +1,7 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView } from './render.js';
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
 
