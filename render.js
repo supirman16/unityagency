@@ -519,3 +519,40 @@ export function calculatePayroll(hostId, year, month) {
         targetHours,
     };
 }
+
+export function renderPayrollTable() {
+    const payrollTableBody = document.getElementById('payroll-table-body');
+    if (!payrollTableBody) return;
+
+    const month = parseInt(document.getElementById('payroll-month-filter').value);
+    const year = parseInt(document.getElementById('payroll-year-filter').value);
+
+    const activeHosts = state.hosts.filter(h => h.status === 'Aktif');
+
+    payrollTableBody.innerHTML = '';
+    if (activeHosts.length === 0) {
+        payrollTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada host aktif untuk ditampilkan.</td></tr>`;
+        return;
+    }
+
+    activeHosts.forEach(host => {
+        const payrollData = calculatePayroll(host.id, year, month);
+        if (!payrollData) return;
+
+        const row = document.createElement('tr');
+        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
+        row.innerHTML = `
+            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${payrollData.hostName}</td>
+            <td class="px-6 py-4">${formatDuration(payrollData.totalHours * 60)}</td>
+            <td class="px-6 py-4">${formatDiamond(payrollData.totalDiamonds)}</td>
+            <td class="px-6 py-4">${formatRupiah(payrollData.baseSalary)}</td>
+            <td class="px-6 py-4 text-green-600 dark:text-green-400">${formatRupiah(payrollData.bonus)}</td>
+            <td class="px-6 py-4 text-red-600 dark:text-red-400">${formatRupiah(payrollData.deduction)}</td>
+            <td class="px-6 py-4 font-bold text-teal-700 dark:text-teal-500">${formatRupiah(payrollData.finalSalary)}</td>
+            <td class="px-6 py-4 text-center">
+                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 btn-payroll-detail" data-id="${host.id}">Detail</button>
+            </td>
+        `;
+        payrollTableBody.appendChild(row);
+    });
+}
