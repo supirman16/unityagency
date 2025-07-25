@@ -327,6 +327,36 @@
                     </form>
                 </div>
             </section>
+            
+            <section id="section-payroll" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Sistem Gaji Host</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Lihat dan kelola laporan gaji bulanan untuk host.</p>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+                         <select id="payroll-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                         <select id="payroll-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="payroll-table">
+                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nama Host</th>
+                                <th scope="col" class="px-6 py-3">Total Jam</th>
+                                <th scope="col" class="px-6 py-3">Total Diamond</th>
+                                <th scope="col" class="px-6 py-3">Gaji Pokok</th>
+                                <th scope="col" class="px-6 py-3">Bonus</th>
+                                <th scope="col" class="px-6 py-3">Potongan</th>
+                                <th scope="col" class="px-6 py-3">Gaji Akhir</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payroll-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
 
             <section id="section-hosts" class="hidden">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
