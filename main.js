@@ -93,6 +93,7 @@ function setupEventListeners() {
     const apiKeyModal = document.getElementById('modal-api-key');
     const formApiKey = document.getElementById('form-api-key');
     const btnCancelApiKey = document.getElementById('btn-cancel-api-key');
+    const btnClosePayrollDetail = document.getElementById('btn-close-payroll-detail');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
@@ -130,6 +131,7 @@ function setupEventListeners() {
     if (btnCancelUser) btnCancelUser.addEventListener('click', () => document.getElementById('modal-user').classList.add('hidden'));
     if (btnCancelImport) btnCancelImport.addEventListener('click', () => document.getElementById('modal-import-csv').classList.add('hidden'));
     if (btnCloseRekapDetail) btnCloseRekapDetail.addEventListener('click', () => document.getElementById('modal-rekap-detail').classList.add('hidden'));
+    if (btnClosePayrollDetail) btnClosePayrollDetail.addEventListener('click', () => document.getElementById('modal-payroll-detail').classList.add('hidden'));
     if (btnCancelSettings) btnCancelSettings.addEventListener('click', () => document.getElementById('modal-settings').classList.add('hidden'));
     if (btnConfirmCancel) btnConfirmCancel.addEventListener('click', () => {
         state.itemToDelete = { id: null, type: '' };
