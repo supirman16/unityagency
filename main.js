@@ -89,6 +89,9 @@ function setupEventListeners() {
     const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
     const formProfile = document.getElementById('form-profile');
     const importCsvModal = document.getElementById('modal-import-csv');
+    const apiKeyModal = document.getElementById('modal-api-key');
+    const formApiKey = document.getElementById('form-api-key');
+    const btnCancelApiKey = document.getElementById('btn-cancel-api-key');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
