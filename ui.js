@@ -105,6 +105,8 @@ export function setupAnalysisFilters() {
     const monthSelect = document.getElementById('analysis-month');
     const yearSelect = document.getElementById('analysis-year');
     
+    if (!hostSelect) return;
+
     populateHostDropdowns(hostSelect);
     if(state.currentUser.user_metadata?.role === 'host') {
         hostSelect.value = state.currentUser.user_metadata.host_id;
@@ -139,6 +141,8 @@ export function setupRekapFilters() {
     const monthSelect = document.getElementById('rekap-month-filter');
     const yearSelect = document.getElementById('rekap-year-filter');
     
+    if (!monthSelect) return;
+
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     monthSelect.innerHTML = '';
     months.forEach((month, index) => {
@@ -164,6 +168,8 @@ export function setupPayrollFilters() {
     const monthSelect = document.getElementById('payroll-month-filter');
     const yearSelect = document.getElementById('payroll-year-filter');
     
+    if (!monthSelect || !yearSelect) return; // Pemeriksaan keamanan ditambahkan di sini
+
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     monthSelect.innerHTML = '';
     months.forEach((month, index) => {
