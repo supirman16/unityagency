@@ -235,6 +235,9 @@ function setupEventListeners() {
         }
     });
 
+    if (btnHamburger) btnHamburger.addEventListener('click', openMobileMenu);
+    if (mobileMenuBackdrop) mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+
 
     if (formHost) formHost.addEventListener('submit', async (e) => {
         e.preventDefault();
