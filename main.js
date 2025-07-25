@@ -1,7 +1,7 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance } from './render.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters } from './ui.js';
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
 
@@ -40,6 +40,7 @@ async function refreshDataAndRender() {
     renderTiktokTable();
     renderUserTable();
     renderRekapTable();
+    renderPayrollTable();
     updateKPIs();
     updatePerformanceChart();
     
@@ -95,11 +96,12 @@ function setupEventListeners() {
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
+        rekap: document.getElementById('nav-rekap'),
+        profile: document.getElementById('nav-profile'),
+        payroll: document.getElementById('nav-payroll'),
         hosts: document.getElementById('nav-hosts'),
         tiktok: document.getElementById('nav-tiktok'),
-        rekap: document.getElementById('nav-rekap'),
         users: document.getElementById('nav-users'),
-        profile: document.getElementById('nav-profile'),
     };
 
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
