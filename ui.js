@@ -35,7 +35,7 @@ export function hideButtonLoader(button) {
     if (spinner) spinner.classList.add('hidden');
 }
 
-// --- KONTROL TAMPILAN UTAMA ---
+// --- KONTROL TAMPILAN UTAMA & NAVIGASI ---
 
 export async function setupUIForRole() {
     if (!state.currentUser) return;
@@ -55,6 +55,8 @@ export async function setupUIForRole() {
     document.getElementById('nav-item-analysis').style.display = (isSuperAdmin || state.hostMenuAccess.analysis) ? 'flex' : 'none';
     document.getElementById('nav-item-rekap').style.display = (isSuperAdmin || state.hostMenuAccess.rekap) ? 'flex' : 'none';
     document.getElementById('nav-item-profile').style.display = !isSuperAdmin ? 'flex' : 'none';
+
+    populateMobileMenu();
 }
 
 export function showSection(sectionName) {
@@ -103,6 +105,56 @@ export function applyTheme(theme) {
 
     if (state.performanceChart) {
         updatePerformanceChart(document.getElementById('chart-metric-selector').value);
+    }
+}
+
+// --- FUNGSI MENU MOBILE ---
+
+export function populateMobileMenu() {
+    const desktopNav = document.getElementById('desktop-nav-list');
+    const mobileNav = document.getElementById('mobile-nav-list');
+    if (!desktopNav || !mobileNav) return;
+
+    mobileNav.innerHTML = ''; // Kosongkan menu mobile sebelum diisi ulang
+    
+    const navItems = desktopNav.querySelectorAll('li');
+    navItems.forEach(item => {
+        // Hanya salin item menu yang terlihat
+        if (item.style.display !== 'none') {
+            const link = item.querySelector('a').cloneNode(true);
+            const newLi = document.createElement('li');
+            
+            link.classList.remove('p-4', 'border-b-2');
+            link.classList.add('block', 'p-2', 'rounded-md', 'hover:bg-stone-100', 'dark:hover:bg-stone-700');
+
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionName = link.id.replace('nav-', '');
+                showSection(sectionName);
+                closeMobileMenu();
+            });
+
+            newLi.appendChild(link);
+            mobileNav.appendChild(newLi);
+        }
+    });
+}
+
+export function openMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
+    if (mobileMenu && backdrop) {
+        backdrop.classList.remove('hidden');
+        mobileMenu.classList.remove('-translate-x-full');
+    }
+}
+
+export function closeMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
+    if (mobileMenu && backdrop) {
+        backdrop.classList.add('hidden');
+        mobileMenu.classList.add('-translate-x-full');
     }
 }
 
