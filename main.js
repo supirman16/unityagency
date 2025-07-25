@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
@@ -217,6 +217,17 @@ function setupEventListeners() {
             handleDeleteRekap(rekapId);
         } else {
             openDetailRekapModal(rekapId);
+        }
+    });
+
+    const payrollTableBody = document.getElementById('payroll-table-body');
+    if (payrollTableBody) payrollTableBody.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.matches('.btn-payroll-detail')) {
+            const hostId = parseInt(target.dataset.id);
+            const month = parseInt(document.getElementById('payroll-month-filter').value);
+            const year = parseInt(document.getElementById('payroll-year-filter').value);
+            openPayrollDetailModal(hostId, year, month);
         }
     });
 
@@ -737,10 +748,12 @@ export async function updateAllDataAndUI() {
     // Setup filters and render tables
     setupRekapFilters();
     setupAnalysisFilters(); 
+    setupPayrollFilters();
     renderHostTable();
     renderTiktokTable();
     renderUserTable();
     renderRekapTable();
+    renderPayrollTable();
     updateKPIs();
     updatePerformanceChart();
     

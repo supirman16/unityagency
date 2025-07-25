@@ -1,6 +1,6 @@
 import { state } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable } from './render.js';
-import { formatDiamond, formatDate, formatDuration } from './utils.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll } from './render.js';
+import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
 // --- FUNGSI UTILITAS TAMPILAN ---
 
@@ -322,6 +322,27 @@ export async function openDetailRekapModal(rekapId) {
     `;
 
     document.getElementById('modal-rekap-detail').classList.remove('hidden');
+}
+
+export function openPayrollDetailModal(hostId, year, month) {
+    const payrollData = calculatePayroll(hostId, year, month);
+    if (!payrollData) return;
+
+    document.getElementById('payroll-detail-host').textContent = payrollData.hostName;
+    document.getElementById('payroll-detail-periode').textContent = new Date(year, month).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+    
+    document.getElementById('payroll-detail-base').textContent = formatRupiah(payrollData.baseSalary);
+    document.getElementById('payroll-detail-hours').textContent = `${payrollData.totalHours.toFixed(2)} jam / ${payrollData.targetHours} jam`;
+    document.getElementById('payroll-detail-days').textContent = `${payrollData.workDays} hari / ${payrollData.targetDays} hari`;
+    document.getElementById('payroll-detail-deduction').textContent = formatRupiah(payrollData.deduction);
+    document.getElementById('payroll-detail-adjusted-base').textContent = formatRupiah(payrollData.adjustedBaseSalary);
+    
+    document.getElementById('payroll-detail-diamonds').textContent = formatDiamond(payrollData.totalDiamonds);
+    document.getElementById('payroll-detail-bonus').textContent = formatRupiah(payrollData.bonus);
+    
+    document.getElementById('payroll-detail-final').textContent = formatRupiah(payrollData.finalSalary);
+
+    document.getElementById('modal-payroll-detail').classList.remove('hidden');
 }
 
 export function handleEditHost(hostId) { openHostModal(hostId); }
