@@ -223,6 +223,13 @@ export function renderRekapTable() {
     updateSortIndicators('rekap-table', state.sortState.rekap);
 }
 
+export function renderPayrollTable() {
+    const payrollTableBody = document.getElementById('payroll-table-body');
+    if (!payrollTableBody) return;
+
+    payrollTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-stone-500 dark:text-stone-400">Data gaji belum tersedia untuk periode ini.</td></tr>`;
+}
+
 export function populateHostDropdowns(selectElement) {
     if (!selectElement) return;
     const currentVal = selectElement.value;

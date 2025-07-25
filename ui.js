@@ -1,5 +1,5 @@
-import { state, updateAllDataAndUI } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable } from './render.js';
+import { state } from './main.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable } from './render.js';
 import { formatDiamond, formatDate, formatDuration } from './utils.js';
 
 // --- FUNGSI UTILITAS TAMPILAN ---
@@ -35,7 +35,6 @@ export function hideButtonLoader(button) {
     if (spinner) spinner.classList.add('hidden');
 }
 
-
 // --- KONTROL TAMPILAN UTAMA ---
 
 export async function setupUIForRole() {
@@ -50,6 +49,7 @@ export async function setupUIForRole() {
     document.getElementById('nav-item-hosts').style.display = isSuperAdmin ? 'flex' : 'none';
     document.getElementById('nav-item-tiktok').style.display = isSuperAdmin ? 'flex' : 'none';
     document.getElementById('nav-item-users').style.display = isSuperAdmin ? 'flex' : 'none';
+    document.getElementById('nav-item-payroll').style.display = isSuperAdmin ? 'flex' : 'none';
     document.getElementById('btn-import-csv').style.display = isSuperAdmin ? 'block' : 'none';
     document.getElementById('nav-item-dashboard').style.display = (isSuperAdmin || state.hostMenuAccess.dashboard) ? 'flex' : 'none';
     document.getElementById('nav-item-analysis').style.display = (isSuperAdmin || state.hostMenuAccess.analysis) ? 'flex' : 'none';
@@ -72,7 +72,7 @@ export function getFirstVisibleSection() {
     if (isSuperAdmin || state.hostMenuAccess.dashboard) return 'dashboard';
     if (isSuperAdmin || state.hostMenuAccess.analysis) return 'analysis';
     if (state.hostMenuAccess.rekap) return 'rekap';
-    if (isSuperAdmin) return 'hosts';
+    if (isSuperAdmin) return 'payroll';
     return 'dashboard'; // Fallback
 }
 
@@ -158,6 +158,31 @@ export function setupRekapFilters() {
         yearSelect.appendChild(option);
     }
     [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderRekapTable));
+}
+
+export function setupPayrollFilters() {
+    const monthSelect = document.getElementById('payroll-month-filter');
+    const yearSelect = document.getElementById('payroll-year-filter');
+    
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    monthSelect.innerHTML = '';
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+    monthSelect.value = new Date().getMonth();
+
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+         const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderPayrollTable));
 }
 
 // --- FUNGSI UNTUK MODAL & AKSI ---
