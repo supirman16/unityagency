@@ -62,8 +62,16 @@ export function showSection(sectionName) {
     Object.values(document.querySelectorAll('.nav-link')).forEach(link => {
         link.classList.remove('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
     });
-    document.getElementById(`section-${sectionName}`).classList.remove('hidden');
-    document.getElementById(`nav-${sectionName}`).classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+    
+    const sectionToShow = document.getElementById(`section-${sectionName}`);
+    if (sectionToShow) {
+        sectionToShow.classList.remove('hidden');
+    }
+
+    const linkToActivate = document.getElementById(`nav-${sectionName}`);
+    if (linkToActivate) {
+        linkToActivate.classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+    }
 }
 
 export function getFirstVisibleSection() {
