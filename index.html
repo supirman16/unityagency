@@ -538,6 +538,31 @@
                     </table>
                 </div>
             </section>
+            <section id="section-settings" class="hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Pengaturan Akun</h2>
+                    <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola informasi keamanan akun Anda.</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 max-w-lg">
+                    <h3 class="text-lg font-medium text-stone-900 dark:text-stone-200">Ubah Password</h3>
+                    <form id="form-change-password" class="space-y-4 mt-4">
+                        <div>
+                            <label for="new-password" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Password Baru</label>
+                            <input type="password" id="new-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Konfirmasi Password Baru</label>
+                            <input type="password" id="confirm-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                             <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
+                                <span class="btn-text">Simpan Password</span>
+                                <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
         </main>
     </div>
 
