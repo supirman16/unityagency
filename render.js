@@ -637,10 +637,12 @@ export function renderCalendar() {
         let content = '';
         let statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
         let statusText = 'Absent';
+        let clickableClass = '';
 
         if (dayData && dayData.totalMinutes >= 120) {
             statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
             statusText = 'Live';
+            clickableClass = 'cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-700';
             content = `
                 <div class="text-xs mt-2 space-y-1">
                     <p class="flex justify-between"><span>Jam:</span> <span>${formatDuration(dayData.totalMinutes)}</span></p>
@@ -650,7 +652,7 @@ export function renderCalendar() {
         }
 
         calendarGrid.innerHTML += `
-            <div class="border border-stone-200 dark:border-stone-700 p-2 rounded-md h-32 flex flex-col">
+            <div class="border border-stone-200 dark:border-stone-700 p-2 rounded-md h-32 flex flex-col ${clickableClass}" data-day="${day}">
                 <div class="font-bold text-stone-800 dark:text-stone-200">${day}</div>
                 <div class="mt-1">
                     <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">

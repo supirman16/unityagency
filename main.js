@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, setupCalendarFilters } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, setupCalendarFilters, openCalendarDetailModal } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
@@ -97,6 +97,8 @@ function setupEventListeners() {
     const btnClosePayrollDetail = document.getElementById('btn-close-payroll-detail');
     const btnHamburger = document.getElementById('btn-hamburger');
     const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const btnCloseCalendarDetail = document.getElementById('btn-close-calendar-detail');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
@@ -136,6 +138,7 @@ function setupEventListeners() {
     if (btnCancelImport) btnCancelImport.addEventListener('click', () => document.getElementById('modal-import-csv').classList.add('hidden'));
     if (btnCloseRekapDetail) btnCloseRekapDetail.addEventListener('click', () => document.getElementById('modal-rekap-detail').classList.add('hidden'));
     if (btnClosePayrollDetail) btnClosePayrollDetail.addEventListener('click', () => document.getElementById('modal-payroll-detail').classList.add('hidden'));
+    if (btnCloseCalendarDetail) btnCloseCalendarDetail.addEventListener('click', () => document.getElementById('modal-calendar-detail').classList.add('hidden'));
     if (btnCancelSettings) btnCancelSettings.addEventListener('click', () => document.getElementById('modal-settings').classList.add('hidden'));
     if (btnConfirmCancel) btnConfirmCancel.addEventListener('click', () => {
         state.itemToDelete = { id: null, type: '' };
@@ -253,6 +256,16 @@ function setupEventListeners() {
             const month = parseInt(document.getElementById('payroll-month-filter').value);
             const year = parseInt(document.getElementById('payroll-year-filter').value);
             openPayrollDetailModal(hostId, year, month);
+        }
+    });
+
+    if (calendarGrid) calendarGrid.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-day]');
+        if (target) {
+            const day = parseInt(target.dataset.day);
+            const month = calendarState.currentDate.getMonth();
+            const year = calendarState.currentDate.getFullYear();
+            openCalendarDetailModal(day, year, month);
         }
     });
 

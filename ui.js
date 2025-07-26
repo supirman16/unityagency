@@ -470,6 +470,61 @@ export function openPayrollDetailModal(hostId, year, month) {
     document.getElementById('modal-payroll-detail').classList.remove('hidden');
 }
 
+export function openCalendarDetailModal(day, year, month) {
+    const date = new Date(year, month, day);
+    const dateString = date.toISOString().split('T')[0];
+    
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    let selectedHostId = isSuperAdmin 
+        ? parseInt(document.getElementById('calendar-host-filter').value)
+        : state.currentUser.user_metadata.host_id;
+
+    const dailyRekaps = state.rekapLive.filter(r => 
+        r.host_id === selectedHostId && r.tanggal_live === dateString && r.status === 'approved'
+    );
+
+    const modal = document.getElementById('modal-calendar-detail');
+    const dateDisplay = document.getElementById('calendar-detail-date');
+    const contentDiv = document.getElementById('calendar-detail-content');
+
+    if (!modal || !dateDisplay || !contentDiv) return;
+
+    dateDisplay.textContent = formatDate(dateString);
+    contentDiv.innerHTML = '';
+
+    if (dailyRekaps.length === 0) {
+        contentDiv.innerHTML = '<p class="text-stone-500 dark:text-stone-400 text-center">Tidak ada sesi live yang tercatat pada tanggal ini.</p>';
+    } else {
+        let totalMinutes = 0;
+        let totalDiamonds = 0;
+
+        dailyRekaps.forEach(rekap => {
+            const tiktokAccount = state.tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
+            totalMinutes += rekap.durasi_menit;
+            totalDiamonds += rekap.pendapatan;
+
+            contentDiv.innerHTML += `
+                <div class="bg-stone-100 dark:bg-stone-700 p-3 rounded-lg">
+                    <p class="font-semibold text-stone-800 dark:text-stone-200">Sesi Pukul ${rekap.waktu_mulai}</p>
+                    <div class="mt-1 border-t border-stone-200 dark:border-stone-600 pt-1 text-stone-600 dark:text-stone-300">
+                        <p class="flex justify-between"><span>Akun:</span> <span>${tiktokAccount ? tiktokAccount.username : 'N/A'}</span></p>
+                        <p class="flex justify-between"><span>Durasi:</span> <span>${formatDuration(rekap.durasi_menit)}</span></p>
+                        <p class="flex justify-between"><span>Diamond:</span> <span>${formatDiamond(rekap.pendapatan)}</span></p>
+                    </div>
+                </div>
+            `;
+        });
+
+        contentDiv.innerHTML += `
+            <div class="bg-purple-50 dark:bg-purple-900/50 p-3 rounded-lg mt-4 text-center">
+                <p class="font-bold text-purple-800 dark:text-purple-300">Total Hari Ini: ${formatDuration(totalMinutes)} / ${formatDiamond(totalDiamonds)}</p>
+            </div>
+        `;
+    }
+
+    modal.classList.remove('hidden');
+}
+
 export function handleEditHost(hostId) { openHostModal(hostId); }
 export function handleEditTiktok(accountId) { openTiktokModal(accountId); }
 export function handleEditRekap(rekapId) { openRekapModal(rekapId); }
