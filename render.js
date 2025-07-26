@@ -612,14 +612,13 @@ export function renderCalendar() {
     );
 
     const dailyData = hostRekaps.reduce((acc, r) => {
-        const recDate = new Date(r.tanggal_live);
-        if (recDate.getFullYear() === year && recDate.getMonth() === month) {
-            const day = recDate.getDate();
-            if (!acc[day]) {
-                acc[day] = { totalMinutes: 0, totalDiamonds: 0 };
+        const [recYear, recMonth, recDay] = r.tanggal_live.split('-').map(Number);
+        if (recYear === year && (recMonth - 1) === month) {
+            if (!acc[recDay]) {
+                acc[recDay] = { totalMinutes: 0, totalDiamonds: 0 };
             }
-            acc[day].totalMinutes += r.durasi_menit;
-            acc[day].totalDiamonds += r.pendapatan;
+            acc[recDay].totalMinutes += r.durasi_menit;
+            acc[recDay].totalDiamonds += r.pendapatan;
         }
         return acc;
     }, {});

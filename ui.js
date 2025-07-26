@@ -471,8 +471,10 @@ export function openPayrollDetailModal(hostId, year, month) {
 }
 
 export function openCalendarDetailModal(day, year, month) {
-    const date = new Date(year, month, day);
-    const dateString = date.toISOString().split('T')[0];
+    // Membangun string tanggal YYYY-MM-DD secara manual untuk menghindari masalah zona waktu
+    const monthString = String(month + 1).padStart(2, '0');
+    const dayString = String(day).padStart(2, '0');
+    const dateString = `${year}-${monthString}-${dayString}`;
     
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
     let selectedHostId = isSuperAdmin 
