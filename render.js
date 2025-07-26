@@ -408,8 +408,8 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     const totalLiveHours = totalLiveMinutes / 60;
     const targetLiveHours = achievedWorkDays * dailyTargetHours;
     const hourBalance = totalLiveHours - targetLiveHours;
-    const totalRevenue = hostRekaps.reduce((sum, r) => sum + r.pendapatan, 0);
-    const revenuePerHour = totalLiveHours > 0 ? Math.round(totalRevenue / totalLiveHours) : 0;
+    const totalDiamonds = hostRekaps.reduce((sum, r) => sum + r.pendapatan, 0);
+    const revenuePerDay = achievedWorkDays > 0 ? Math.round(totalDiamonds / achievedWorkDays) : 0;
 
     return {
         workDays: achievedWorkDays,
@@ -417,7 +417,8 @@ export function calculateMonthlyPerformance(hostId, year, month) {
         hourBalance: hourBalance,
         offDayEntitlement: offDayEntitlement,
         remainingOffDays: remainingOffDays,
-        revenuePerHour: revenuePerHour
+        totalDiamonds: totalDiamonds,
+        revenuePerDay: revenuePerDay
     };
 }
 
@@ -441,7 +442,8 @@ export function renderAnalysisView() {
         document.getElementById('analysis-hour-balance').textContent = '-';
         document.getElementById('analysis-off-allowance').textContent = '-';
         document.getElementById('analysis-off-remaining').textContent = '-';
-        document.getElementById('analysis-revenue-per-hour').textContent = '-';
+        document.getElementById('analysis-total-diamonds').textContent = '-';
+        document.getElementById('analysis-revenue-per-day').textContent = '-';
         renderCalendar();
         return;
     }
@@ -452,7 +454,8 @@ export function renderAnalysisView() {
     document.getElementById('analysis-off-allowance').textContent = performance.offDayEntitlement;
     document.getElementById('analysis-off-remaining').textContent = performance.remainingOffDays;
     document.getElementById('analysis-total-hours').textContent = formatDuration(Math.round(performance.totalHours * 60));
-    document.getElementById('analysis-revenue-per-hour').textContent = `${new Intl.NumberFormat('id-ID').format(performance.revenuePerHour)} 💎/jam`;
+    document.getElementById('analysis-total-diamonds').textContent = formatDiamond(performance.totalDiamonds);
+    document.getElementById('analysis-revenue-per-day').textContent = `${formatDiamond(performance.revenuePerDay)}/hari`;
     
     const balanceEl = document.getElementById('analysis-hour-balance');
     balanceEl.textContent = formatDuration(Math.round(performance.hourBalance * 60));
