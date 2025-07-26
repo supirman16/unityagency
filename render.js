@@ -77,7 +77,7 @@ export function renderHostTable() {
                 </span>
             </td>
             <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-host" data-id="${host.id}">Hapus</button>
             </td>
         `;
@@ -105,7 +105,7 @@ export function renderTiktokTable() {
                 </span>
             </td>
             <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-tiktok" data-id="${account.id}">Hapus</button>
             </td>
         `;
@@ -138,7 +138,7 @@ export function renderUserTable() {
             <td data-label="Peran:" class="mobile-label px-6 py-4 block md:table-cell">${user.user_metadata.role}</td>
             <td data-label="Host:" class="mobile-label px-6 py-4 block md:table-cell">${host ? host.nama_host : '-'}</td>
             <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
                 ${state.currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
             </td>
         `;
@@ -214,7 +214,7 @@ export function renderRekapTable() {
                 ${isDuplicate ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Duplikat</span>' : ''}
             </td>
             <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
             </td>
         `;
@@ -306,8 +306,8 @@ export function updatePerformanceChart(metric = 'duration') {
     const isDarkMode = document.documentElement.classList.contains('dark');
     const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e5e7eb';
     const tickColor = isDarkMode ? '#9ca3af' : '#374151';
-    const backgroundColor = 'rgba(20, 150, 150, 0.6)';
-    const borderColor = 'rgba(15, 118, 110, 1)';
+    const backgroundColor = 'rgba(168, 85, 247, 0.6)';
+    const borderColor = 'rgba(147, 51, 234, 1)';
     
     if (state.performanceChart && typeof state.performanceChart.destroy === 'function') { 
         state.performanceChart.destroy(); 
@@ -548,9 +548,9 @@ export function renderPayrollTable() {
             <td data-label="Gaji Pokok:" class="mobile-label px-6 py-4 block md:table-cell">${formatRupiah(payrollData.baseSalary)}</td>
             <td data-label="Bonus:" class="mobile-label px-6 py-4 block md:table-cell text-green-600 dark:text-green-400">${formatRupiah(payrollData.bonus)}</td>
             <td data-label="Potongan:" class="mobile-label px-6 py-4 block md:table-cell text-red-600 dark:text-red-400">${formatRupiah(payrollData.deduction)}</td>
-            <td data-label="Gaji Akhir:" class="mobile-label px-6 py-4 block md:table-cell font-bold text-teal-700 dark:text-teal-500">${formatRupiah(payrollData.finalSalary)}</td>
+            <td data-label="Gaji Akhir:" class="mobile-label px-6 py-4 block md:table-cell font-bold text-purple-700 dark:text-purple-500">${formatRupiah(payrollData.finalSalary)}</td>
             <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 btn-payroll-detail" data-id="${host.id}">Detail</button>
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 btn-payroll-detail" data-id="${host.id}">Detail</button>
             </td>
         `;
         payrollTableBody.appendChild(row);
