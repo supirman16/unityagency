@@ -6,6 +6,7 @@ import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils
 
 export function showNotification(message, isError = false) {
     const notification = document.getElementById('notification');
+    if (!notification) return;
     notification.textContent = message;
     notification.classList.remove('bg-green-500', 'bg-red-500');
     notification.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
@@ -115,27 +116,15 @@ export function applyTheme(theme) {
     const root = document.documentElement;
     const iconMoon = document.getElementById('icon-moon');
     const iconSun = document.getElementById('icon-sun');
-    const logoLoginLight = document.getElementById('logo-login-light');
-    const logoLoginDark = document.getElementById('logo-login-dark');
-    const logoHeaderLight = document.getElementById('logo-header-light');
-    const logoHeaderDark = document.getElementById('logo-header-dark');
 
     if (theme === 'dark') {
         root.classList.add('dark');
         if (iconMoon) iconMoon.classList.add('hidden');
         if (iconSun) iconSun.classList.remove('hidden');
-        if (logoLoginLight) logoLoginLight.classList.add('hidden');
-        if (logoLoginDark) logoLoginDark.classList.remove('hidden');
-        if (logoHeaderLight) logoHeaderLight.classList.add('hidden');
-        if (logoHeaderDark) logoHeaderDark.classList.remove('hidden');
     } else {
         root.classList.remove('dark');
         if (iconMoon) iconMoon.classList.remove('hidden');
         if (iconSun) iconSun.classList.add('hidden');
-        if (logoLoginLight) logoLoginLight.classList.remove('hidden');
-        if (logoLoginDark) logoLoginDark.classList.add('hidden');
-        if (logoHeaderLight) logoHeaderLight.classList.remove('hidden');
-        if (logoHeaderDark) logoHeaderDark.classList.add('hidden');
     }
 
     localStorage.setItem('theme', theme);
@@ -265,7 +254,7 @@ export function setupPayrollFilters() {
     const monthSelect = document.getElementById('payroll-month-filter');
     const yearSelect = document.getElementById('payroll-year-filter');
     
-    if (!monthSelect || !yearSelect) return; // Pemeriksaan keamanan ditambahkan di sini
+    if (!monthSelect || !yearSelect) return;
 
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     monthSelect.innerHTML = '';
