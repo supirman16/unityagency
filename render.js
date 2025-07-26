@@ -425,15 +425,21 @@ export function calculateMonthlyPerformance(hostId, year, month) {
 export function renderAnalysisView() {
     if (!state.currentUser) return;
     const hostSelect = document.getElementById('analysis-host-filter');
-    let hostId = parseInt(hostSelect.value);
+    let hostId;
     const month = calendarState.currentDate.getMonth();
     const year = calendarState.currentDate.getFullYear();
 
-    // If superadmin and no host is selected, select the first one.
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
-    if (isSuperAdmin && !hostId && hostSelect.options.length > 1) {
-        hostSelect.value = hostSelect.options[1].value;
+    if (isSuperAdmin) {
+        if (!hostSelect.value) {
+            const firstActiveHost = state.hosts.find(h => h.status === 'Aktif');
+            if (firstActiveHost) {
+                hostSelect.value = firstActiveHost.id;
+            }
+        }
         hostId = parseInt(hostSelect.value);
+    } else {
+        hostId = state.currentUser.user_metadata.host_id;
     }
 
     if (!hostId || isNaN(month) || isNaN(year)) {
