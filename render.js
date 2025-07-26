@@ -363,7 +363,7 @@ export function updatePerformanceChart(metric = 'duration') {
 export function calculateMonthlyPerformance(hostId, year, month) {
     const targetWorkDays = 26;
     const dailyTargetHours = 6;
-    const minWorkHours = 2;
+    const minWorkMinutes = 120; // 2 jam dalam menit
 
     const hostRekaps = state.rekapLive.filter(r => {
         const recDate = new Date(r.tanggal_live);
@@ -381,8 +381,13 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     }, {});
 
     let achievedWorkDays = 0;
-    let totalLiveMinutes = 0;
-    let totalRevenue = 0;
+    Object.values(dailyData).forEach(daySummary => {
+        if (daySummary.minutes >= minWorkMinutes) {
+            achievedWorkDays++;
+        }
+    });
+    
+    let totalLiveMinutes = hostRekaps.reduce((sum, r) => sum + r.durasi_menit, 0);
     let absentDays = 0;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -390,19 +395,11 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     
     const today = new Date();
     const lastDayToCheck = (year === today.getFullYear() && month === today.getMonth()) ? today.getDate() : daysInMonth;
-
+    
+    const presentDays = new Set(Object.keys(dailyData));
     for (let day = 1; day <= lastDayToCheck; day++) {
-        const currentDate = new Date(year, month, day);
-        const dateString = currentDate.toISOString().split('T')[0];
-
-        if (dailyData[dateString]) {
-            const dailyMinutes = dailyData[dateString].minutes;
-            totalLiveMinutes += dailyMinutes;
-            totalRevenue += dailyData[dateString].revenue;
-            if (dailyMinutes >= minWorkHours * 60) {
-                achievedWorkDays++;
-            }
-        } else {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (!presentDays.has(dateString)) {
             absentDays++;
         }
     }
@@ -411,6 +408,7 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     const totalLiveHours = totalLiveMinutes / 60;
     const targetLiveHours = achievedWorkDays * dailyTargetHours;
     const hourBalance = totalLiveHours - targetLiveHours;
+    const totalRevenue = hostRekaps.reduce((sum, r) => sum + r.pendapatan, 0);
     const revenuePerHour = totalLiveHours > 0 ? Math.round(totalRevenue / totalLiveHours) : 0;
 
     return {
