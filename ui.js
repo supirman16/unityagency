@@ -51,8 +51,8 @@ export async function setupUIForRole() {
     
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
 
-    const btnSettings = document.getElementById('btn-settings');
-    if (btnSettings) btnSettings.style.display = isSuperAdmin ? 'block' : 'none';
+    const btnSettingsAccess = document.getElementById('btn-settings-access');
+    if (btnSettingsAccess) btnSettingsAccess.style.display = isSuperAdmin ? 'block' : 'none';
     
     const kpiTitleHosts = document.getElementById('kpi-title-hosts');
     if (kpiTitleHosts) kpiTitleHosts.textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
@@ -86,6 +86,9 @@ export async function setupUIForRole() {
     
     const navItemProfile = document.getElementById('nav-item-profile');
     if (navItemProfile) navItemProfile.style.display = !isSuperAdmin ? 'flex' : 'none';
+
+    const navItemSettings = document.getElementById('nav-item-settings');
+    if(navItemSettings) navItemSettings.style.display = 'flex'; // Selalu tampilkan untuk semua user yang login
 
     populateMobileMenu();
 }
@@ -270,6 +273,7 @@ export function setupPayrollFilters() {
     }
     [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderPayrollTable));
 }
+
 
 // --- FUNGSI UNTUK MODAL & AKSI ---
 

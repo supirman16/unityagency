@@ -66,7 +66,7 @@ async function refreshDataAndRender() {
 function setupEventListeners() {
     const loginForm = document.getElementById('login-form');
     const btnLogout = document.getElementById('btn-logout');
-    const btnSettings = document.getElementById('btn-settings');
+    const btnSettingsAccess = document.getElementById('btn-settings-access');
     const btnThemeToggle = document.getElementById('btn-theme-toggle');
     const btnAddRekap = document.getElementById('btn-add-rekap');
     const btnAddHost = document.getElementById('btn-add-host');
@@ -90,6 +90,7 @@ function setupEventListeners() {
     const formSettings = document.getElementById('form-settings');
     const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
     const formProfile = document.getElementById('form-profile');
+    const formChangePassword = document.getElementById('form-change-password');
     const importCsvModal = document.getElementById('modal-import-csv');
     const apiKeyModal = document.getElementById('modal-api-key');
     const formApiKey = document.getElementById('form-api-key');
@@ -105,6 +106,7 @@ function setupEventListeners() {
         rekap: document.getElementById('nav-rekap'),
         profile: document.getElementById('nav-profile'),
         payroll: document.getElementById('nav-payroll'),
+        settings: document.getElementById('nav-settings'),
         hosts: document.getElementById('nav-hosts'),
         tiktok: document.getElementById('nav-tiktok'),
         users: document.getElementById('nav-users'),
@@ -112,7 +114,7 @@ function setupEventListeners() {
 
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     if (btnLogout) btnLogout.addEventListener('click', handleLogout);
-    if (btnSettings) btnSettings.addEventListener('click', openSettingsModal);
+    if (btnSettingsAccess) btnSettingsAccess.addEventListener('click', openSettingsModal);
     if (btnThemeToggle) btnThemeToggle.addEventListener('click', () => {
         const currentTheme = localStorage.getItem('theme') === 'dark' ? 'light' : 'dark';
         applyTheme(currentTheme);
@@ -617,7 +619,7 @@ function setupEventListeners() {
             - Total Jam Live: ${performance.totalHours.toFixed(1)} jam
             - Keseimbangan Jam (dibandingkan target 6 jam/hari kerja): ${performance.hourBalance.toFixed(1)} jam
             - Sisa Jatah Libur: ${performance.remainingOffDays} hari
-            - Efisiensi Pendapatan: ${performance.revenuePerHour} diamond per jam
+            - Efisiensi Pendapatan: ${performance.revenuePerDay} diamond per hari
 
             Format laporan dalam poin-poin sebagai berikut:
             1.  **Ringkasan Umum:** Berikan kesimpulan singkat tentang kinerja host di bulan ini.
@@ -721,6 +723,32 @@ function setupEventListeners() {
             
         } catch (err) {
             showNotification(`Gagal memperbarui profil: ${err.message}`, true);
+        } finally {
+            hideButtonLoader(button);
+        }
+    });
+
+    if (formChangePassword) formChangePassword.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const button = e.submitter;
+        showButtonLoader(button);
+
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword !== confirmPassword) {
+            showNotification('Konfirmasi password tidak cocok.', true);
+            hideButtonLoader(button);
+            return;
+        }
+
+        try {
+            const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            showNotification('Password berhasil diperbarui.');
+            formChangePassword.reset();
+        } catch (err) {
+            showNotification(`Gagal memperbarui password: ${err.message}`, true);
         } finally {
             hideButtonLoader(button);
         }
