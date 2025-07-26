@@ -742,28 +742,41 @@ function setupEventListeners() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Apply initial theme
     const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     applyTheme(savedTheme);
     
     setupEventListeners();
 
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        const wasLoggedIn = !!state.currentUser;
-        const isLoggedIn = !!session?.user;
+    // --- INITIAL SESSION CHECK ---
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        state.currentUser = session.user;
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        await updateAllDataAndUI();
+    } else {
+        document.getElementById('login-page').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+    }
 
-        if (isLoggedIn && !wasLoggedIn) { // User just logged in
+    // --- AUTH STATE CHANGE LISTENER ---
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        // This listener now primarily handles LOGIN and LOGOUT events,
+        // as the initial session is already handled above.
+        if (session && !state.currentUser) { // User just logged in
             state.currentUser = session.user;
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             await updateAllDataAndUI();
-        } else if (!isLoggedIn && wasLoggedIn) { // User just logged out
+        } else if (!session && state.currentUser) { // User just logged out
             state.currentUser = null;
             document.getElementById('app').classList.add('hidden');
             document.getElementById('login-page').classList.remove('hidden');
             document.getElementById('login-form').reset();
-            document.getElementById('login-error').classList.add('hidden');
+            const loginError = document.getElementById('login-error');
+            if(loginError) loginError.classList.add('hidden');
         }
     });
 });
