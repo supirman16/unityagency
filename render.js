@@ -1,4 +1,5 @@
 import { state } from './main.js';
+import { calendarState } from './ui.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
 // --- FUNGSI SORTING ---
@@ -563,4 +564,101 @@ export function renderPayrollTable() {
         `;
         payrollTableBody.appendChild(row);
     });
+}
+
+export function renderCalendar() {
+    if (!state.currentUser) return;
+
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthDisplay = document.getElementById('calendar-month-year');
+    const hostSelect = document.getElementById('calendar-host-filter');
+    if (!calendarGrid || !monthDisplay || !hostSelect) return;
+
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    let selectedHostId;
+
+    if (isSuperAdmin) {
+        if (!hostSelect.value) {
+            // Jika superadmin belum memilih host, pilih host pertama yang aktif
+            const firstActiveHost = state.hosts.find(h => h.status === 'Aktif');
+            if (firstActiveHost) {
+                hostSelect.value = firstActiveHost.id;
+            } else {
+                calendarGrid.innerHTML = '<p class="text-center col-span-7 text-stone-500">Tidak ada host aktif yang bisa dipilih.</p>';
+                return;
+            }
+        }
+        selectedHostId = parseInt(hostSelect.value);
+    } else {
+        selectedHostId = state.currentUser.user_metadata.host_id;
+    }
+
+    const year = calendarState.currentDate.getFullYear();
+    const month = calendarState.currentDate.getMonth();
+
+    monthDisplay.textContent = new Date(year, month).toLocaleString('id-ID', {
+        month: 'long',
+        year: 'numeric'
+    });
+
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Minggu, 1 = Senin
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Sesuaikan agar Senin menjadi hari pertama (0)
+    const startDay = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+
+    const hostRekaps = state.rekapLive.filter(r => 
+        r.host_id === selectedHostId && r.status === 'approved'
+    );
+
+    const dailyData = hostRekaps.reduce((acc, r) => {
+        const recDate = new Date(r.tanggal_live);
+        if (recDate.getFullYear() === year && recDate.getMonth() === month) {
+            const day = recDate.getDate();
+            if (!acc[day]) {
+                acc[day] = { totalMinutes: 0, totalDiamonds: 0 };
+            }
+            acc[day].totalMinutes += r.durasi_menit;
+            acc[day].totalDiamonds += r.pendapatan;
+        }
+        return acc;
+    }, {});
+
+    calendarGrid.innerHTML = '';
+
+    // Tambahkan sel kosong untuk hari sebelum tanggal 1
+    for (let i = 0; i < startDay; i++) {
+        calendarGrid.innerHTML += `<div class="border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 rounded-md"></div>`;
+    }
+
+    // Isi kalender dengan data
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayData = dailyData[day];
+        let content = '';
+        let statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        let statusText = 'Absent';
+
+        if (dayData && dayData.totalMinutes >= 120) {
+            statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+            statusText = 'Live';
+            content = `
+                <div class="text-xs mt-2 space-y-1">
+                    <p class="flex justify-between"><span>Jam:</span> <span>${formatDuration(dayData.totalMinutes)}</span></p>
+                    <p class="flex justify-between"><span>Diamond:</span> <span>${formatDiamond(dayData.totalDiamonds)}</span></p>
+                </div>
+            `;
+        }
+
+        calendarGrid.innerHTML += `
+            <div class="border border-stone-200 dark:border-stone-700 p-2 rounded-md h-32 flex flex-col">
+                <div class="font-bold text-stone-800 dark:text-stone-200">${day}</div>
+                <div class="mt-1">
+                    <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${statusText}
+                    </span>
+                </div>
+                ${content}
+            </div>
+        `;
+    }
 }
