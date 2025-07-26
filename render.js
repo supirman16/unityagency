@@ -634,7 +634,7 @@ export function renderCalendar() {
     calendarGrid.innerHTML = '';
 
     for (let i = 0; i < startDay; i++) {
-        calendarGrid.innerHTML += `<div class="border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 rounded-md"></div>`;
+        calendarGrid.innerHTML += `<div class="hidden md:block border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 rounded-md"></div>`;
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -643,6 +643,7 @@ export function renderCalendar() {
         let statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
         let statusText = 'Absent';
         let clickableClass = '';
+        let mobileDetails = '<p class="text-sm text-stone-500 dark:text-stone-400">Absent</p>';
 
         if (dayData && dayData.totalMinutes >= 120) {
             statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
@@ -654,10 +655,17 @@ export function renderCalendar() {
                     <p class="flex justify-between"><span>Diamond:</span> <span>${formatDiamond(dayData.totalDiamonds)}</span></p>
                 </div>
             `;
+            mobileDetails = `
+                <div class="text-sm">
+                    <p class="font-semibold text-stone-800 dark:text-stone-200">${formatDuration(dayData.totalMinutes)}</p>
+                    <p class="text-stone-600 dark:text-stone-300">${formatDiamond(dayData.totalDiamonds)}</p>
+                </div>
+            `;
         }
 
         calendarGrid.innerHTML += `
-            <div class="border border-stone-200 dark:border-stone-700 p-2 rounded-md h-32 flex flex-col ${clickableClass}" data-day="${day}">
+            <!-- Desktop View -->
+            <div class="hidden md:flex border border-stone-200 dark:border-stone-700 p-2 rounded-md h-32 flex-col ${clickableClass}" data-day="${day}">
                 <div class="font-bold text-stone-800 dark:text-stone-200">${day}</div>
                 <div class="mt-1">
                     <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
@@ -665,6 +673,15 @@ export function renderCalendar() {
                     </span>
                 </div>
                 ${content}
+            </div>
+            <!-- Mobile View -->
+            <div class="flex md:hidden calendar-day-mobile border-stone-200 dark:border-stone-700 ${clickableClass}" data-day="${day}">
+                <div class="date-circle ${dayData && dayData.totalMinutes >= 120 ? 'bg-green-200 dark:bg-green-800' : 'bg-stone-200 dark:bg-stone-700'}">
+                    ${day}
+                </div>
+                <div class="details">
+                    ${mobileDetails}
+                </div>
             </div>
         `;
     }

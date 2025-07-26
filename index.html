@@ -106,6 +106,30 @@
                 justify-content: space-between;
                 align-items: center;
             }
+            #calendar-grid {
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+            .calendar-day-mobile {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem;
+                border-bottom-width: 1px;
+            }
+            .calendar-day-mobile .date-circle {
+                flex-shrink: 0;
+                width: 40px;
+                height: 40px;
+                border-radius: 9999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+            }
+            .calendar-day-mobile .details {
+                margin-left: 1rem;
+                flex-grow: 1;
+            }
         }
 
         /* Gradasi warna sesuai logo */
@@ -336,7 +360,7 @@
                     </div>
                 </div>
                  <div class="mt-8 bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-4">
-                    <div class="grid grid-cols-7 gap-1 text-center font-semibold text-stone-600 dark:text-stone-300 mb-2">
+                    <div class="hidden md:grid grid-cols-7 gap-1 text-center font-semibold text-stone-600 dark:text-stone-300 mb-2">
                         <div>Sen</div>
                         <div>Sel</div>
                         <div>Rab</div>
@@ -345,7 +369,7 @@
                         <div>Sab</div>
                         <div>Min</div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                    <div id="calendar-grid" class="block md:grid md:grid-cols-7 gap-1">
                         <!-- JavaScript akan mengisi kalender di sini -->
                     </div>
                 </div>
