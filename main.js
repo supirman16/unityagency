@@ -790,11 +790,13 @@ export async function updateAllDataAndUI() {
     setupRekapFilters();
     setupAnalysisFilters(); 
     setupPayrollFilters();
+    setupCalendarFilters();
     renderHostTable();
     renderTiktokTable();
     renderUserTable();
     renderRekapTable();
     renderPayrollTable();
+    renderCalendar();
     updateKPIs();
     updatePerformanceChart();
     
