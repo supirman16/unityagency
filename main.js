@@ -796,6 +796,9 @@ export async function updateAllDataAndUI() {
     updateKPIs();
     updatePerformanceChart();
     
+    const geminiContainer = document.getElementById('gemini-analysis-container');
+    if (geminiContainer) geminiContainer.classList.add('hidden');
+    
     // Populate dropdowns in modals
     populateHostDropdowns(document.getElementById('rekap-host'));
     populateTiktokDropdowns(document.getElementById('rekap-tiktok-account'));
