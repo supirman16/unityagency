@@ -176,7 +176,15 @@ export function renderRekapTable() {
         lookupInfo = { array: state.tiktokAccounts, field: 'username' };
     }
     
-    const sortedData = [...filteredRekap].sort((a,b) => universalSorter(a, b, key, direction, type, lookupInfo));
+    const sortedData = [...filteredRekap].sort((a,b) => {
+        const primarySort = universalSorter(a, b, key, direction, type, lookupInfo);
+        if (primarySort !== 0) return primarySort;
+
+        // Pengurutan sekunder berdasarkan jam mulai jika pengurutan utama sama
+        if (a.waktu_mulai < b.waktu_mulai) return -1;
+        if (a.waktu_mulai > b.waktu_mulai) return 1;
+        return 0;
+    });
 
     rekapTableBody.innerHTML = '';
      if (sortedData.length === 0) {
