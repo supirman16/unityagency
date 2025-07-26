@@ -1,6 +1,11 @@
 import { state } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance } from './render.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance, renderCalendar } from './render.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
+
+// --- STATE LOKAL UNTUK UI ---
+export let calendarState = {
+    currentDate: new Date()
+};
 
 // --- FUNGSI UTILITAS TAMPILAN ---
 
@@ -276,6 +281,34 @@ export function setupPayrollFilters() {
     }
     [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderPayrollTable));
 }
+
+export function setupCalendarFilters() {
+    if (!state.currentUser) return;
+    const hostSelect = document.getElementById('calendar-host-filter');
+    const prevMonthBtn = document.getElementById('btn-prev-month');
+    const nextMonthBtn = document.getElementById('btn-next-month');
+
+    if (!hostSelect) return;
+
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    if (isSuperAdmin) {
+        hostSelect.style.display = 'block';
+        populateHostDropdowns(hostSelect);
+    } else {
+        hostSelect.style.display = 'none';
+    }
+
+    hostSelect.addEventListener('change', renderCalendar);
+    prevMonthBtn.addEventListener('click', () => {
+        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+    nextMonthBtn.addEventListener('click', () => {
+        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+}
+
 
 // --- FUNGSI UNTUK MODAL & AKSI ---
 
