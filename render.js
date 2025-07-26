@@ -177,21 +177,9 @@ export function renderRekapTable() {
     
     const sortedData = [...filteredRekap].sort((a,b) => universalSorter(a, b, key, direction, type, lookupInfo));
 
-    // --- Logika Deteksi Duplikat ---
-    const seen = new Map();
-    const duplicates = new Set();
-    sortedData.forEach(rekap => {
-        const uniqueKey = `${rekap.tanggal_live}-${rekap.host_id}-${rekap.waktu_mulai}-${rekap.waktu_selesai}-${rekap.pendapatan}`;
-        if (seen.has(uniqueKey)) {
-            duplicates.add(uniqueKey);
-        } else {
-            seen.set(uniqueKey, rekap.id);
-        }
-    });
-
     rekapTableBody.innerHTML = '';
      if (sortedData.length === 0) {
-        rekapTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
+        rekapTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada data rekap untuk ditampilkan pada periode ini.</td></tr>`;
         return;
     }
     sortedData.forEach(rekap => {
@@ -201,8 +189,31 @@ export function renderRekapTable() {
         row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none cursor-pointer';
         row.dataset.rekapId = rekap.id;
 
-        const uniqueKey = `${rekap.tanggal_live}-${rekap.host_id}-${rekap.waktu_mulai}-${rekap.waktu_selesai}-${rekap.pendapatan}`;
-        const isDuplicate = duplicates.has(uniqueKey);
+        let statusBadge = '';
+        if (rekap.status === 'pending') {
+            statusBadge = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Pending</span>';
+        } else if (rekap.status === 'approved') {
+            statusBadge = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Approved</span>';
+        }
+
+        let actionButtons = '';
+        if (isSuperAdmin) {
+            if (rekap.status === 'pending') {
+                actionButtons = `
+                    <button class="font-medium text-green-600 hover:underline dark:text-green-500 mr-3 btn-approve-rekap" data-id="${rekap.id}">Approve</button>
+                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-reject-rekap" data-id="${rekap.id}">Reject</button>
+                `;
+            } else if (rekap.status === 'approved') {
+                actionButtons = `<button class="font-medium text-yellow-600 hover:underline dark:text-yellow-500 btn-rollback-rekap" data-id="${rekap.id}">Rollback</button>`;
+            }
+        } else {
+            if (rekap.status === 'pending') {
+                actionButtons = `
+                    <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
+                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
+                `;
+            }
+        }
 
         row.innerHTML = `
             <td data-label="Tanggal:" class="mobile-label px-6 py-4 block md:table-cell">${formatDate(rekap.tanggal_live)}</td>
@@ -210,13 +221,8 @@ export function renderRekapTable() {
             <td data-label="Akun:" class="mobile-label px-6 py-4 block md:table-cell">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
             <td data-label="Durasi:" class="mobile-label px-6 py-4 block md:table-cell">${formatDuration(rekap.durasi_menit)}</td>
             <td data-label="Diamond:" class="mobile-label px-6 py-4 block md:table-cell">${formatDiamond(rekap.pendapatan)}</td>
-            <td data-label="Remark:" class="mobile-label px-6 py-4 block md:table-cell">
-                ${isDuplicate ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Duplikat</span>' : ''}
-            </td>
-            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
-                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
-                <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
-            </td>
+            <td data-label="Status:" class="mobile-label px-6 py-4 block md:table-cell">${statusBadge}</td>
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">${actionButtons}</td>
         `;
         rekapTableBody.appendChild(row);
     });
@@ -358,7 +364,7 @@ export function calculateMonthlyPerformance(hostId, year, month) {
 
     const hostRekaps = state.rekapLive.filter(r => {
         const recDate = new Date(r.tanggal_live);
-        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month;
+        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month && r.status === 'approved';
     });
 
     const dailyData = hostRekaps.reduce((acc, r) => {
@@ -467,7 +473,7 @@ export function calculatePayroll(hostId, year, month) {
 
     const hostRekaps = state.rekapLive.filter(r => {
         const recDate = new Date(r.tanggal_live);
-        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month;
+        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month && r.status === 'approved';
     });
 
     const totalDiamonds = hostRekaps.reduce((sum, r) => sum + r.pendapatan, 0);

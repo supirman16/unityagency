@@ -208,11 +208,30 @@ function setupEventListeners() {
     });
 
     const rekapTableBody = document.getElementById('rekap-table-body');
-    if (rekapTableBody) rekapTableBody.addEventListener('click', (event) => {
+    if (rekapTableBody) rekapTableBody.addEventListener('click', async (event) => {
         const target = event.target;
         const row = target.closest('tr[data-rekap-id]');
         if (!row) return;
-        const rekapId = parseInt(row.dataset.rekapId);
+        const rekapId = parseInt(row.dataset.rekapId || target.dataset.id);
+        
+        let newStatus = '';
+        if (target.matches('.btn-approve-rekap')) newStatus = 'approved';
+        else if (target.matches('.btn-reject-rekap')) newStatus = 'rejected';
+        else if (target.matches('.btn-rollback-rekap')) newStatus = 'pending';
+
+        if (newStatus) {
+            event.stopPropagation();
+            try {
+                const { error } = await supabaseClient.from('rekap_live').update({ status: newStatus }).eq('id', rekapId);
+                if (error) throw error;
+                showNotification(`Status rekap berhasil diubah ke ${newStatus}.`);
+                await refreshDataAndRender();
+            } catch (err) {
+                showNotification(`Gagal mengubah status: ${err.message}`, true);
+            }
+            return;
+        }
+        
         if (target.matches('.btn-edit-rekap')) {
             event.stopPropagation();
             handleEditRekap(rekapId);
