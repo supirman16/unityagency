@@ -419,6 +419,41 @@
                 </div>
             </section>
 
+            <section id="section-calendar" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Kalender Live Host</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Lihat riwayat live harian dalam format kalender.</p>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                        <select id="calendar-host-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                        <div class="flex items-center">
+                            <button id="btn-prev-month" class="p-2 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 id="calendar-month-year" class="font-semibold text-lg mx-4"></h3>
+                            <button id="btn-next-month" class="p-2 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-4">
+                    <div class="grid grid-cols-7 gap-1 text-center font-semibold text-stone-600 dark:text-stone-300 mb-2">
+                        <div>Sen</div>
+                        <div>Sel</div>
+                        <div>Rab</div>
+                        <div>Kam</div>
+                        <div>Jum</div>
+                        <div>Sab</div>
+                        <div>Min</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                        <!-- JavaScript akan mengisi kalender di sini -->
+                    </div>
+                </div>
+            </section>
+
             <section id="section-hosts" class="hidden">
                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <div>
