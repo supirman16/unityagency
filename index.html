@@ -87,6 +87,26 @@
         .sort-indicator.asc::after {
             transform: rotate(0deg);
         }
+        /* Style untuk tampilan kartu di mobile */
+        @media (max-width: 767px) {
+            .mobile-label::before {
+                content: attr(data-label);
+                font-weight: 600;
+                width: 120px;
+                display: inline-block;
+                color: #6b7280; /* stone-500 */
+            }
+            .dark .mobile-label::before {
+                color: #a8a29e; /* stone-400 */
+            }
+            .mobile-label {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 dark:bg-stone-900 dark:text-stone-200">
@@ -361,7 +381,7 @@
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="payroll-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3">Nama Host</th>
                                 <th scope="col" class="px-6 py-3">Total Jam</th>
@@ -373,7 +393,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="payroll-table-body"></tbody>
+                        <tbody id="payroll-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -388,7 +408,7 @@
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="host-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="nama_host">Nama Host<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="platform">Platform<span class="sort-indicator"></span></th>
@@ -397,7 +417,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="host-table-body"></tbody>
+                        <tbody id="host-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -411,14 +431,14 @@
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="tiktok-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="username">Username TikTok<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="status">Status<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tiktok-table-body"></tbody>
+                        <tbody id="tiktok-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -439,7 +459,7 @@
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="rekap-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tanggal_live" data-sort-type="date">Tanggal<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="host_id" data-sort-lookup="hosts">Host<span class="sort-indicator"></span></th>
@@ -450,7 +470,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="rekap-table-body"></tbody>
+                        <tbody id="rekap-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -467,7 +487,7 @@
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="user-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="email">Email<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="user_metadata.role">Peran<span class="sort-indicator"></span></th>
@@ -475,7 +495,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="user-table-body"></tbody>
+                        <tbody id="user-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>

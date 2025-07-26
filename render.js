@@ -66,17 +66,17 @@ export function renderHostTable() {
     hostTableBody.innerHTML = '';
     sortedData.forEach(host => {
         const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none';
         row.innerHTML = `
-            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${host.nama_host}</td>
-            <td class="px-6 py-4">${host.platform}</td>
-            <td class="px-6 py-4">${formatDate(host.tanggal_bergabung)}</td>
-            <td class="px-6 py-4">
+            <td data-label="Nama Host:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${host.nama_host}</td>
+            <td data-label="Platform:" class="mobile-label px-6 py-4 block md:table-cell">${host.platform}</td>
+            <td data-label="Tgl Bergabung:" class="mobile-label px-6 py-4 block md:table-cell">${formatDate(host.tanggal_bergabung)}</td>
+            <td data-label="Status:" class="mobile-label px-6 py-4 block md:table-cell">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${host.status === 'Aktif' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}">
                     ${host.status}
                 </span>
             </td>
-            <td class="px-6 py-4 text-center">
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-host" data-id="${host.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-host" data-id="${host.id}">Hapus</button>
             </td>
@@ -96,15 +96,15 @@ export function renderTiktokTable() {
     tiktokTableBody.innerHTML = '';
     sortedData.forEach(account => {
         const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none';
         row.innerHTML = `
-            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${account.username}</td>
-            <td class="px-6 py-4">
+            <td data-label="Username:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${account.username}</td>
+            <td data-label="Status:" class="mobile-label px-6 py-4 block md:table-cell">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${account.status === 'Aktif' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}">
                     ${account.status}
                 </span>
             </td>
-            <td class="px-6 py-4 text-center">
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-tiktok" data-id="${account.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-tiktok" data-id="${account.id}">Hapus</button>
             </td>
@@ -132,12 +132,12 @@ export function renderUserTable() {
     sortedData.forEach(user => {
         const host = user.user_metadata.host_id ? state.hosts.find(h => h.id === user.user_metadata.host_id) : null;
         const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none';
         row.innerHTML = `
-            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${user.email}</td>
-            <td class="px-6 py-4">${user.user_metadata.role}</td>
-            <td class="px-6 py-4">${host ? host.nama_host : '-'}</td>
-            <td class="px-6 py-4 text-center">
+            <td data-label="Email:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${user.email}</td>
+            <td data-label="Peran:" class="mobile-label px-6 py-4 block md:table-cell">${user.user_metadata.role}</td>
+            <td data-label="Host:" class="mobile-label px-6 py-4 block md:table-cell">${host ? host.nama_host : '-'}</td>
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-user" data-id="${user.id}">Ubah</button>
                 ${state.currentUser.id !== user.id ? `<button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-user" data-id="${user.id}">Hapus</button>` : ''}
             </td>
@@ -198,22 +198,22 @@ export function renderRekapTable() {
         const host = state.hosts.find(h => h.id === rekap.host_id);
         const tiktokAccount = state.tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
         const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700 cursor-pointer';
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none cursor-pointer';
         row.dataset.rekapId = rekap.id;
 
         const uniqueKey = `${rekap.tanggal_live}-${rekap.host_id}-${rekap.waktu_mulai}-${rekap.waktu_selesai}-${rekap.pendapatan}`;
         const isDuplicate = duplicates.has(uniqueKey);
 
         row.innerHTML = `
-            <td class="px-6 py-4">${formatDate(rekap.tanggal_live)}</td>
-            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
-            <td class="px-6 py-4">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
-            <td class="px-6 py-4">${formatDuration(rekap.durasi_menit)}</td>
-            <td class="px-6 py-4">${formatDiamond(rekap.pendapatan)}</td>
-            <td class="px-6 py-4">
+            <td data-label="Tanggal:" class="mobile-label px-6 py-4 block md:table-cell">${formatDate(rekap.tanggal_live)}</td>
+            <td data-label="Host:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${host ? host.nama_host : 'Host Dihapus'}</td>
+            <td data-label="Akun:" class="mobile-label px-6 py-4 block md:table-cell">${tiktokAccount ? tiktokAccount.username : 'Akun Dihapus'}</td>
+            <td data-label="Durasi:" class="mobile-label px-6 py-4 block md:table-cell">${formatDuration(rekap.durasi_menit)}</td>
+            <td data-label="Diamond:" class="mobile-label px-6 py-4 block md:table-cell">${formatDiamond(rekap.pendapatan)}</td>
+            <td data-label="Remark:" class="mobile-label px-6 py-4 block md:table-cell">
                 ${isDuplicate ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Duplikat</span>' : ''}
             </td>
-            <td class="px-6 py-4 text-center">
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
                 <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
             </td>
@@ -540,16 +540,16 @@ export function renderPayrollTable() {
         if (!payrollData) return;
 
         const row = document.createElement('tr');
-        row.className = 'bg-white dark:bg-stone-800 border-b dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700';
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none';
         row.innerHTML = `
-            <td class="px-6 py-4 font-medium text-stone-900 dark:text-white whitespace-nowrap">${payrollData.hostName}</td>
-            <td class="px-6 py-4">${formatDuration(payrollData.totalHours * 60)}</td>
-            <td class="px-6 py-4">${formatDiamond(payrollData.totalDiamonds)}</td>
-            <td class="px-6 py-4">${formatRupiah(payrollData.baseSalary)}</td>
-            <td class="px-6 py-4 text-green-600 dark:text-green-400">${formatRupiah(payrollData.bonus)}</td>
-            <td class="px-6 py-4 text-red-600 dark:text-red-400">${formatRupiah(payrollData.deduction)}</td>
-            <td class="px-6 py-4 font-bold text-teal-700 dark:text-teal-500">${formatRupiah(payrollData.finalSalary)}</td>
-            <td class="px-6 py-4 text-center">
+            <td data-label="Nama Host:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${payrollData.hostName}</td>
+            <td data-label="Total Jam:" class="mobile-label px-6 py-4 block md:table-cell">${formatDuration(payrollData.totalHours * 60)}</td>
+            <td data-label="Total Diamond:" class="mobile-label px-6 py-4 block md:table-cell">${formatDiamond(payrollData.totalDiamonds)}</td>
+            <td data-label="Gaji Pokok:" class="mobile-label px-6 py-4 block md:table-cell">${formatRupiah(payrollData.baseSalary)}</td>
+            <td data-label="Bonus:" class="mobile-label px-6 py-4 block md:table-cell text-green-600 dark:text-green-400">${formatRupiah(payrollData.bonus)}</td>
+            <td data-label="Potongan:" class="mobile-label px-6 py-4 block md:table-cell text-red-600 dark:text-red-400">${formatRupiah(payrollData.deduction)}</td>
+            <td data-label="Gaji Akhir:" class="mobile-label px-6 py-4 block md:table-cell font-bold text-teal-700 dark:text-teal-500">${formatRupiah(payrollData.finalSalary)}</td>
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
                 <button class="font-medium text-teal-600 hover:underline dark:text-teal-500 btn-payroll-detail" data-id="${host.id}">Detail</button>
             </td>
         `;
