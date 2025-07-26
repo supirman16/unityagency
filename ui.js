@@ -1,5 +1,5 @@
 import { state } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll } from './render.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance } from './render.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
 // --- FUNGSI UTILITAS TAMPILAN ---
@@ -39,22 +39,47 @@ export function hideButtonLoader(button) {
 
 export async function setupUIForRole() {
     if (!state.currentUser) return;
-    document.getElementById('user-display-name').textContent = state.currentUser.email;
+    
+    const userDisplayName = document.getElementById('user-display-name');
+    if (userDisplayName) userDisplayName.textContent = state.currentUser.email;
+    
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
 
-    document.getElementById('btn-settings').style.display = isSuperAdmin ? 'block' : 'none';
-    document.getElementById('kpi-title-hosts').textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
-    document.getElementById('dashboard-subtitle').textContent = isSuperAdmin ? 'Metrik utama dari seluruh aktivitas host.' : 'Metrik utama dari aktivitas Anda.';
+    const btnSettings = document.getElementById('btn-settings');
+    if (btnSettings) btnSettings.style.display = isSuperAdmin ? 'block' : 'none';
     
-    document.getElementById('nav-item-hosts').style.display = isSuperAdmin ? 'flex' : 'none';
-    document.getElementById('nav-item-tiktok').style.display = isSuperAdmin ? 'flex' : 'none';
-    document.getElementById('nav-item-users').style.display = isSuperAdmin ? 'flex' : 'none';
-    document.getElementById('nav-item-payroll').style.display = isSuperAdmin ? 'flex' : 'none';
-    document.getElementById('btn-import-csv').style.display = isSuperAdmin ? 'block' : 'none';
-    document.getElementById('nav-item-dashboard').style.display = (isSuperAdmin || state.hostMenuAccess.dashboard) ? 'flex' : 'none';
-    document.getElementById('nav-item-analysis').style.display = (isSuperAdmin || state.hostMenuAccess.analysis) ? 'flex' : 'none';
-    document.getElementById('nav-item-rekap').style.display = (isSuperAdmin || state.hostMenuAccess.rekap) ? 'flex' : 'none';
-    document.getElementById('nav-item-profile').style.display = !isSuperAdmin ? 'flex' : 'none';
+    const kpiTitleHosts = document.getElementById('kpi-title-hosts');
+    if (kpiTitleHosts) kpiTitleHosts.textContent = isSuperAdmin ? 'Total Host Aktif' : 'Status Anda';
+
+    const dashboardSubtitle = document.getElementById('dashboard-subtitle');
+    if (dashboardSubtitle) dashboardSubtitle.textContent = isSuperAdmin ? 'Metrik utama dari seluruh aktivitas host.' : 'Metrik utama dari aktivitas Anda.';
+    
+    const navItemHosts = document.getElementById('nav-item-hosts');
+    if (navItemHosts) navItemHosts.style.display = isSuperAdmin ? 'flex' : 'none';
+    
+    const navItemTiktok = document.getElementById('nav-item-tiktok');
+    if (navItemTiktok) navItemTiktok.style.display = isSuperAdmin ? 'flex' : 'none';
+    
+    const navItemUsers = document.getElementById('nav-item-users');
+    if (navItemUsers) navItemUsers.style.display = isSuperAdmin ? 'flex' : 'none';
+    
+    const navItemPayroll = document.getElementById('nav-item-payroll');
+    if (navItemPayroll) navItemPayroll.style.display = isSuperAdmin ? 'flex' : 'none';
+    
+    const btnImportCsv = document.getElementById('btn-import-csv');
+    if (btnImportCsv) btnImportCsv.style.display = isSuperAdmin ? 'block' : 'none';
+    
+    const navItemDashboard = document.getElementById('nav-item-dashboard');
+    if (navItemDashboard) navItemDashboard.style.display = (isSuperAdmin || state.hostMenuAccess.dashboard) ? 'flex' : 'none';
+    
+    const navItemAnalysis = document.getElementById('nav-item-analysis');
+    if (navItemAnalysis) navItemAnalysis.style.display = (isSuperAdmin || state.hostMenuAccess.analysis) ? 'flex' : 'none';
+    
+    const navItemRekap = document.getElementById('nav-item-rekap');
+    if (navItemRekap) navItemRekap.style.display = (isSuperAdmin || state.hostMenuAccess.rekap) ? 'flex' : 'none';
+    
+    const navItemProfile = document.getElementById('nav-item-profile');
+    if (navItemProfile) navItemProfile.style.display = !isSuperAdmin ? 'flex' : 'none';
 
     populateMobileMenu();
 }
@@ -62,7 +87,7 @@ export async function setupUIForRole() {
 export function showSection(sectionName) {
     Object.values(document.querySelectorAll('main > section')).forEach(section => section.classList.add('hidden'));
     Object.values(document.querySelectorAll('.nav-link')).forEach(link => {
-        link.classList.remove('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+        link.classList.remove('text-purple-600', 'border-purple-600', 'dark:text-purple-500', 'dark:border-purple-500');
     });
     
     const sectionToShow = document.getElementById(`section-${sectionName}`);
@@ -72,7 +97,7 @@ export function showSection(sectionName) {
 
     const linkToActivate = document.getElementById(`nav-${sectionName}`);
     if (linkToActivate) {
-        linkToActivate.classList.add('text-teal-600', 'border-teal-600', 'dark:text-teal-500', 'dark:border-teal-500');
+        linkToActivate.classList.add('text-purple-600', 'border-purple-600', 'dark:text-purple-500', 'dark:border-purple-500');
     }
 }
 
@@ -90,15 +115,27 @@ export function applyTheme(theme) {
     const root = document.documentElement;
     const iconMoon = document.getElementById('icon-moon');
     const iconSun = document.getElementById('icon-sun');
+    const logoLoginLight = document.getElementById('logo-login-light');
+    const logoLoginDark = document.getElementById('logo-login-dark');
+    const logoHeaderLight = document.getElementById('logo-header-light');
+    const logoHeaderDark = document.getElementById('logo-header-dark');
 
     if (theme === 'dark') {
         root.classList.add('dark');
-        iconMoon.classList.add('hidden');
-        iconSun.classList.remove('hidden');
+        if (iconMoon) iconMoon.classList.add('hidden');
+        if (iconSun) iconSun.classList.remove('hidden');
+        if (logoLoginLight) logoLoginLight.classList.add('hidden');
+        if (logoLoginDark) logoLoginDark.classList.remove('hidden');
+        if (logoHeaderLight) logoHeaderLight.classList.add('hidden');
+        if (logoHeaderDark) logoHeaderDark.classList.remove('hidden');
     } else {
         root.classList.remove('dark');
-        iconMoon.classList.remove('hidden');
-        iconSun.classList.add('hidden');
+        if (iconMoon) iconMoon.classList.remove('hidden');
+        if (iconSun) iconSun.classList.add('hidden');
+        if (logoLoginLight) logoLoginLight.classList.remove('hidden');
+        if (logoLoginDark) logoLoginDark.classList.add('hidden');
+        if (logoHeaderLight) logoHeaderLight.classList.remove('hidden');
+        if (logoHeaderDark) logoHeaderDark.classList.add('hidden');
     }
 
     localStorage.setItem('theme', theme);
@@ -124,7 +161,7 @@ export function populateMobileMenu() {
             const link = item.querySelector('a').cloneNode(true);
             const newLi = document.createElement('li');
             
-            link.classList.remove('p-4', 'border-b-2');
+            link.classList.remove('p-4', 'border-b-2', 'border-transparent', 'rounded-t-lg', 'group');
             link.classList.add('block', 'p-2', 'rounded-md', 'hover:bg-stone-100', 'dark:hover:bg-stone-700');
 
             link.addEventListener('click', (e) => {
