@@ -201,7 +201,9 @@ export function renderRekapTable() {
             if (rekap.status === 'pending') {
                 actionButtons = `
                     <button class="font-medium text-green-600 hover:underline dark:text-green-500 mr-3 btn-approve-rekap" data-id="${rekap.id}">Approve</button>
-                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-reject-rekap" data-id="${rekap.id}">Reject</button>
+                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 mr-3 btn-reject-rekap" data-id="${rekap.id}">Reject</button>
+                    <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
+                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
                 `;
             } else if (rekap.status === 'approved') {
                 actionButtons = `<button class="font-medium text-yellow-600 hover:underline dark:text-yellow-500 btn-rollback-rekap" data-id="${rekap.id}">Rollback</button>`;
