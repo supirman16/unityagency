@@ -180,9 +180,11 @@ export function renderRekapTable() {
         const primarySort = universalSorter(a, b, key, direction, type, lookupInfo);
         if (primarySort !== 0) return primarySort;
 
-        // Pengurutan sekunder berdasarkan jam mulai jika pengurutan utama sama
-        if (a.waktu_mulai < b.waktu_mulai) return -1;
-        if (a.waktu_mulai > b.waktu_mulai) return 1;
+        // Pengurutan sekunder berdasarkan tanggal dan jam mulai
+        const dateA = new Date(`${a.tanggal_live}T${a.waktu_mulai}`);
+        const dateB = new Date(`${b.tanggal_live}T${b.waktu_mulai}`);
+        if (dateA < dateB) return direction === 'asc' ? -1 : 1;
+        if (dateA > dateB) return direction === 'asc' ? 1 : -1;
         return 0;
     });
 
