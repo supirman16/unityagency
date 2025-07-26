@@ -366,8 +366,8 @@ export function calculateMonthlyPerformance(hostId, year, month) {
     const minWorkMinutes = 120; // 2 jam dalam menit
 
     const hostRekaps = state.rekapLive.filter(r => {
-        const recDate = new Date(r.tanggal_live);
-        return r.host_id === hostId && recDate.getFullYear() === year && recDate.getMonth() === month && r.status === 'approved';
+        const [recYear, recMonth] = r.tanggal_live.split('-').map(Number);
+        return r.host_id === hostId && recYear === year && (recMonth - 1) === month && r.status === 'approved';
     });
 
     const dailyData = hostRekaps.reduce((acc, r) => {
@@ -423,10 +423,10 @@ export function calculateMonthlyPerformance(hostId, year, month) {
 
 export function renderAnalysisView() {
     if (!state.currentUser) return;
-    const hostSelect = document.getElementById('analysis-host');
+    const hostSelect = document.getElementById('analysis-host-filter');
     let hostId = parseInt(hostSelect.value);
-    const month = parseInt(document.getElementById('analysis-month').value);
-    const year = parseInt(document.getElementById('analysis-year').value);
+    const month = calendarState.currentDate.getMonth();
+    const year = calendarState.currentDate.getFullYear();
 
     // If superadmin and no host is selected, select the first one.
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
@@ -442,6 +442,7 @@ export function renderAnalysisView() {
         document.getElementById('analysis-off-allowance').textContent = '-';
         document.getElementById('analysis-off-remaining').textContent = '-';
         document.getElementById('analysis-revenue-per-hour').textContent = '-';
+        renderCalendar();
         return;
     }
 
@@ -462,6 +463,8 @@ export function renderAnalysisView() {
         balanceEl.classList.remove('text-red-600', 'dark:text-red-400');
         balanceEl.classList.add('text-green-600', 'dark:text-green-400');
     }
+
+    renderCalendar();
 }
 
 // --- PAYROLL LOGIC & RENDER ---
@@ -569,7 +572,7 @@ export function renderCalendar() {
 
     const calendarGrid = document.getElementById('calendar-grid');
     const monthDisplay = document.getElementById('calendar-month-year');
-    const hostSelect = document.getElementById('calendar-host-filter');
+    const hostSelect = document.getElementById('analysis-host-filter');
     if (!calendarGrid || !monthDisplay || !hostSelect) return;
 
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
@@ -577,7 +580,6 @@ export function renderCalendar() {
 
     if (isSuperAdmin) {
         if (!hostSelect.value) {
-            // Jika superadmin belum memilih host, pilih host pertama yang aktif
             const firstActiveHost = state.hosts.find(h => h.status === 'Aktif');
             if (firstActiveHost) {
                 hostSelect.value = firstActiveHost.id;
@@ -599,10 +601,9 @@ export function renderCalendar() {
         year: 'numeric'
     });
 
-    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Minggu, 1 = Senin
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Sesuaikan agar Senin menjadi hari pertama (0)
     const startDay = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
 
     const hostRekaps = state.rekapLive.filter(r => 
@@ -623,12 +624,10 @@ export function renderCalendar() {
 
     calendarGrid.innerHTML = '';
 
-    // Tambahkan sel kosong untuk hari sebelum tanggal 1
     for (let i = 0; i < startDay; i++) {
         calendarGrid.innerHTML += `<div class="border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 rounded-md"></div>`;
     }
 
-    // Isi kalender dengan data
     for (let day = 1; day <= daysInMonth; day++) {
         const dayData = dailyData[day];
         let content = '';

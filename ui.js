@@ -192,40 +192,29 @@ export function closeMobileMenu() {
 // --- FUNGSI SETUP FILTER ---
 export function setupAnalysisFilters() {
     if (!state.currentUser) return;
-    const hostSelect = document.getElementById('analysis-host');
-    const monthSelect = document.getElementById('analysis-month');
-    const yearSelect = document.getElementById('analysis-year');
+    const hostSelect = document.getElementById('analysis-host-filter');
+    const prevMonthBtn = document.getElementById('btn-prev-month');
+    const nextMonthBtn = document.getElementById('btn-next-month');
     
-    if (!hostSelect) return;
+    if (!hostSelect || !prevMonthBtn || !nextMonthBtn) return;
 
-    populateHostDropdowns(hostSelect);
-    if(state.currentUser.user_metadata?.role === 'host') {
-        hostSelect.value = state.currentUser.user_metadata.host_id;
-        hostSelect.disabled = true;
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    if (isSuperAdmin) {
+        hostSelect.style.display = 'block';
+        populateHostDropdowns(hostSelect);
     } else {
-        hostSelect.disabled = false;
+        hostSelect.style.display = 'none';
     }
 
-    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    monthSelect.innerHTML = '';
-    months.forEach((month, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = month;
-        monthSelect.appendChild(option);
+    hostSelect.addEventListener('change', renderAnalysisView);
+    prevMonthBtn.addEventListener('click', () => {
+        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() - 1);
+        renderAnalysisView();
     });
-    monthSelect.value = new Date().getMonth();
-
-    const currentYear = new Date().getFullYear();
-    yearSelect.innerHTML = '';
-    for (let i = currentYear; i >= currentYear - 5; i--) {
-         const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        yearSelect.appendChild(option);
-    }
-    
-    [hostSelect, monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderAnalysisView));
+    nextMonthBtn.addEventListener('click', () => {
+        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() + 1);
+        renderAnalysisView();
+    });
 }
 
 export function setupRekapFilters() {
@@ -281,34 +270,6 @@ export function setupPayrollFilters() {
     }
     [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderPayrollTable));
 }
-
-export function setupCalendarFilters() {
-    if (!state.currentUser) return;
-    const hostSelect = document.getElementById('calendar-host-filter');
-    const prevMonthBtn = document.getElementById('btn-prev-month');
-    const nextMonthBtn = document.getElementById('btn-next-month');
-
-    if (!hostSelect) return;
-
-    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
-    if (isSuperAdmin) {
-        hostSelect.style.display = 'block';
-        populateHostDropdowns(hostSelect);
-    } else {
-        hostSelect.style.display = 'none';
-    }
-
-    hostSelect.addEventListener('change', renderCalendar);
-    prevMonthBtn.addEventListener('click', () => {
-        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() - 1);
-        renderCalendar();
-    });
-    nextMonthBtn.addEventListener('click', () => {
-        calendarState.currentDate.setMonth(calendarState.currentDate.getMonth() + 1);
-        renderCalendar();
-    });
-}
-
 
 // --- FUNGSI UNTUK MODAL & AKSI ---
 
@@ -471,14 +432,11 @@ export function openPayrollDetailModal(hostId, year, month) {
 }
 
 export function openCalendarDetailModal(day, year, month) {
-    // Membangun string tanggal YYYY-MM-DD secara manual untuk menghindari masalah zona waktu
-    const monthString = String(month + 1).padStart(2, '0');
-    const dayString = String(day).padStart(2, '0');
-    const dateString = `${year}-${monthString}-${dayString}`;
+    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
     let selectedHostId = isSuperAdmin 
-        ? parseInt(document.getElementById('calendar-host-filter').value)
+        ? parseInt(document.getElementById('analysis-host-filter').value)
         : state.currentUser.user_metadata.host_id;
 
     const dailyRekaps = state.rekapLive.filter(r => 

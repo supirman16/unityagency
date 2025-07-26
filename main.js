@@ -1,6 +1,6 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, setupCalendarFilters, openCalendarDetailModal, calendarState } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal } from './ui.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
@@ -41,7 +41,7 @@ async function refreshDataAndRender() {
     renderUserTable();
     renderRekapTable();
     renderPayrollTable();
-    renderCalendar();
+    renderAnalysisView(); // Ini juga akan me-render kalender
     updateKPIs();
     updatePerformanceChart();
     
@@ -105,7 +105,6 @@ function setupEventListeners() {
         rekap: document.getElementById('nav-rekap'),
         profile: document.getElementById('nav-profile'),
         payroll: document.getElementById('nav-payroll'),
-        calendar: document.getElementById('nav-calendar'),
         hosts: document.getElementById('nav-hosts'),
         tiktok: document.getElementById('nav-tiktok'),
         users: document.getElementById('nav-users'),
@@ -588,9 +587,9 @@ function setupEventListeners() {
         
         showButtonLoader(button);
 
-        const hostId = parseInt(document.getElementById('analysis-host').value);
-        const month = parseInt(document.getElementById('analysis-month').value);
-        const year = parseInt(document.getElementById('analysis-year').value);
+        const hostId = parseInt(document.getElementById('analysis-host-filter').value);
+        const month = calendarState.currentDate.getMonth();
+        const year = calendarState.currentDate.getFullYear();
         if (!hostId) {
             showNotification('Silakan pilih host terlebih dahulu.', true);
             hideButtonLoader(button);
@@ -803,13 +802,12 @@ export async function updateAllDataAndUI() {
     setupRekapFilters();
     setupAnalysisFilters(); 
     setupPayrollFilters();
-    setupCalendarFilters();
     renderHostTable();
     renderTiktokTable();
     renderUserTable();
     renderRekapTable();
     renderPayrollTable();
-    renderCalendar();
+    renderAnalysisView();
     updateKPIs();
     updatePerformanceChart();
     
