@@ -1,4 +1,4 @@
-import { state } from './main.js';
+import { state, supabaseClient } from './main.js';
 import { calendarState } from './ui.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
@@ -694,5 +694,43 @@ export function renderCalendar() {
                 </div>
             </div>
         `;
+    }
+}
+export async function renderHostDocuments(hostId) {
+    const documentsListDiv = document.getElementById('host-documents-list');
+    if (!documentsListDiv) return;
+
+    documentsListDiv.innerHTML = '<p class="text-stone-500 dark:text-stone-400">Memuat dokumen...</p>';
+
+    try {
+        const { data: files, error } = await supabaseClient
+            .storage
+            .from('host-documents')
+            .list(hostId.toString(), {
+                limit: 100,
+                offset: 0,
+                sortBy: { column: 'name', order: 'asc' },
+            });
+
+        if (error) throw error;
+
+        if (files.length === 0) {
+            documentsListDiv.innerHTML = '<p class="text-stone-500 dark:text-stone-400">Belum ada dokumen yang diunggah.</p>';
+            return;
+        }
+
+        documentsListDiv.innerHTML = files.map(file => `
+            <div class="flex justify-between items-center bg-stone-100 dark:bg-stone-700 p-2 rounded-md">
+                <span class="text-sm text-stone-700 dark:text-stone-200">${file.name}</span>
+                <div>
+                    <button class="text-sm font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-download-document" data-path="${hostId}/${file.name}">Unduh</button>
+                    <button class="text-sm font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-document" data-path="${hostId}/${file.name}">Hapus</button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        documentsListDiv.innerHTML = '<p class="text-red-500">Gagal memuat dokumen.</p>';
+        console.error('Error fetching documents:', err);
     }
 }

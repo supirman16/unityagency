@@ -1,5 +1,5 @@
 import { state } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance, renderCalendar } from './render.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance, renderCalendar, renderHostDocuments } from './render.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
 // --- STATE LOKAL UNTUK UI ---
@@ -289,6 +289,8 @@ export async function openHostModal(hostId = null) {
     formHost.reset();
     const modalTitle = document.getElementById('modal-host-title');
     const hostIdInput = document.getElementById('host-id');
+    const documentsSection = document.getElementById('host-documents-section');
+
     if (hostId) {
         modalTitle.textContent = 'Ubah Data Host';
         const host = state.hosts.find(h => h.id === hostId);
@@ -298,10 +300,18 @@ export async function openHostModal(hostId = null) {
         document.getElementById('host-platform').value = host.platform;
         document.getElementById('host-gabung').value = host.tanggal_bergabung;
         document.getElementById('host-status').value = host.status;
+
+        if (documentsSection) {
+            documentsSection.classList.remove('hidden');
+            renderHostDocuments(hostId);
+        }
     } else {
         modalTitle.textContent = 'Tambah Host Baru';
         hostIdInput.value = '';
         document.getElementById('host-gabung').valueAsDate = new Date();
+        if (documentsSection) {
+            documentsSection.classList.add('hidden');
+        }
     }
     document.getElementById('modal-host').classList.remove('hidden');
 }

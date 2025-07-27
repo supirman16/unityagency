@@ -1,13 +1,13 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal, calendarState } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar } from './render.js';
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar, renderHostDocuments } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
 
 // --- KONEKSI KE SUPABASE ---
-const supabaseUrl = 'https://bvlzzhbvnhzvaojuqoqn.supabase.co'; 
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2bHp6aGJ2bmh6dmFvanVxb3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1Nzc4NjEsImV4cCI6MjA2OTE1Mzg2MX0.ngr8Zjd5lzsOWhycC_CDb3sOwVBFl21WTWSFt_cK2Hw'; 
+const supabaseUrl = 'https://zorudwncbfietuzxrerd.supabase.co'; 
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvcnVkd25jYmZpZXR1enhyZXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NzMzNTUsImV4cCI6MjA2ODI0OTM1NX0.d6YJ8qj3Uegmei6ip52fQ0gnjJltqVDlrlbu6VXk7Ks'; 
 export const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // --- GLOBAL STATE ---
@@ -91,6 +91,8 @@ function setupEventListeners() {
     const btnGenerateAnalysis = document.getElementById('btn-generate-analysis');
     const formProfile = document.getElementById('form-profile');
     const formChangePassword = document.getElementById('form-change-password');
+    const formUploadDocument = document.getElementById('form-upload-document');
+    const hostDocumentsList = document.getElementById('host-documents-list');
     const importCsvModal = document.getElementById('modal-import-csv');
     const apiKeyModal = document.getElementById('modal-api-key');
     const formApiKey = document.getElementById('form-api-key');
