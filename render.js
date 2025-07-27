@@ -705,7 +705,7 @@ export async function renderHostDocuments(hostId) {
     try {
         const { data: files, error } = await supabaseClient
             .storage
-            .from('host-documents')
+            .from('host-document')
             .list(hostId.toString(), {
                 limit: 100,
                 offset: 0,
