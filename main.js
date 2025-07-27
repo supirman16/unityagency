@@ -756,6 +756,81 @@ function setupEventListeners() {
         }
     });
 
+    if (formUploadDocument) formUploadDocument.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const button = e.submitter;
+        showButtonLoader(button);
+
+        const hostId = document.getElementById('host-id').value;
+        const fileInput = document.getElementById('host-document-file');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showNotification('Silakan pilih file terlebih dahulu.', true);
+            hideButtonLoader(button);
+            return;
+        }
+
+        try {
+            const filePath = `${hostId}/${file.name}`;
+            const { error } = await supabaseClient.storage
+                .from('host-document')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true,
+                });
+            
+            if (error) throw error;
+            showNotification('Dokumen berhasil diunggah.');
+            formUploadDocument.reset();
+            renderHostDocuments(hostId);
+        } catch (err) {
+            showNotification(`Gagal mengunggah dokumen: ${err.message}`, true);
+        } finally {
+            hideButtonLoader(button);
+        }
+    });
+
+    if (hostDocumentsList) hostDocumentsList.addEventListener('click', async (e) => {
+        const target = e.target;
+        const path = target.dataset.path;
+        if (!path) return;
+
+        if (target.matches('.btn-download-document')) {
+            try {
+                const { data, error } = await supabaseClient.storage
+                    .from('host-document')
+                    .download(path);
+                if (error) throw error;
+                const blob = new Blob([data], { type: data.type });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = path.split('/').pop();
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } catch (err) {
+                showNotification(`Gagal mengunduh file: ${err.message}`, true);
+            }
+        } else if (target.matches('.btn-delete-document')) {
+            if (confirm(`Apakah Anda yakin ingin menghapus file "${path.split('/').pop()}"?`)) {
+                try {
+                    const { error } = await supabaseClient.storage
+                        .from('host-document')
+                        .remove([path]);
+                    if (error) throw error;
+                    showNotification('Dokumen berhasil dihapus.');
+                    const hostId = document.getElementById('host-id').value;
+                    renderHostDocuments(hostId);
+                } catch (err) {
+                    showNotification(`Gagal menghapus file: ${err.message}`, true);
+                }
+            }
+        }
+    });
+
     document.querySelectorAll('.sortable-header').forEach(header => {
         header.addEventListener('click', () => {
             const tableId = header.closest('table').id;
