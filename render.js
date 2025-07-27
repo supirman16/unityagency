@@ -696,6 +696,7 @@ export function renderCalendar() {
         `;
     }
 }
+
 export async function renderHostDocuments(hostId) {
     const documentsListDiv = document.getElementById('host-documents-list');
     if (!documentsListDiv) return;

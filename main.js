@@ -50,15 +50,17 @@ async function refreshDataAndRender() {
     populateTiktokDropdowns(document.getElementById('rekap-tiktok-account'));
     populateHostDropdowns(document.getElementById('user-host-link'));
 
-    // Re-populate profile form if the user is a host
+    // Re-populate profile form and documents if the user is a host
     if (state.currentUser.user_metadata?.role === 'host') {
-        const hostData = state.hosts.find(h => h.id === state.currentUser.user_metadata.host_id);
+        const hostId = state.currentUser.user_metadata.host_id;
+        const hostData = state.hosts.find(h => h.id === hostId);
         if (hostData) {
             document.getElementById('profile-nama').value = hostData.nama_host || '';
             document.getElementById('profile-telepon').value = hostData.nomor_telepon || '';
             document.getElementById('profile-alamat').value = hostData.alamat || '';
             document.getElementById('profile-bank').value = hostData.nama_bank || '';
             document.getElementById('profile-rekening').value = hostData.nomor_rekening || '';
+            renderHostDocuments(hostId);
         }
     }
 }
@@ -761,12 +763,12 @@ function setupEventListeners() {
         const button = e.submitter;
         showButtonLoader(button);
 
-        const hostId = document.getElementById('host-id').value;
+        const hostId = state.currentUser.user_metadata.host_id;
         const fileInput = document.getElementById('host-document-file');
         const file = fileInput.files[0];
 
-        if (!file) {
-            showNotification('Silakan pilih file terlebih dahulu.', true);
+        if (!file || !hostId) {
+            showNotification('File atau ID host tidak ditemukan.', true);
             hideButtonLoader(button);
             return;
         }
@@ -822,7 +824,7 @@ function setupEventListeners() {
                         .remove([path]);
                     if (error) throw error;
                     showNotification('Dokumen berhasil dihapus.');
-                    const hostId = document.getElementById('host-id').value;
+                    const hostId = state.currentUser.user_metadata.host_id;
                     renderHostDocuments(hostId);
                 } catch (err) {
                     showNotification(`Gagal menghapus file: ${err.message}`, true);
@@ -925,13 +927,15 @@ export async function updateAllDataAndUI() {
     populateHostDropdowns(document.getElementById('user-host-link'));
     
     if (state.currentUser.user_metadata?.role === 'host') {
-        const hostData = state.hosts.find(h => h.id === state.currentUser.user_metadata.host_id);
+        const hostId = state.currentUser.user_metadata.host_id;
+        const hostData = state.hosts.find(h => h.id === hostId);
         if (hostData) {
             document.getElementById('profile-nama').value = hostData.nama_host || '';
             document.getElementById('profile-telepon').value = hostData.nomor_telepon || '';
             document.getElementById('profile-alamat').value = hostData.alamat || '';
             document.getElementById('profile-bank').value = hostData.nama_bank || '';
             document.getElementById('profile-rekening').value = hostData.nomor_rekening || '';
+            renderHostDocuments(hostId);
         }
     }
     
