@@ -116,11 +116,15 @@ export function showSection(sectionName) {
 export function getFirstVisibleSection() {
     if (!state.currentUser) return 'dashboard';
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
-    if (isSuperAdmin || state.hostMenuAccess.dashboard) return 'dashboard';
-    if (isSuperAdmin || state.hostMenuAccess.analysis) return 'analysis';
-    if (state.hostMenuAccess.rekap) return 'rekap';
-    if (isSuperAdmin) return 'payroll';
-    return 'dashboard'; // Fallback
+
+    if (isSuperAdmin) {
+        return 'dashboard';
+    } else {
+        if (state.hostMenuAccess.dashboard) return 'dashboard';
+        if (state.hostMenuAccess.analysis) return 'analysis';
+        if (state.hostMenuAccess.rekap) return 'rekap';
+        return 'profile'; // Fallback untuk host
+    }
 }
 
 export function applyTheme(theme) {
