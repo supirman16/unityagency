@@ -1,5 +1,5 @@
 import { state } from './main.js';
-import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance, renderCalendar, renderHostDocuments } from './render.js';
+import { updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, renderRekapTable, renderPayrollTable, calculatePayroll, calculateMonthlyPerformance, renderCalendar, renderHostDocuments, renderMySalaryView } from './render.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
 
 // --- STATE LOKAL UNTUK UI ---
@@ -86,6 +86,9 @@ export async function setupUIForRole() {
     
     const navItemProfile = document.getElementById('nav-item-profile');
     if (navItemProfile) navItemProfile.style.display = !isSuperAdmin ? 'flex' : 'none';
+
+    const navItemMySalary = document.getElementById('nav-item-my-salary');
+    if (navItemMySalary) navItemMySalary.style.display = !isSuperAdmin ? 'flex' : 'none';
 
     const navItemSettings = document.getElementById('nav-item-settings');
     if(navItemSettings) navItemSettings.style.display = 'flex'; // Selalu tampilkan untuk semua user yang login
@@ -272,6 +275,33 @@ export function setupPayrollFilters() {
         yearSelect.appendChild(option);
     }
     [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderPayrollTable));
+}
+
+export function setupMySalaryFilters() {
+    const monthSelect = document.getElementById('my-salary-month-filter');
+    const yearSelect = document.getElementById('my-salary-year-filter');
+    
+    if (!monthSelect || !yearSelect) return;
+
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    monthSelect.innerHTML = '';
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+    });
+    monthSelect.value = new Date().getMonth();
+
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+         const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
+    [monthSelect, yearSelect].forEach(el => el.addEventListener('change', renderMySalaryView));
 }
 
 

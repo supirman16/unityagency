@@ -735,3 +735,36 @@ export async function renderHostDocuments(hostId) {
         console.error('Error fetching documents:', err);
     }
 }
+
+export function renderMySalaryView() {
+    if (!state.currentUser || state.currentUser.user_metadata?.role !== 'host') return;
+
+    const hostId = state.currentUser.user_metadata.host_id;
+    const month = parseInt(document.getElementById('my-salary-month-filter').value);
+    const year = parseInt(document.getElementById('my-salary-year-filter').value);
+
+    if (!hostId || isNaN(month) || isNaN(year)) return;
+
+    const payrollData = calculatePayroll(hostId, year, month);
+    if (!payrollData) {
+        // Handle case where payroll data might not be available
+        document.getElementById('my-salary-detail-base').textContent = 'N/A';
+        document.getElementById('my-salary-detail-hours').textContent = 'N/A';
+        document.getElementById('my-salary-detail-days').textContent = 'N/A';
+        document.getElementById('my-salary-detail-deduction').textContent = 'N/A';
+        document.getElementById('my-salary-detail-adjusted-base').textContent = 'N/A';
+        document.getElementById('my-salary-detail-diamonds').textContent = 'N/A';
+        document.getElementById('my-salary-detail-bonus').textContent = 'N/A';
+        document.getElementById('my-salary-detail-final').textContent = 'N/A';
+        return;
+    };
+
+    document.getElementById('my-salary-detail-base').textContent = formatRupiah(payrollData.baseSalary);
+    document.getElementById('my-salary-detail-hours').textContent = `${payrollData.totalHours.toFixed(2)} jam / ${payrollData.targetHours} jam`;
+    document.getElementById('my-salary-detail-days').textContent = `${payrollData.workDays} hari / ${payrollData.targetDays} hari`;
+    document.getElementById('my-salary-detail-deduction').textContent = formatRupiah(payrollData.deduction);
+    document.getElementById('my-salary-detail-adjusted-base').textContent = formatRupiah(payrollData.adjustedBaseSalary);
+    document.getElementById('my-salary-detail-diamonds').textContent = formatDiamond(payrollData.totalDiamonds);
+    document.getElementById('my-salary-detail-bonus').textContent = formatRupiah(payrollData.bonus);
+    document.getElementById('my-salary-detail-final').textContent = formatRupiah(payrollData.finalSalary);
+}

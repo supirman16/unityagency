@@ -1,7 +1,7 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal, calendarState } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar, renderHostDocuments } from './render.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal, calendarState, setupMySalaryFilters } from './ui.js';
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar, renderHostDocuments, renderMySalaryView } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { formatDuration } from './utils.js';
 
@@ -109,6 +109,7 @@ function setupEventListeners() {
         analysis: document.getElementById('nav-analysis'),
         rekap: document.getElementById('nav-rekap'),
         profile: document.getElementById('nav-profile'),
+        'my-salary': document.getElementById('nav-my-salary'),
         payroll: document.getElementById('nav-payroll'),
         settings: document.getElementById('nav-settings'),
         hosts: document.getElementById('nav-hosts'),
@@ -763,12 +764,12 @@ function setupEventListeners() {
         const button = e.submitter;
         showButtonLoader(button);
 
-        const hostId = state.currentUser.user_metadata.host_id;
+        const hostId = document.getElementById('host-id').value;
         const fileInput = document.getElementById('host-document-file');
         const file = fileInput.files[0];
 
-        if (!file || !hostId) {
-            showNotification('File atau ID host tidak ditemukan.', true);
+        if (!file) {
+            showNotification('Silakan pilih file terlebih dahulu.', true);
             hideButtonLoader(button);
             return;
         }
@@ -824,7 +825,7 @@ function setupEventListeners() {
                         .remove([path]);
                     if (error) throw error;
                     showNotification('Dokumen berhasil dihapus.');
-                    const hostId = state.currentUser.user_metadata.host_id;
+                    const hostId = document.getElementById('host-id').value;
                     renderHostDocuments(hostId);
                 } catch (err) {
                     showNotification(`Gagal menghapus file: ${err.message}`, true);
@@ -909,12 +910,14 @@ export async function updateAllDataAndUI() {
     setupRekapFilters();
     setupAnalysisFilters(); 
     setupPayrollFilters();
+    setupMySalaryFilters();
     renderHostTable();
     renderTiktokTable();
     renderUserTable();
     renderRekapTable();
     renderPayrollTable();
     renderAnalysisView();
+    renderMySalaryView();
     updateKPIs();
     updatePerformanceChart();
     
