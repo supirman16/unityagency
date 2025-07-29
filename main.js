@@ -1,37 +1,17 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
+import { state } from './state.js';
 import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal, calendarState, setupMySalaryFilters } from './ui.js';
-import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderPayrollTable, renderCalendar, renderHostDocuments, renderMySalaryView } from './render.js';
+// Impor fungsi tabel dari komponen baru
+import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, renderPayrollTable } from './components/Table.js'; 
+// Impor fungsi render lainnya dari render.js yang sudah disederhanakan
+import { updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderCalendar, renderHostDocuments, renderMySalaryView } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { formatDuration } from './utils.js';
 
 // --- KONEKSI KE SUPABASE ---
 const supabaseUrl = 'https://bvlzzhbvnhzvaojuqoqn.supabase.co'; 
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2bHp6aGJ2bmh6dmFvanVxb3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1Nzc4NjEsImV4cCI6MjA2OTE1Mzg2MX0.ngr8Zjd5lzsOWhycC_CDb3sOwVBFl21WTWSFt_cK2Hw'; 
 export const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-// --- GLOBAL STATE ---
-export let state = {
-    currentUser: null,
-    hosts: [],
-    tiktokAccounts: [],
-    rekapLive: [],
-    users: [],
-    itemToDelete: { id: null, type: '' },
-    parsedCsvData: [],
-    sortState: {
-        hosts: { key: 'nama_host', direction: 'asc' },
-        tiktok: { key: 'username', direction: 'asc' },
-        rekap: { key: 'tanggal_live', direction: 'desc' },
-        users: { key: 'email', direction: 'asc' }
-    },
-    performanceChart: null,
-    hostMenuAccess: {
-        dashboard: true,
-        analysis: true,
-        rekap: true,
-    }
-};
 
 async function refreshDataAndRender() {
     await fetchData();
@@ -41,11 +21,12 @@ async function refreshDataAndRender() {
     renderUserTable();
     renderRekapTable();
     renderPayrollTable();
-    renderAnalysisView(); // Ini juga akan me-render kalender
+    renderAnalysisView();
+    renderMySalaryView();
     updateKPIs();
     updatePerformanceChart();
     
-    // Re-populate dropdowns in case data changed (e.g., new host added)
+    // Re-populate dropdowns in case data changed
     populateHostDropdowns(document.getElementById('rekap-host'));
     populateTiktokDropdowns(document.getElementById('rekap-tiktok-account'));
     populateHostDropdowns(document.getElementById('user-host-link'));
@@ -764,12 +745,12 @@ function setupEventListeners() {
         const button = e.submitter;
         showButtonLoader(button);
 
-        const hostId = document.getElementById('host-id').value;
+        const hostId = state.currentUser.user_metadata.host_id;
         const fileInput = document.getElementById('host-document-file');
         const file = fileInput.files[0];
 
-        if (!file) {
-            showNotification('Silakan pilih file terlebih dahulu.', true);
+        if (!file || !hostId) {
+            showNotification('File atau ID host tidak ditemukan.', true);
             hideButtonLoader(button);
             return;
         }
@@ -825,7 +806,7 @@ function setupEventListeners() {
                         .remove([path]);
                     if (error) throw error;
                     showNotification('Dokumen berhasil dihapus.');
-                    const hostId = document.getElementById('host-id').value;
+                    const hostId = state.currentUser.user_metadata.host_id;
                     renderHostDocuments(hostId);
                 } catch (err) {
                     showNotification(`Gagal menghapus file: ${err.message}`, true);
