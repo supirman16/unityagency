@@ -202,7 +202,7 @@ export function closeMobileMenu() {
 // --- FUNGSI SETUP FILTER ---
 export function setupAnalysisFilters() {
     if (!state.currentUser) return;
-    const hostSelect = document.getElementById('analysis-host-filter');
+    const hostSelect = document.getElementById('analysis-host');
     const prevMonthBtn = document.getElementById('btn-prev-month');
     const nextMonthBtn = document.getElementById('btn-next-month');
     
@@ -475,7 +475,7 @@ export function openCalendarDetailModal(day, year, month) {
     
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
     let selectedHostId = isSuperAdmin 
-        ? parseInt(document.getElementById('analysis-host-filter').value)
+        ? parseInt(document.getElementById('analysis-host').value)
         : state.currentUser.user_metadata.host_id;
 
     const dailyRekaps = state.rekapLive.filter(r => 

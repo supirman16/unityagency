@@ -434,7 +434,7 @@ export function calculateMonthlyPerformance(hostId, year, month) {
 
 export function renderAnalysisView() {
     if (!state.currentUser) return;
-    const hostSelect = document.getElementById('analysis-host-filter');
+    const hostSelect = document.getElementById('analysis-host');
     let hostId;
     const month = calendarState.currentDate.getMonth();
     const year = calendarState.currentDate.getFullYear();
@@ -591,7 +591,7 @@ export function renderCalendar() {
 
     const calendarGrid = document.getElementById('calendar-grid');
     const monthDisplay = document.getElementById('calendar-month-year');
-    const hostSelect = document.getElementById('analysis-host-filter');
+    const hostSelect = document.getElementById('analysis-host');
     if (!calendarGrid || !monthDisplay || !hostSelect) return;
 
     const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
