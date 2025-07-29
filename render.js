@@ -1,7 +1,7 @@
-import { state, supabaseClient } from './main.js';
-import { calendarState } from './ui.js';
-import { formatDiamond, formatDate, formatDuration, formatRupiah } from './utils.js';
-import { renderCalendar } from './components/Calendar.js';
+import { state } from './state.js';
+import { supabaseClient } from './main.js';
+import { formatDate, formatDuration, formatDiamond, formatRupiah } from './utils.js';
+import { calculatePayroll } from './components/Analysis.js'; // Mengambil fungsi kalkulasi dari Analysis
 
 export function populateHostDropdowns(selectElement) {
     if (!selectElement) return;

@@ -1,11 +1,11 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { state } from './state.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openPayrollDetailModal, openMobileMenu, closeMobileMenu, openCalendarDetailModal, calendarState, setupMySalaryFilters } from './ui.js';
-// Impor fungsi tabel dari komponen baru
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openMobileMenu, closeMobileMenu, setupMySalaryFilters } from './ui.js';
+import { openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, openPayrollDetailModal, openCalendarDetailModal } from './components/Modals.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, renderPayrollTable } from './components/Table.js'; 
-// Impor fungsi render lainnya dari render.js yang sudah disederhanakan
-import { updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderAnalysisView, calculateMonthlyPerformance, renderCalendar, renderHostDocuments, renderMySalaryView } from './render.js';
+import { renderAnalysisView } from './components/Analysis.js';
+import { updateKPIs, updatePerformanceChart, populateHostDropdowns, populateTiktokDropdowns, renderHostDocuments, renderMySalaryView } from './render.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 // --- KONEKSI KE SUPABASE ---
