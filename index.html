@@ -6,7 +6,11 @@
     <title>Dashboard Kinerja Host</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+          darkMode: 'class'
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -83,6 +87,64 @@
         .sort-indicator.asc::after {
             transform: rotate(0deg);
         }
+        /* Style untuk tampilan kartu di mobile */
+        @media (max-width: 767px) {
+            .mobile-label::before {
+                content: attr(data-label);
+                font-weight: 600;
+                width: 120px;
+                display: inline-block;
+                color: #6b7280; /* stone-500 */
+            }
+            .dark .mobile-label::before {
+                color: #a8a29e; /* stone-400 */
+            }
+            .mobile-label {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            #calendar-grid {
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+            .calendar-day-mobile {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem;
+                border-bottom-width: 1px;
+            }
+            .calendar-day-mobile .date-circle {
+                flex-shrink: 0;
+                width: 40px;
+                height: 40px;
+                border-radius: 9999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+            }
+            .calendar-day-mobile .details {
+                margin-left: 1rem;
+                flex-grow: 1;
+            }
+        }
+
+        /* Gradasi warna sesuai logo */
+        .unity-gradient-text {
+            background: linear-gradient(to right, #a855f7, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .unity-gradient-bg {
+            background: linear-gradient(to right, #a855f7, #3b82f6);
+        }
+        .unity-gradient-border {
+            border-image-slice: 1;
+            border-image-source: linear-gradient(to right, #a855f7, #3b82f6);
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800 dark:bg-stone-900 dark:text-stone-200">
@@ -91,20 +153,22 @@
     <div id="login-page" class="flex items-center justify-center min-h-screen">
         <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg dark:bg-stone-800">
             <div>
+                <!-- Logo untuk Halaman Login -->
+                <img class="mx-auto h-20 w-auto" src="https://i.imgur.com/kwZdtFs.png" alt="Unity Agency">
                 <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-stone-900 dark:text-white">Login ke Dashboard</h2>
             </div>
             <form id="login-form" class="mt-8 space-y-6">
                 <div>
                     <label for="email" class="sr-only">Email</label>
-                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat email">
+                    <input id="email" name="email" type="email" autocomplete="email" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat email">
                 </div>
                 <div>
                     <label for="password" class="sr-only">Password</label>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-teal-500 focus:outline-none focus:ring-teal-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Password">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-md border border-stone-300 px-3 py-2 text-stone-900 placeholder-stone-500 focus:z-10 focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Password">
                 </div>
                 <div id="login-error" class="text-sm text-red-600 hidden">Email atau password salah.</div>
                 <div>
-                    <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-teal-600 py-2 px-4 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-75">
+                    <button type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent unity-gradient-bg py-2 px-4 text-sm font-medium text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-75">
                         <span class="btn-text">Login</span>
                         <svg class="spinner h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -113,17 +177,36 @@
         </div>
     </div>
 
+    <!-- Mobile Menu Backdrop -->
+    <div id="mobile-menu-backdrop" class="fixed top-0 left-0 w-full h-full bg-black/50 z-40 hidden"></div>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-stone-800 shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-4">
+            <h2 class="text-xl font-bold mb-4 text-stone-800 dark:text-stone-100">Menu Navigasi</h2>
+            <ul id="mobile-nav-list" class="space-y-2">
+                <!-- JavaScript akan mengisi menu ini -->
+            </ul>
+        </div>
+    </div>
+
     <!-- Main App -->
     <div id="app" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <header class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-stone-900 dark:text-white">Sistem Informasi Kinerja Host</h1>
-                <p class="text-stone-500 dark:text-stone-400 mt-1">Selamat datang, <span id="user-display-name" class="font-semibold"></span>!</p>
+            <div class="flex items-center space-x-4">
+                <!-- Hamburger Button (Mobile Only) -->
+                <button id="btn-hamburger" class="md:hidden text-2xl text-stone-600 dark:text-stone-300">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <!-- Logo untuk Header Utama -->
+                    <img class="h-14 w-auto" src="https://i.imgur.com/kwZdtFs.png" alt="Unity Agency">
+                </div>
             </div>
             <div class="flex items-center space-x-4">
-                 <button id="btn-settings" class="hidden text-sm font-medium text-stone-600 hover:text-teal-700 dark:text-stone-300 dark:hover:text-teal-500">⚙️ Pengaturan Akses</button>
-                 <button id="btn-theme-toggle" title="Ubah Tema" class="text-stone-600 hover:text-teal-700 dark:text-stone-300 dark:hover:text-teal-500 text-lg px-2 py-1 rounded-md">
+                 <button id="btn-settings-access" class="hidden text-sm font-medium text-stone-600 hover:text-purple-700 dark:text-stone-300 dark:hover:text-purple-500">⚙️ Pengaturan Akses</button>
+                 <button id="btn-theme-toggle" title="Ubah Tema" class="text-stone-600 hover:text-purple-700 dark:text-stone-300 dark:hover:text-purple-500 text-lg px-2 py-1 rounded-md">
                     <i id="icon-moon" class="fas fa-moon"></i>
                     <i id="icon-sun" class="fas fa-sun hidden"></i>
                  </button>
@@ -131,8 +214,9 @@
             </div>
         </header>
 
-        <nav class="mb-8 border-b border-stone-200 dark:border-stone-700">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-stone-500 dark:text-stone-400">
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:block mb-8 border-b border-stone-200 dark:border-stone-700">
+            <ul id="desktop-nav-list" class="flex flex-wrap -mb-px text-sm font-medium text-center text-stone-500 dark:text-stone-400">
                 <li id="nav-item-dashboard" class="mr-2">
                     <a id="nav-dashboard" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
                         <span class="mr-2">📊</span> Dashboard
@@ -153,9 +237,14 @@
                          <span class="mr-2">👤</span> Profil Saya
                     </a>
                 </li>
-                 <li id="nav-item-my-salary" class="mr-2">
-                    <a id="nav-my-salary" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
-                         <span class="mr-2">💵</span> Gaji Saya
+                <li id="nav-item-payroll" class="mr-2">
+                    <a id="nav-payroll" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
+                         <span class="mr-2">💰</span> Sistem Gaji
+                    </a>
+                </li>
+                <li id="nav-item-settings" class="mr-2">
+                    <a id="nav-settings" class="nav-link inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-stone-600 hover:border-stone-300 dark:hover:text-stone-300 dark:hover:border-stone-600 group">
+                         <span class="mr-2">⚙️</span> Pengaturan Akun
                     </a>
                 </li>
                 <li id="nav-item-hosts" class="mr-2">
@@ -203,7 +292,7 @@
                             <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Visualisasi perbandingan kinerja antar host.</p>
                         </div>
                         <div class="mt-4 sm:mt-0">
-                            <select id="chart-metric-selector" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white">
+                            <select id="chart-metric-selector" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white">
                                 <option value="duration">Total Durasi (Jam)</option>
                                 <option value="revenue">Total Diamond</option>
                             </select>
@@ -221,22 +310,22 @@
                     <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Evaluasi pencapaian target kerja dan jam live host per bulan.</p>
                 </div>
                 <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 mb-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label for="analysis-host" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pilih Host</label>
-                            <select id="analysis-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="flex items-center space-x-4">
+                            <select id="analysis-host-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
-                        <div>
-                            <label for="analysis-month" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Bulan</label>
-                            <select id="analysis-month" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
-                        </div>
-                        <div>
-                            <label for="analysis-year" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Tahun</label>
-                            <select id="analysis-year" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                        <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                            <button id="btn-prev-month" class="p-2 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 id="calendar-month-year" class="font-semibold text-lg mx-2 text-center w-32"></h3>
+                            <button id="btn-next-month" class="p-2 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
                         <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Hari Kerja Tercapai</h3>
                         <p id="analysis-work-days" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0</p>
@@ -261,9 +350,31 @@
                         <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Keseimbangan Jam</h3>
                         <p id="analysis-hour-balance" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 jam</p>
                     </div>
+                    <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Total Diamond Bulan Ini</h3>
+                        <p id="analysis-total-diamonds" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 💎</p>
+                    </div>
+                     <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
+                        <h3 class="text-sm font-medium text-stone-500 dark:text-stone-400">Diamond per Hari (Efisiensi)</h3>
+                        <p id="analysis-revenue-per-day" class="text-3xl font-bold mt-2 text-stone-900 dark:text-white">0 💎/hari</p>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-4">
+                    <div class="hidden md:grid grid-cols-7 gap-1 text-center font-semibold text-stone-600 dark:text-stone-300 mb-2">
+                        <div>Sen</div>
+                        <div>Sel</div>
+                        <div>Rab</div>
+                        <div>Kam</div>
+                        <div>Jum</div>
+                        <div>Sab</div>
+                        <div>Min</div>
+                    </div>
+                    <div id="calendar-grid" class="block md:grid md:grid-cols-7 gap-1">
+                        <!-- JavaScript akan mengisi kalender di sini -->
+                    </div>
                 </div>
                 <div class="mt-8 text-center">
-                    <button id="btn-generate-analysis" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-75 flex items-center justify-center mx-auto">
+                    <button id="btn-generate-analysis" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-75 flex items-center justify-center mx-auto">
                         <span class="btn-text">✨ Buat Ringkasan Analisis</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -271,7 +382,7 @@
                 <div id="gemini-analysis-container" class="hidden mt-8 bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
                     <h3 class="text-lg font-semibold text-stone-800 dark:text-stone-100 mb-2">Analisis Performa Otomatis</h3>
                     <div id="gemini-loader" class="flex items-center space-x-2 text-stone-500 dark:text-stone-400">
-                        <svg class="animate-spin h-5 w-5 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         <span>Menganalisis data...</span>
@@ -289,29 +400,29 @@
                     <form id="form-profile" class="space-y-6 max-w-lg">
                         <div>
                             <label for="profile-nama" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nama Lengkap</label>
-                            <input type="text" id="profile-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                            <input type="text" id="profile-nama" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                         </div>
                         <div>
                             <label for="profile-telepon" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nomor Telepon</label>
-                            <input type="tel" id="profile-telepon" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="08...">
+                            <input type="tel" id="profile-telepon" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="08...">
                         </div>
                         <div>
                             <label for="profile-alamat" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Alamat</label>
-                            <textarea id="profile-alamat" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat lengkap..."></textarea>
+                            <textarea id="profile-alamat" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Alamat lengkap..."></textarea>
                         </div>
                         <div class="border-t border-stone-200 dark:border-stone-700 pt-6">
                              <h3 class="text-lg font-medium text-stone-900 dark:text-stone-200">Informasi Bank</h3>
                         </div>
                         <div>
                             <label for="profile-bank" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nama Bank</label>
-                            <input type="text" id="profile-bank" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: BCA, Mandiri">
+                            <input type="text" id="profile-bank" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: BCA, Mandiri">
                         </div>
                         <div>
                             <label for="profile-rekening" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Nomor Rekening</label>
-                            <input type="text" id="profile-rekening" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Masukkan nomor rekening">
+                            <input type="text" id="profile-rekening" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Masukkan nomor rekening">
                         </div>
                         <div class="flex justify-end pt-2">
-                             <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                             <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
                                 <span class="btn-text">Simpan Perubahan</span>
                                 <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             </button>
@@ -320,69 +431,33 @@
                 </div>
             </section>
             
-            <section id="section-my-salary" class="hidden">
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Gaji Saya</h2>
-                    <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Lihat rincian gaji Anda per bulan.</p>
-                </div>
-                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 mb-8">
-                    <div class="flex items-center space-x-2">
-                         <select id="my-salary-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
-                         <select id="my-salary-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+            <section id="section-payroll" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Sistem Gaji Host</h2>
+                        <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Lihat dan kelola laporan gaji bulanan untuk host.</p>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+                         <select id="payroll-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                         <select id="payroll-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700">
-                    <div class="space-y-4 text-sm">
-                        <!-- Bagian Gaji Pokok -->
-                        <div class="bg-stone-50 dark:bg-stone-700 p-4 rounded-lg">
-                            <h3 class="font-semibold text-stone-700 dark:text-stone-200 mb-2 border-b dark:border-stone-600 pb-2">Gaji Pokok</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-stone-500 dark:text-stone-400">Gaji Pokok Awal:</span>
-                                    <span class="font-medium text-stone-900 dark:text-white" id="my-salary-detail-base"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-stone-500 dark:text-stone-400">Pencapaian Jam:</span>
-                                    <span class="font-medium text-stone-900 dark:text-white" id="my-salary-detail-hours"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-stone-500 dark:text-stone-400">Pencapaian Hari:</span>
-                                    <span class="font-medium text-stone-900 dark:text-white" id="my-salary-detail-days"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-stone-500 dark:text-stone-400">Potongan Kinerja:</span>
-                                    <span class="font-medium text-red-600 dark:text-red-400" id="my-salary-detail-deduction"></span>
-                                </div>
-                                <div class="flex justify-between border-t dark:border-stone-600 pt-2">
-                                    <span class="font-semibold text-stone-600 dark:text-stone-300">Gaji Pokok Disesuaikan:</span>
-                                    <span class="font-bold text-stone-900 dark:text-white" id="my-salary-detail-adjusted-base"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bagian Bonus -->
-                        <div class="bg-stone-50 dark:bg-stone-700 p-4 rounded-lg">
-                            <h3 class="font-semibold text-stone-700 dark:text-stone-200 mb-2 border-b dark:border-stone-600 pb-2">Bonus Kinerja</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-stone-500 dark:text-stone-400">Total Diamond Tercapai:</span>
-                                    <span class="font-medium text-stone-900 dark:text-white" id="my-salary-detail-diamonds"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-stone-600 dark:text-stone-300">Bonus Diamond:</span>
-                                    <span class="font-bold text-green-600 dark:text-green-400" id="my-salary-detail-bonus"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Total Gaji Akhir -->
-                        <div class="bg-teal-50 dark:bg-teal-900/50 p-4 rounded-lg mt-6">
-                            <div class="flex justify-between items-center">
-                                <span class="text-lg font-bold text-teal-800 dark:text-teal-300">GAJI AKHIR (Take Home Pay):</span>
-                                <span class="text-xl font-extrabold text-teal-800 dark:text-teal-300" id="my-salary-detail-final"></span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
+                    <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="payroll-table">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nama Host</th>
+                                <th scope="col" class="px-6 py-3">Total Jam</th>
+                                <th scope="col" class="px-6 py-3">Total Diamond</th>
+                                <th scope="col" class="px-6 py-3">Gaji Pokok</th>
+                                <th scope="col" class="px-6 py-3">Bonus</th>
+                                <th scope="col" class="px-6 py-3">Potongan</th>
+                                <th scope="col" class="px-6 py-3">Gaji Akhir</th>
+                                <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payroll-table-body" class="block md:table-row-group"></tbody>
+                    </table>
                 </div>
             </section>
 
@@ -392,11 +467,11 @@
                         <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Data Host</h2>
                         <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Tambah, lihat, ubah, dan hapus data host Anda.</p>
                     </div>
-                    <button id="btn-add-host" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Host Baru</button>
+                    <button id="btn-add-host" class="mt-4 sm:mt-0 unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90">Tambah Host Baru</button>
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="host-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="nama_host">Nama Host<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="platform">Platform<span class="sort-indicator"></span></th>
@@ -405,7 +480,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="host-table-body"></tbody>
+                        <tbody id="host-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -415,18 +490,18 @@
                         <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Akun TikTok</h2>
                         <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola akun TikTok yang digunakan untuk live.</p>
                     </div>
-                    <button id="btn-add-tiktok" class="mt-4 sm:mt-0 bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">Tambah Akun Baru</button>
+                    <button id="btn-add-tiktok" class="mt-4 sm:mt-0 unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90">Tambah Akun Baru</button>
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="tiktok-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="username">Username TikTok<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="status">Status<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tiktok-table-body"></tbody>
+                        <tbody id="tiktok-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -438,26 +513,27 @@
                     </div>
                     <div class="flex items-center space-x-4 mt-4 sm:mt-0">
                         <div class="flex items-center space-x-2">
-                             <select id="rekap-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
-                             <select id="rekap-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                             <select id="rekap-month-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
+                             <select id="rekap-year-filter" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white"></select>
                         </div>
-                        <button id="btn-add-rekap" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 whitespace-nowrap">Tambah Rekap</button>
+                        <button id="btn-add-rekap" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 whitespace-nowrap">Tambah Rekap</button>
                         <button id="btn-import-csv" class="bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 whitespace-nowrap">Import CSV</button>
                     </div>
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="rekap-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tanggal_live" data-sort-type="date">Tanggal<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="host_id" data-sort-lookup="hosts">Host<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="tiktok_account_id" data-sort-lookup="tiktok">Akun TikTok<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="durasi_menit" data-sort-type="number">Durasi<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="pendapatan" data-sort-type="number">Diamond<span class="sort-indicator"></span></th>
+                                <th scope="col" class="px-6 py-3">Status</th>
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="rekap-table-body"></tbody>
+                        <tbody id="rekap-table-body" class="block md:table-row-group"></tbody>
                     </table>
                 </div>
             </section>
@@ -467,14 +543,14 @@
                         <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Manajemen Pengguna</h2>
                         <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola akun login untuk superadmin dan host.</p>
                     </div>
-                    <button id="btn-add-user" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 flex items-center justify-center">
+                    <button id="btn-add-user" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center">
                         <span class="btn-text">Tambah Pengguna</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
                 </div>
                 <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-x-auto">
                     <table class="w-full text-sm text-left text-stone-600 dark:text-stone-300" id="user-table">
-                        <thead class="text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
+                        <thead class="hidden md:table-header-group text-xs text-stone-700 dark:text-stone-400 uppercase bg-stone-100 dark:bg-stone-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="email">Email<span class="sort-indicator"></span></th>
                                 <th scope="col" class="px-6 py-3 sortable-header" data-sort-key="user_metadata.role">Peran<span class="sort-indicator"></span></th>
@@ -482,14 +558,58 @@
                                 <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="user-table-body"></tbody>
+                        <tbody id="user-table-body" class="block md:table-row-group"></tbody>
                     </table>
+                </div>
+            </section>
+            <section id="section-settings" class="hidden">
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100">Pengaturan Akun</h2>
+                    <p class="text-sm text-stone-500 dark:text-stone-400 mt-1">Kelola informasi keamanan akun Anda.</p>
+                </div>
+                <div class="bg-white dark:bg-stone-800 p-6 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 max-w-lg">
+                    <h3 class="text-lg font-medium text-stone-900 dark:text-stone-200">Ubah Password</h3>
+                    <form id="form-change-password" class="space-y-4 mt-4">
+                        <div>
+                            <label for="new-password" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Password Baru</label>
+                            <input type="password" id="new-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Konfirmasi Password Baru</label>
+                            <input type="password" id="confirm-password" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                             <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
+                                <span class="btn-text">Simpan Password</span>
+                                <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </main>
     </div>
 
     <!-- Modals -->
+    <div id="modal-api-key" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <h2 class="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">Masukkan Kunci API Gemini</h2>
+            <p class="text-sm text-stone-600 dark:text-stone-300 mt-2 mb-6">
+                Untuk menggunakan fitur analisis AI, Anda perlu memasukkan kunci API dari Google AI Studio. Kunci ini akan disimpan dengan aman di browser Anda.
+            </p>
+            <form id="form-api-key">
+                <div>
+                    <label for="gemini-api-key" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Kunci API Gemini Anda</label>
+                    <input type="password" id="gemini-api-key" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                </div>
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button type="button" id="btn-cancel-api-key" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90">Simpan & Lanjutkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="modal-import-csv" class="hidden">
         <div class="modal-backdrop"></div>
         <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-8">
@@ -541,7 +661,96 @@
             <div id="rekap-detail-content" class="space-y-3 text-sm">
                 </div>
             <div class="flex justify-end pt-6">
-                <button type="button" id="btn-close-rekap-detail" class="px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700">Tutup</button>
+                <button type="button" id="btn-close-rekap-detail" class="px-5 py-2.5 text-sm font-medium text-white unity-gradient-bg rounded-lg hover:opacity-90">Tutup</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-payroll-detail" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <!-- Header Modal -->
+            <div class="mb-4 text-center">
+                <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100">Rincian Gaji Host</h2>
+                <p class="text-sm text-stone-500 dark:text-stone-400 mt-1" id="payroll-detail-host"></p>
+                <p class="text-sm font-semibold unity-gradient-text" id="payroll-detail-periode"></p>
+            </div>
+
+            <!-- Konten Detail Gaji -->
+            <div class="space-y-4 text-sm">
+                <!-- Bagian Gaji Pokok -->
+                <div class="bg-stone-50 dark:bg-stone-700 p-4 rounded-lg">
+                    <h3 class="font-semibold text-stone-700 dark:text-stone-200 mb-2 border-b dark:border-stone-600 pb-2">Gaji Pokok</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-stone-500 dark:text-stone-400">Gaji Pokok Awal:</span>
+                            <span class="font-medium text-stone-900 dark:text-white" id="payroll-detail-base"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-stone-500 dark:text-stone-400">Pencapaian Jam:</span>
+                            <span class="font-medium text-stone-900 dark:text-white" id="payroll-detail-hours"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-stone-500 dark:text-stone-400">Pencapaian Hari:</span>
+                            <span class="font-medium text-stone-900 dark:text-white" id="payroll-detail-days"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-stone-500 dark:text-stone-400">Potongan Kinerja:</span>
+                            <span class="font-medium text-red-600 dark:text-red-400" id="payroll-detail-deduction"></span>
+                        </div>
+                        <div class="flex justify-between border-t dark:border-stone-600 pt-2">
+                            <span class="font-semibold text-stone-600 dark:text-stone-300">Gaji Pokok Disesuaikan:</span>
+                            <span class="font-bold text-stone-900 dark:text-white" id="payroll-detail-adjusted-base"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bagian Bonus -->
+                <div class="bg-stone-50 dark:bg-stone-700 p-4 rounded-lg">
+                    <h3 class="font-semibold text-stone-700 dark:text-stone-200 mb-2 border-b dark:border-stone-600 pb-2">Bonus Kinerja</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-stone-500 dark:text-stone-400">Total Diamond Tercapai:</span>
+                            <span class="font-medium text-stone-900 dark:text-white" id="payroll-detail-diamonds"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-stone-600 dark:text-stone-300">Bonus Diamond:</span>
+                            <span class="font-bold text-green-600 dark:text-green-400" id="payroll-detail-bonus"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Gaji Akhir -->
+                <div class="bg-purple-50 dark:bg-purple-900/50 p-4 rounded-lg mt-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-bold text-purple-800 dark:text-purple-300">GAJI AKHIR (Take Home Pay):</span>
+                        <span class="text-xl font-extrabold text-purple-800 dark:text-purple-300" id="payroll-detail-final"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Tutup -->
+            <div class="flex justify-end pt-6">
+                <button type="button" id="btn-close-payroll-detail" class="px-5 py-2.5 text-sm font-medium text-white unity-gradient-bg rounded-lg hover:opacity-90">Tutup</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-calendar-detail" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal bg-white dark:bg-stone-800 rounded-xl shadow-lg w-11/12 md:w-1/2 lg:w-1/3 p-8">
+            <!-- Header Modal -->
+            <div class="mb-4 text-center">
+                <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100">Detail Live Harian</h2>
+                <p class="text-sm font-semibold unity-gradient-text" id="calendar-detail-date"></p>
+            </div>
+
+            <!-- Konten Detail Sesi Live -->
+            <div id="calendar-detail-content" class="space-y-3 text-sm max-h-96 overflow-y-auto">
+                <!-- JavaScript akan mengisi detail sesi live di sini -->
+            </div>
+
+            <!-- Tombol Tutup -->
+            <div class="flex justify-end pt-6">
+                <button type="button" id="btn-close-calendar-detail" class="px-5 py-2.5 text-sm font-medium text-white unity-gradient-bg rounded-lg hover:opacity-90">Tutup</button>
             </div>
         </div>
     </div>
@@ -553,37 +762,37 @@
                 <input type="hidden" id="rekap-id">
                 <div>
                     <label for="rekap-host" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pilih Host</label>
-                    <select id="rekap-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
+                    <select id="rekap-host" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
                 </div>
                 <div>
                     <label for="rekap-tiktok-account" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Akun TikTok</label>
-                    <select id="rekap-tiktok-account" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
+                    <select id="rekap-tiktok-account" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required></select>
                 </div>
                 <div>
                     <label for="rekap-tanggal" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Tanggal Live</label>
-                    <input type="date" id="rekap-tanggal" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                    <input type="date" id="rekap-tanggal" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="rekap-mulai" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Waktu Mulai</label>
-                        <input type="time" id="rekap-mulai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        <input type="time" id="rekap-mulai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                     </div>
                     <div>
                         <label for="rekap-selesai" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Waktu Selesai</label>
-                        <input type="time" id="rekap-selesai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
+                        <input type="time" id="rekap-selesai" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" required>
                     </div>
                 </div>
                 <div>
                     <label for="rekap-pendapatan" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Pendapatan (Diamond)</label>
-                    <input type="number" id="rekap-pendapatan" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: 5500" required>
+                    <input type="number" id="rekap-pendapatan" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Contoh: 5500" required>
                 </div>
                 <div>
                     <label for="rekap-catatan" class="block mb-2 text-sm font-medium text-stone-900 dark:text-stone-300">Catatan</label>
-                    <textarea id="rekap-catatan" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Topik live, kendala, dll..."></textarea>
+                    <textarea id="rekap-catatan" rows="3" class="bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400 dark:text-white" placeholder="Topik live, kendala, dll..."></textarea>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" id="btn-cancel-rekap" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
                         <span class="btn-text">Simpan</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -618,7 +827,7 @@
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" id="btn-cancel-host" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
                         <span class="btn-text">Simpan</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -645,7 +854,7 @@
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" id="btn-cancel-tiktok" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
                         <span class="btn-text">Simpan</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -680,7 +889,7 @@
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" id="btn-cancel-user" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700 flex items-center justify-center disabled:opacity-75">
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90 flex items-center justify-center disabled:opacity-75">
                         <span class="btn-text">Simpan</span>
                         <svg class="spinner h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
@@ -709,20 +918,20 @@
             <p class="text-sm text-stone-500 dark:text-stone-400 mb-6">Pilih menu mana saja yang dapat diakses oleh semua pengguna dengan peran "Host".</p>
             <form id="form-settings" class="space-y-4">
                 <div class="flex items-center">
-                    <input id="setting-dashboard" name="dashboard" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <input id="setting-dashboard" name="dashboard" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                     <label for="setting-dashboard" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Dashboard</label>
                 </div>
                  <div class="flex items-center">
-                    <input id="setting-analysis" name="analysis" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <input id="setting-analysis" name="analysis" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                     <label for="setting-analysis" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Analisis Kinerja</label>
                 </div>
                 <div class="flex items-center">
-                    <input id="setting-rekap" name="rekap" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                    <input id="setting-rekap" name="rekap" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                     <label for="setting-rekap" class="ml-3 block text-sm font-medium text-stone-700 dark:text-stone-300">Rekap Live</label>
                 </div>
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" id="btn-cancel-settings" class="px-5 py-2.5 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 dark:bg-stone-700 dark:text-stone-300 dark:hover:bg-stone-600">Batal</button>
-                    <button type="submit" class="bg-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:bg-teal-700">Simpan Pengaturan</button>
+                    <button type="submit" class="unity-gradient-bg text-white font-semibold px-5 py-2.5 rounded-lg shadow-sm hover:opacity-90">Simpan Pengaturan</button>
                 </div>
             </form>
         </div>
