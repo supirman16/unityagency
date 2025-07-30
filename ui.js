@@ -90,7 +90,7 @@ export async function setupUIForRole() {
     if (navItemMySalary) navItemMySalary.style.display = !isSuperAdmin ? 'flex' : 'none';
 
     const navItemSettings = document.getElementById('nav-item-settings');
-    if(navItemSettings) navItemSettings.style.display = 'flex'; // Selalu tampilkan untuk semua user yang login
+    if(navItemSettings) navItemSettings.style.display = !isSuperAdmin ? 'flex' : 'none'; // HANYA TAMPIL UNTUK HOST
 
     populateMobileMenu();
 }
