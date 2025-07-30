@@ -85,6 +85,7 @@ function setupEventListeners() {
     const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
     const calendarGrid = document.getElementById('calendar-grid');
     const btnCloseCalendarDetail = document.getElementById('btn-close-calendar-detail');
+    const modalRekapDetail = document.getElementById('modal-rekap-detail');
     const navLinks = {
         dashboard: document.getElementById('nav-dashboard'),
         analysis: document.getElementById('nav-analysis'),
@@ -202,21 +203,28 @@ function setupEventListeners() {
     const rekapTableBody = document.getElementById('rekap-table-body');
     if (rekapTableBody) rekapTableBody.addEventListener('click', async (event) => {
         const target = event.target;
-        const row = target.closest('tr[data-rekap-id]');
-        if (!row) return;
-        const rekapId = parseInt(row.dataset.rekapId || target.dataset.id);
-        
+        if (target.matches('.btn-view-rekap-detail')) {
+            const rekapId = parseInt(target.dataset.id);
+            openDetailRekapModal(rekapId);
+        }
+    });
+
+    if (modalRekapDetail) modalRekapDetail.addEventListener('click', async (event) => {
+        const target = event.target;
+        const rekapId = parseInt(target.dataset.id);
+        if (!rekapId) return;
+
         let newStatus = '';
         if (target.matches('.btn-approve-rekap')) newStatus = 'approved';
         else if (target.matches('.btn-reject-rekap')) newStatus = 'rejected';
         else if (target.matches('.btn-rollback-rekap')) newStatus = 'pending';
-
+        
         if (newStatus) {
-            event.stopPropagation();
             try {
                 const { error } = await supabaseClient.from('rekap_live').update({ status: newStatus }).eq('id', rekapId);
                 if (error) throw error;
                 showNotification(`Status rekap berhasil diubah ke ${newStatus}.`);
+                modalRekapDetail.classList.add('hidden');
                 await refreshDataAndRender();
             } catch (err) {
                 showNotification(`Gagal mengubah status: ${err.message}`, true);
@@ -225,13 +233,11 @@ function setupEventListeners() {
         }
         
         if (target.matches('.btn-edit-rekap')) {
-            event.stopPropagation();
+            modalRekapDetail.classList.add('hidden');
             handleEditRekap(rekapId);
         } else if (target.matches('.btn-delete-rekap')) {
-            event.stopPropagation();
+            modalRekapDetail.classList.add('hidden');
             handleDeleteRekap(rekapId);
-        } else {
-            openDetailRekapModal(rekapId);
         }
     });
 
