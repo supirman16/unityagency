@@ -4,7 +4,8 @@
 
 import { state } from '../state.js';
 import { showNotification } from '../ui.js';
-import { populateHostDropdowns, populateTiktokDropdowns, calculatePayroll, renderHostDocuments } from '../render.js';
+import { populateHostDropdowns, populateTiktokDropdowns, renderHostDocuments } from '../render.js';
+import { calculatePayroll } from './Analysis.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from '../utils.js';
 
 export function openSettingsModal() {
