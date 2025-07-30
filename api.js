@@ -17,13 +17,16 @@ export async function fetchData() {
 
         // Hanya panggil fungsi untuk mengambil daftar pengguna jika yang login adalah superadmin
         if (state.currentUser && state.currentUser.user_metadata?.role === 'superadmin') {
-            // Memanggil nama Edge Function yang sudah ada dan benar
             const { data: usersResponse, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
             
             if (usersError) throw usersError;
 
-            // Pastikan data yang diterima memiliki properti 'users'
-            if (usersResponse && usersResponse.users) {
+            // Periksa apakah respons adalah array (format yang benar dari Edge Function kita)
+            if (Array.isArray(usersResponse)) {
+                state.users = usersResponse;
+            } 
+            // Tambahkan pemeriksaan fallback jika struktur respons berubah di masa depan
+            else if (usersResponse && usersResponse.users) {
                 state.users = usersResponse.users;
             } else {
                 console.error("Respons dari Edge Function tidak valid:", usersResponse);
