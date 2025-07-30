@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { updatePerformanceChart } from './render.js';
+import { updatePerformanceChart, populateHostDropdowns } from './render.js';
 import { renderAnalysisView } from './components/Analysis.js';
 import { renderRekapTable, renderPayrollTable } from './components/Table.js';
 import { renderMySalaryView } from './render.js';
