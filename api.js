@@ -15,11 +15,19 @@ export async function fetchData() {
         if (rekapError) throw rekapError;
         state.rekapLive = rekapLive;
 
-        // Hanya ambil daftar pengguna jika yang login adalah superadmin
+        // Hanya panggil fungsi untuk mengambil daftar pengguna jika yang login adalah superadmin
         if (state.currentUser && state.currentUser.user_metadata?.role === 'superadmin') {
-            const { data: usersResponse, error: usersError } = await supabaseClient.auth.admin.listUsers();
+            const { data: usersResponse, error: usersError } = await supabaseClient.functions.invoke('get-all-users');
+            
             if (usersError) throw usersError;
-            state.users = usersResponse.users;
+
+            // Pastikan data yang diterima memiliki properti 'users'
+            if (usersResponse && usersResponse.users) {
+                state.users = usersResponse.users;
+            } else {
+                console.error("Respons dari Edge Function tidak valid:", usersResponse);
+                state.users = []; // Atur ke array kosong jika respons tidak valid
+            }
         }
 
     } catch (error) {
