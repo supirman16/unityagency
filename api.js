@@ -17,7 +17,8 @@ export async function fetchData() {
 
         // Hanya panggil fungsi untuk mengambil daftar pengguna jika yang login adalah superadmin
         if (state.currentUser && state.currentUser.user_metadata?.role === 'superadmin') {
-            const { data: usersResponse, error: usersError } = await supabaseClient.functions.invoke('get-all-users');
+            // Memanggil nama Edge Function yang sudah ada dan benar
+            const { data: usersResponse, error: usersError } = await supabaseClient.functions.invoke('list-all-users');
             
             if (usersError) throw usersError;
 
