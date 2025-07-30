@@ -210,26 +210,7 @@ export function renderRekapTable() {
             statusBadge = '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Approved</span>';
         }
 
-        let actionButtons = '';
-        if (isSuperAdmin) {
-            if (rekap.status === 'pending') {
-                actionButtons = `
-                    <button class="font-medium text-green-600 hover:underline dark:text-green-500 mr-3 btn-approve-rekap" data-id="${rekap.id}">Approve</button>
-                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 mr-3 btn-reject-rekap" data-id="${rekap.id}">Reject</button>
-                    <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
-                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
-                `;
-            } else if (rekap.status === 'approved') {
-                actionButtons = `<button class="font-medium text-yellow-600 hover:underline dark:text-yellow-500 btn-rollback-rekap" data-id="${rekap.id}">Rollback</button>`;
-            }
-        } else {
-            if (rekap.status === 'pending') {
-                actionButtons = `
-                    <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 mr-3 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>
-                    <button class="font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>
-                `;
-            }
-        }
+        const actionButtons = `<button class="font-medium text-purple-600 hover:underline dark:text-purple-500 btn-view-rekap-detail" data-id="${rekap.id}">Lihat Detail</button>`;
 
         row.innerHTML = `
             <td data-label="Tanggal:" class="mobile-label px-6 py-4 block md:table-cell">${formatDate(rekap.tanggal_live)}</td>

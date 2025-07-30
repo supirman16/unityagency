@@ -129,6 +129,7 @@ export async function openDetailRekapModal(rekapId) {
     const host = state.hosts.find(h => h.id === rekap.host_id);
     const tiktokAccount = state.tiktokAccounts.find(t => t.id === rekap.tiktok_account_id);
     const detailContent = document.getElementById('rekap-detail-content');
+    const detailActions = document.getElementById('rekap-detail-actions');
 
     detailContent.innerHTML = `
         <div class="flex justify-between border-b pb-2 dark:border-stone-600"><span class="font-medium text-stone-500 dark:text-stone-400">Tanggal Live:</span> <span class="text-stone-900 dark:text-white font-semibold">${formatDate(rekap.tanggal_live)}</span></div>
@@ -142,6 +143,22 @@ export async function openDetailRekapModal(rekapId) {
             <p class="text-stone-800 dark:text-stone-200 bg-stone-100 dark:bg-stone-700 p-3 rounded-md min-h-[50px]">${rekap.catatan || 'Tidak ada catatan.'}</p>
         </div>
     `;
+
+    // Render tombol aksi secara dinamis
+    detailActions.innerHTML = '';
+    const isSuperAdmin = state.currentUser.user_metadata?.role === 'superadmin';
+    if (isSuperAdmin) {
+        if (rekap.status === 'pending') {
+            detailActions.innerHTML += `<button class="text-sm font-medium text-green-600 hover:underline dark:text-green-500 btn-approve-rekap" data-id="${rekap.id}">Approve</button>`;
+            detailActions.innerHTML += `<button class="text-sm font-medium text-red-600 hover:underline dark:text-red-500 btn-reject-rekap" data-id="${rekap.id}">Reject</button>`;
+        } else if (rekap.status === 'approved') {
+            detailActions.innerHTML += `<button class="text-sm font-medium text-yellow-600 hover:underline dark:text-yellow-500 btn-rollback-rekap" data-id="${rekap.id}">Rollback</button>`;
+        }
+    }
+    if (rekap.status === 'pending') {
+        detailActions.innerHTML += `<button class="text-sm font-medium text-purple-600 hover:underline dark:text-purple-500 btn-edit-rekap" data-id="${rekap.id}">Ubah</button>`;
+        detailActions.innerHTML += `<button class="text-sm font-medium text-red-600 hover:underline dark:text-red-500 btn-delete-rekap" data-id="${rekap.id}">Hapus</button>`;
+    }
 
     document.getElementById('modal-rekap-detail').classList.remove('hidden');
 }
