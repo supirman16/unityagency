@@ -1,22 +1,21 @@
-import { supabaseClient, state } from './main.js';
-import { showButtonLoader, hideButtonLoader } from './ui.js';
+import { state } from './state.js';
+import { supabaseClient } from './main.js';
+import { showNotification, showButtonLoader, hideButtonLoader } from './ui.js';
 
-export async function handleLogin(e) {
-    e.preventDefault();
-    const button = e.submitter;
+export async function handleLogin(event) {
+    event.preventDefault();
+    const button = event.submitter;
     showButtonLoader(button);
     const loginError = document.getElementById('login-error');
-    loginError.classList.add('hidden');
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
+    const email = event.target.email.value;
+    const password = event.target.password.value;
+
     try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        // onAuthStateChange in main.js will handle the UI change
+        // onAuthStateChange di main.js akan menangani sisanya
     } catch (error) {
-        loginError.textContent = "Email atau password salah.";
+        loginError.textContent = 'Email atau password salah.';
         loginError.classList.remove('hidden');
     } finally {
         hideButtonLoader(button);
@@ -24,11 +23,11 @@ export async function handleLogin(e) {
 }
 
 export async function handleLogout() {
-    await supabaseClient.auth.signOut();
-    // onAuthStateChange in main.js will handle the UI change
-}
-
-export async function checkSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    return session;
+    try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+        // onAuthStateChange di main.js akan menangani sisanya
+    } catch (error) {
+        showNotification(`Error saat logout: ${error.message}`, true);
+    }
 }
