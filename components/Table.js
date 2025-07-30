@@ -3,6 +3,7 @@
 
 import { state } from '../state.js';
 import { formatDiamond, formatDate, formatDuration, formatRupiah } from '../utils.js';
+import { calculatePayroll } from './Analysis.js';
 
 // --- FUNGSI SORTING ---
 function universalSorter(a, b, key, direction, type, lookupInfo) {
@@ -242,4 +243,41 @@ export function renderRekapTable() {
         rekapTableBody.appendChild(row);
     });
     updateSortIndicators('rekap-table', state.sortState.rekap);
+}
+
+export function renderPayrollTable() {
+    const payrollTableBody = document.getElementById('payroll-table-body');
+    if (!payrollTableBody) return;
+
+    const month = parseInt(document.getElementById('payroll-month-filter').value);
+    const year = parseInt(document.getElementById('payroll-year-filter').value);
+
+    const activeHosts = state.hosts.filter(h => h.status === 'Aktif');
+
+    payrollTableBody.innerHTML = '';
+    if (activeHosts.length === 0) {
+        payrollTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-stone-500 dark:text-stone-400">Tidak ada host aktif untuk ditampilkan.</td></tr>`;
+        return;
+    }
+
+    activeHosts.forEach(host => {
+        const payrollData = calculatePayroll(host.id, year, month);
+        if (!payrollData) return;
+
+        const row = document.createElement('tr');
+        row.className = 'block md:table-row bg-white dark:bg-stone-800 border-b dark:border-stone-700 mb-4 md:mb-0 rounded-lg md:rounded-none shadow-md md:shadow-none';
+        row.innerHTML = `
+            <td data-label="Nama Host:" class="mobile-label px-6 py-4 block md:table-cell font-medium text-stone-900 dark:text-white whitespace-nowrap">${payrollData.hostName}</td>
+            <td data-label="Total Jam:" class="mobile-label px-6 py-4 block md:table-cell">${formatDuration(payrollData.totalHours * 60)}</td>
+            <td data-label="Total Diamond:" class="mobile-label px-6 py-4 block md:table-cell">${formatDiamond(payrollData.totalDiamonds)}</td>
+            <td data-label="Gaji Pokok:" class="mobile-label px-6 py-4 block md:table-cell">${formatRupiah(payrollData.baseSalary)}</td>
+            <td data-label="Bonus:" class="mobile-label px-6 py-4 block md:table-cell text-green-600 dark:text-green-400">${formatRupiah(payrollData.bonus)}</td>
+            <td data-label="Potongan:" class="mobile-label px-6 py-4 block md:table-cell text-red-600 dark:text-red-400">${formatRupiah(payrollData.deduction)}</td>
+            <td data-label="Gaji Akhir:" class="mobile-label px-6 py-4 block md:table-cell font-bold text-purple-700 dark:text-purple-500">${formatRupiah(payrollData.finalSalary)}</td>
+            <td data-label="Aksi:" class="mobile-label px-6 py-4 block md:table-cell text-right md:text-center">
+                <button class="font-medium text-purple-600 hover:underline dark:text-purple-500 btn-payroll-detail" data-id="${host.id}">Detail</button>
+            </td>
+        `;
+        payrollTableBody.appendChild(row);
+    });
 }
