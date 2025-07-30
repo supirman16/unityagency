@@ -15,11 +15,12 @@ export async function fetchData() {
         if (rekapError) throw rekapError;
         state.rekapLive = rekapLive;
 
-        // Note: Listing users requires admin privileges and should ideally be done in a secure environment.
-        // This is simplified for the dashboard context.
-        const { data: usersResponse, error: usersError } = await supabaseClient.auth.admin.listUsers();
-        if (usersError) throw usersError;
-        state.users = usersResponse.users;
+        // Hanya ambil daftar pengguna jika yang login adalah superadmin
+        if (state.currentUser && state.currentUser.user_metadata?.role === 'superadmin') {
+            const { data: usersResponse, error: usersError } = await supabaseClient.auth.admin.listUsers();
+            if (usersError) throw usersError;
+            state.users = usersResponse.users;
+        }
 
     } catch (error) {
         console.error("Error fetching data:", error);
