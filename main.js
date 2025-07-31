@@ -1,7 +1,7 @@
 import { handleLogin, handleLogout } from './auth.js';
 import { fetchData } from './api.js';
 import { state } from './state.js';
-import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openMobileMenu, closeMobileMenu, setupMySalaryFilters } from './ui.js';
+import { setupUIForRole, showSection, getFirstVisibleSection, applyTheme, showNotification, showButtonLoader, hideButtonLoader, setupRekapFilters, setupAnalysisFilters, setupPayrollFilters, openMobileMenu, closeMobileMenu, setupMySalaryFilters, calendarState } from './ui.js';
 import { openSettingsModal, openRekapModal, openHostModal, openTiktokModal, openUserModal, openDetailRekapModal, handleEditHost, handleEditTiktok, handleEditRekap, handleEditUser, handleDeleteHost, handleDeleteTiktok, handleDeleteRekap, handleDeleteUser, openPayrollDetailModal, openCalendarDetailModal } from './components/Modals.js';
 import { renderHostTable, renderTiktokTable, renderUserTable, renderRekapTable, renderPayrollTable } from './components/Table.js'; 
 import { renderAnalysisView } from './components/Analysis.js';
